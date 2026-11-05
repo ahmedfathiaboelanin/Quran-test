@@ -119,6 +119,7 @@ async function assertNoHorizontalOverflow(label) {
 }
 
 try {
+  await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'light' }]);
   await page.goto(baseUrl, { waitUntil: 'load', timeout: 30000 });
   await waitForText('اختبار حفظ القرآن الكريم');
   console.log('Initial page loaded');
@@ -126,6 +127,52 @@ try {
   const direction = await page.evaluate(() => document.documentElement.dir);
   if (direction !== 'rtl') throw new Error('The document is not RTL');
   console.log('  ✓ Document direction is RTL');
+
+  const initialTheme = await page.evaluate(() =>
+    document.documentElement.classList.contains('dark'),
+  );
+  if (initialTheme) throw new Error('The smoke test should start in light mode');
+
+  await clickAriaLabel('التبديل إلى الوضع الداكن');
+  const darkTheme = await page.evaluate(() => {
+    const root = document.documentElement;
+    return {
+      isDark: root.classList.contains('dark'),
+      colorScheme: root.style.colorScheme,
+      bodyBackground: getComputedStyle(document.body).backgroundColor,
+      stored: localStorage.getItem('quran-test-theme'),
+    };
+  });
+  if (
+    !darkTheme.isDark ||
+    darkTheme.colorScheme !== 'dark' ||
+    darkTheme.bodyBackground !== 'rgb(12, 18, 17)' ||
+    darkTheme.stored !== 'dark'
+  ) {
+    throw new Error(`Dark mode was not applied correctly: ${JSON.stringify(darkTheme)}`);
+  }
+  console.log('  ✓ Dark mode toggle applies the dark theme');
+
+  await page.reload({ waitUntil: 'load', timeout: 30000 });
+  await waitForText('اختبار حفظ القرآن الكريم');
+  const persistedTheme = await page.evaluate(() => ({
+    isDark: document.documentElement.classList.contains('dark'),
+    stored: localStorage.getItem('quran-test-theme'),
+  }));
+  if (!persistedTheme.isDark || persistedTheme.stored !== 'dark') {
+    throw new Error('Dark mode preference was not persisted across reloads');
+  }
+  console.log('  ✓ Dark mode preference persists');
+
+  await clickAriaLabel('التبديل إلى الوضع الفاتح');
+  const restoredTheme = await page.evaluate(() => ({
+    isDark: document.documentElement.classList.contains('dark'),
+    stored: localStorage.getItem('quran-test-theme'),
+  }));
+  if (restoredTheme.isDark || restoredTheme.stored !== 'light') {
+    throw new Error('Theme did not return to light mode');
+  }
+  console.log('  ✓ Theme can be switched back to light');
 
   await clickAriaLabel('تعليمات الاستخدام');
   await assertText('طريقة الاستخدام في ٥ خطوات', 'Usage guide rendered in popup');

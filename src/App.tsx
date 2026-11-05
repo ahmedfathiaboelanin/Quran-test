@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Database, ShieldCheck, WifiOff } from 'lucide-react';
 import { useOfflineData } from './hooks/useOfflineData';
 import { useTestEngine } from './hooks/useTestEngine';
+import { useTheme } from './hooks/useTheme';
 import { AppHeader } from './components/Layout/AppHeader';
 import { SetupView } from './components/SetupView/SetupView';
 import { TestingView } from './components/TestingView/TestingView';
@@ -13,6 +14,7 @@ import { formatNumber } from './utils/helpers';
 export default function App() {
   const data = useOfflineData();
   const engine = useTestEngine();
+  const theme = useTheme();
   const [lastConfig, setLastConfig] = useState<TestConfig | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
 
@@ -32,6 +34,8 @@ export default function App() {
           }}
           onHelp={() => setHelpOpen(true)}
           dataStats={data.dataStats}
+          theme={theme.theme}
+          onToggleTheme={theme.toggleTheme}
         />
       </div>
 

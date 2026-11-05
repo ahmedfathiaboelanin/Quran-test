@@ -14,6 +14,22 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>اختبار حفظ القرآن الكريم</title>
+    <script>
+      (() => {
+        try {
+          const saved = localStorage.getItem('quran-test-theme');
+          const isDark = saved
+            ? saved === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.classList.toggle('dark', isDark);
+          document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+          const themeColor = document.querySelector('meta[name="theme-color"]');
+          if (themeColor) themeColor.setAttribute('content', isDark ? '#0c1211' : '#0f766e');
+        } catch {
+          // If storage is unavailable, keep the default light theme.
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

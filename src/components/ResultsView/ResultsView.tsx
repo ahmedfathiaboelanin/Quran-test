@@ -296,7 +296,7 @@ export function ResultsView({
       </div>
 
       {notedResults.length > 0 ? (
-        <section className="rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 to-white p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6">
+        <section className="rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 to-white p-5 shadow-sm shadow-stone-900/[0.03] dark:from-[#451a03]/45 dark:to-[#131b19] sm:p-6">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="text-[11px] font-bold tracking-wide text-amber-700">

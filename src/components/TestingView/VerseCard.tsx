@@ -31,7 +31,7 @@ export function VerseCard({
       className="relative overflow-hidden rounded-3xl border border-teal-900/10 bg-[#fffdf7] shadow-lg shadow-teal-950/[0.06]"
       aria-live="polite"
     >
-      <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:radial-gradient(circle_at_15%_10%,#99f6e4_0,transparent_32%),radial-gradient(circle_at_85%_90%,#fde68a_0,transparent_30%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:radial-gradient(circle_at_15%_10%,#99f6e4_0,transparent_32%),radial-gradient(circle_at_85%_90%,#fde68a_0,transparent_30%)] dark:opacity-[0.18]" />
       <div className="pointer-events-none absolute inset-x-4 top-4 bottom-4 rounded-2xl border border-teal-800/10" />
       <div className="pointer-events-none absolute inset-x-6 top-6 bottom-6 rounded-xl border border-dashed border-teal-800/10" />
 

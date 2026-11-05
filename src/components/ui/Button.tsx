@@ -37,7 +37,7 @@ export function Button({
       type={type}
       className={cn(
         'inline-flex items-center justify-center font-semibold transition-colors duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f8f5ee]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f8f5ee] dark:focus-visible:ring-offset-[#0c1211]',
         'disabled:cursor-not-allowed disabled:opacity-45',
         variantClasses[variant],
         sizeClasses[size],
