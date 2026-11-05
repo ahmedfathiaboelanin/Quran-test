@@ -23,7 +23,7 @@ import { Button } from '../ui/Button';
 export interface MobilePageNavigation {
   currentIndex: number;
   totalQuestions: number;
-  currentPage: number;
+  currentPage?: number;
   progressPercent: number;
   canGoPrevious: boolean;
   canGoNext: boolean;
@@ -35,8 +35,9 @@ interface EvaluationPanelProps {
   question: Question;
   isLastQuestion: boolean;
   viewedAyahs: number;
+  totalQuestions?: number;
   onSubmit: (draft: EvaluationDraft, finishAfter?: boolean) => void;
-  /** Extra controls shown at the top of the mobile dock in full-page mode. */
+  /** Extra controls shown at the top of the mobile dock. */
   mobilePageNavigation?: MobilePageNavigation;
 }
 
@@ -311,7 +312,7 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
         type="button"
         onClick={onPrevious}
         disabled={!canGoPrevious}
-        aria-label="الصفحة السابقة"
+        aria-label="السابقة"
         className="inline-flex min-h-9 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-stone-200 bg-white px-1.5 text-[10px] font-semibold text-stone-600 transition active:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-35"
       >
         <ChevronRight className="h-3.5 w-3.5" />
@@ -324,9 +325,11 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
             السؤال {formatNumber(currentIndex + 1)} من{' '}
             {formatNumber(totalQuestions)}
           </span>
-          <span className="shrink-0 font-semibold text-teal-700">
-            صفحة {formatNumber(currentPage)}
-          </span>
+          {currentPage ? (
+            <span className="shrink-0 font-semibold text-teal-700">
+              صفحة {formatNumber(currentPage)}
+            </span>
+          ) : null}
         </div>
         <div className="mt-1 h-1 overflow-hidden rounded-full bg-white">
           <div
@@ -340,7 +343,7 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
         type="button"
         onClick={onNext}
         disabled={!canGoNext}
-        aria-label="الصفحة التالية"
+        aria-label="التالية"
         className="inline-flex min-h-9 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-teal-200 bg-teal-700 px-1.5 text-[10px] font-semibold text-white transition active:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-35"
       >
         التالية
@@ -489,6 +492,7 @@ export function EvaluationPanel({
   question,
   isLastQuestion,
   viewedAyahs,
+  totalQuestions,
   onSubmit,
   mobilePageNavigation,
 }: EvaluationPanelProps) {
@@ -533,6 +537,7 @@ export function EvaluationPanel({
           <div>
             <p className="text-[11px] font-bold tracking-wide text-teal-700">
               السؤال {formatNumber(question.index + 1)}
+              {totalQuestions ? ` من ${formatNumber(totalQuestions)}` : ''}
             </p>
             <h2 className="mt-0.5 text-lg font-bold text-stone-900">
               تقييم التسميع بالدرجات

@@ -98,11 +98,7 @@ export function TestingView({ engine }: TestingViewProps) {
 
   return (
     <div
-      className={`space-y-4 ${
-        pageMode
-          ? 'pb-[calc(17rem+env(safe-area-inset-bottom))] sm:pb-[calc(12rem+env(safe-area-inset-bottom))]'
-          : 'pb-[calc(10rem+env(safe-area-inset-bottom))]'
-      } sm:space-y-5 lg:pb-0`}
+      className="space-y-4 pb-[calc(17rem+env(safe-area-inset-bottom))] sm:space-y-5 sm:pb-[calc(13rem+env(safe-area-inset-bottom))] lg:pb-0"
     >
       <section className="rounded-2xl border border-stone-200/80 bg-white/85 p-3.5 shadow-sm shadow-stone-900/[0.03] sm:rounded-3xl sm:p-6">
         <div className="flex items-center justify-between gap-3">
@@ -111,12 +107,8 @@ export function TestingView({ engine }: TestingViewProps) {
               <Target className="h-4 w-4" />
             </span>
             <div className="min-w-0">
-              <p className="hidden text-[11px] font-bold text-teal-700 sm:block">
-                جلسة اختبار
-              </p>
               <h2 className="truncate text-base font-bold text-stone-900 sm:text-lg">
-                السؤال {formatNumber(currentIndex + 1)} من{' '}
-                {formatNumber(totalQuestions)}
+                جلسة اختبار
               </h2>
             </div>
           </div>
@@ -168,80 +160,38 @@ export function TestingView({ engine }: TestingViewProps) {
 
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
         <div className="min-w-0 space-y-3 sm:space-y-4">
-          <div className="rounded-2xl border border-stone-200/80 bg-white/85 p-2 shadow-sm shadow-stone-900/[0.02] sm:p-2.5">
-            <div className="flex items-center gap-1.5">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handlePrevious}
-                disabled={!canGoPrevious}
-                aria-label={pageMode ? 'الصفحة السابقة' : 'الآية السابقة'}
-                className="min-h-10 min-w-0 flex-1 px-2 sm:flex-none sm:px-3"
-              >
-                <ChevronRight className="h-4 w-4 shrink-0" />
-                <span className="truncate">
-                  {pageMode ? (
-                    <>
-                      <span className="sm:hidden">السابقة</span>
-                      <span className="hidden sm:inline">الصفحة السابقة</span>
-                    </>
-                  ) : (
-                    'السابقة'
-                  )}
-                </span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={goToQuestionStart}
-                disabled={isAtQuestionStart}
-                aria-label="العودة إلى بداية السؤال"
-                className="min-h-10 shrink-0 px-2 sm:px-3"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">بداية السؤال</span>
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleNext}
-                disabled={!canGoNext}
-                aria-label={pageMode ? 'الصفحة التالية' : 'الآية التالية'}
-                className="min-h-10 min-w-0 flex-1 px-2 sm:flex-none sm:px-3"
-              >
-                <span className="truncate">
-                  {pageMode ? (
-                    <>
-                      <span className="sm:hidden">التالية</span>
-                      <span className="hidden sm:inline">الصفحة التالية</span>
-                    </>
-                  ) : (
-                    'التالية'
-                  )}
-                </span>
-                <ChevronLeft className="h-4 w-4 shrink-0" />
-              </Button>
+          <div className="flex items-center justify-between rounded-2xl border border-stone-200/80 bg-white/85 p-2 shadow-sm shadow-stone-900/[0.02] sm:p-2.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={goToQuestionStart}
+              disabled={isAtQuestionStart}
+              aria-label="العودة إلى بداية السؤال"
+              className="min-h-10 px-2.5 sm:px-3"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span>بداية السؤال</span>
+            </Button>
 
-              <button
-                type="button"
-                onClick={() => setHideText((current) => !current)}
-                className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-stone-500 hover:bg-stone-100 hover:text-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 sm:ms-auto sm:px-2.5"
-                aria-pressed={hideText}
-                aria-label={hideText ? 'إظهار النص' : 'إخفاء النص'}
-              >
-                {hideText ? (
-                  <>
-                    <Eye className="h-4 w-4" />
-                    <span className="hidden sm:inline">إظهار النص</span>
-                  </>
-                ) : (
-                  <>
-                    <EyeOff className="h-4 w-4" />
-                    <span className="hidden sm:inline">إخفاء النص</span>
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setHideText((current) => !current)}
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold text-stone-500 hover:bg-stone-100 hover:text-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 sm:px-3"
+              aria-pressed={hideText}
+              aria-label={hideText ? 'إظهار النص' : 'إخفاء النص'}
+            >
+              {hideText ? (
+                <>
+                  <Eye className="h-4 w-4" />
+                  <span className="hidden sm:inline">إظهار النص</span>
+                </>
+              ) : (
+                <>
+                  <EyeOff className="h-4 w-4" />
+                  <span className="hidden sm:inline">إخفاء النص</span>
+                </>
+              )}
+            </button>
           </div>
 
           <VerseCard
@@ -253,6 +203,44 @@ export function TestingView({ engine }: TestingViewProps) {
             offsetFromStart={offsetFromStart}
             onReveal={() => setHideText(false)}
           />
+
+          <div className="hidden items-center justify-between rounded-2xl border border-stone-200/80 bg-white/85 p-2.5 shadow-sm shadow-stone-900/[0.02] lg:flex">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handlePrevious}
+              disabled={!canGoPrevious}
+              aria-label={pageMode ? 'الصفحة السابقة' : 'الآية السابقة'}
+              className="min-h-10 px-3"
+            >
+              <ChevronRight className="h-4 w-4 shrink-0" />
+              <span>{pageMode ? 'الصفحة السابقة' : 'السابقة'}</span>
+            </Button>
+
+            <div className="text-center">
+              <span className="text-xs font-bold text-stone-800">
+                السؤال {formatNumber(currentIndex + 1)} من{' '}
+                {formatNumber(totalQuestions)}
+              </span>
+              {pageMode ? (
+                <span className="ms-2 text-xs font-semibold text-teal-700">
+                  (صفحة {formatNumber(currentAyah.page)})
+                </span>
+              ) : null}
+            </div>
+
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleNext}
+              disabled={!canGoNext}
+              aria-label={pageMode ? 'الصفحة التالية' : 'الآية التالية'}
+              className="min-h-10 px-3"
+            >
+              <span>{pageMode ? 'الصفحة التالية' : 'التالية'}</span>
+              <ChevronLeft className="h-4 w-4 shrink-0" />
+            </Button>
+          </div>
 
           <div className="hidden rounded-2xl border border-stone-200/70 bg-white/50 p-3.5 text-[11px] leading-6 text-stone-500 sm:block">
             <p className="flex items-center gap-1.5 font-bold text-stone-700">
@@ -273,21 +261,18 @@ export function TestingView({ engine }: TestingViewProps) {
             question={currentQuestion}
             isLastQuestion={currentIndex === totalQuestions - 1}
             viewedAyahs={viewedAyahs}
+            totalQuestions={totalQuestions}
             onSubmit={submitEvaluation}
-            mobilePageNavigation={
-              pageMode
-                ? {
-                    currentIndex,
-                    totalQuestions,
-                    currentPage: currentAyah.page,
-                    progressPercent,
-                    canGoPrevious,
-                    canGoNext,
-                    onPrevious: handlePrevious,
-                    onNext: handleNext,
-                  }
-                : undefined
-            }
+            mobilePageNavigation={{
+              currentIndex,
+              totalQuestions,
+              currentPage: pageMode ? currentAyah.page : undefined,
+              progressPercent,
+              canGoPrevious,
+              canGoNext,
+              onPrevious: handlePrevious,
+              onNext: handleNext,
+            }}
           />
         </aside>
       </div>
