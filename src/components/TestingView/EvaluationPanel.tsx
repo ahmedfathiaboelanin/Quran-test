@@ -4,6 +4,8 @@ import {
   AlertCircle,
   Bell,
   CheckCheck,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   Info,
   Minus,
@@ -18,11 +20,24 @@ import { cn, formatNumber } from '../../utils/helpers';
 import { computeEvaluationPoints, formatPoints } from '../../utils/scoring';
 import { Button } from '../ui/Button';
 
+export interface MobilePageNavigation {
+  currentIndex: number;
+  totalQuestions: number;
+  currentPage: number;
+  progressPercent: number;
+  canGoPrevious: boolean;
+  canGoNext: boolean;
+  onPrevious: () => void;
+  onNext: () => void;
+}
+
 interface EvaluationPanelProps {
   question: Question;
   isLastQuestion: boolean;
   viewedAyahs: number;
   onSubmit: (draft: EvaluationDraft, finishAfter?: boolean) => void;
+  /** Extra controls shown at the top of the mobile dock in full-page mode. */
+  mobilePageNavigation?: MobilePageNavigation;
 }
 
 type CounterTone = 'amber' | 'rose' | 'violet';
@@ -274,6 +289,67 @@ function NoteSheet({ textareaId, value, onChange, onClose }: NoteSheetProps) {
   );
 }
 
+interface DockPageNavigationProps {
+  navigation: MobilePageNavigation;
+}
+
+function DockPageNavigation({ navigation }: DockPageNavigationProps) {
+  const {
+    currentIndex,
+    totalQuestions,
+    currentPage,
+    progressPercent,
+    canGoPrevious,
+    canGoNext,
+    onPrevious,
+    onNext,
+  } = navigation;
+
+  return (
+    <div className="mb-1.5 flex items-center gap-1.5 rounded-xl border border-teal-100 bg-teal-50/60 p-1">
+      <button
+        type="button"
+        onClick={onPrevious}
+        disabled={!canGoPrevious}
+        aria-label="الصفحة السابقة"
+        className="inline-flex min-h-9 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-stone-200 bg-white px-1.5 text-[10px] font-semibold text-stone-600 transition active:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-35"
+      >
+        <ChevronRight className="h-3.5 w-3.5" />
+        السابقة
+      </button>
+
+      <div className="min-w-0 flex-1 px-0.5">
+        <div className="flex items-center justify-between gap-1.5 text-[10px] leading-4">
+          <span className="truncate font-bold text-stone-800">
+            السؤال {formatNumber(currentIndex + 1)} من{' '}
+            {formatNumber(totalQuestions)}
+          </span>
+          <span className="shrink-0 font-semibold text-teal-700">
+            صفحة {formatNumber(currentPage)}
+          </span>
+        </div>
+        <div className="mt-1 h-1 overflow-hidden rounded-full bg-white">
+          <div
+            className="h-full rounded-full bg-teal-600 transition-[width] duration-300"
+            style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
+          />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={!canGoNext}
+        aria-label="الصفحة التالية"
+        className="inline-flex min-h-9 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-teal-200 bg-teal-700 px-1.5 text-[10px] font-semibold text-white transition active:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-35"
+      >
+        التالية
+        <ChevronLeft className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
 interface MobileEvaluationDockProps {
   question: Question;
   isLastQuestion: boolean;
@@ -282,6 +358,7 @@ interface MobileEvaluationDockProps {
   hesitations: number;
   note: string;
   totalPoints: number;
+  pageNavigation?: MobilePageNavigation;
   onResponseChange: (value: number) => void;
   onPromptChange: (value: number) => void;
   onHesitationsChange: (value: number) => void;
@@ -298,6 +375,7 @@ function MobileEvaluationDock({
   hesitations,
   note,
   totalPoints,
+  pageNavigation,
   onResponseChange,
   onPromptChange,
   onHesitationsChange,
@@ -313,6 +391,8 @@ function MobileEvaluationDock({
       aria-label="تقييم السؤال"
     >
       <div className="mx-auto w-full max-w-lg">
+        {pageNavigation ? <DockPageNavigation navigation={pageNavigation} /> : null}
+
         <div className="grid grid-cols-2 gap-1.5 min-[360px]:grid-cols-3">
           <DockCounter
             label="تردد"
@@ -393,10 +473,12 @@ function MobileEvaluationDock({
           </button>
         </div>
 
-        <p className="mt-1 text-center text-[9px] leading-4 text-stone-400">
-          السؤال {formatNumber(question.index + 1)} • الرد = درجة، التنبيه = نصف
-          درجة، والتردد = ربع درجة
-        </p>
+        {pageNavigation ? null : (
+          <p className="mt-1 text-center text-[9px] leading-4 text-stone-400">
+            السؤال {formatNumber(question.index + 1)} • الرد = درجة، التنبيه = نصف
+            درجة، والتردد = ربع درجة
+          </p>
+        )}
       </div>
     </div>,
     document.body,
@@ -408,6 +490,7 @@ export function EvaluationPanel({
   isLastQuestion,
   viewedAyahs,
   onSubmit,
+  mobilePageNavigation,
 }: EvaluationPanelProps) {
   const [responseMistakes, setResponseMistakes] = useState(0);
   const [promptMistakes, setPromptMistakes] = useState(0);
@@ -580,6 +663,7 @@ export function EvaluationPanel({
         hesitations={hesitations}
         note={note}
         totalPoints={totalPoints}
+        pageNavigation={mobilePageNavigation}
         onResponseChange={setResponseMistakes}
         onPromptChange={setPromptMistakes}
         onHesitationsChange={setHesitations}

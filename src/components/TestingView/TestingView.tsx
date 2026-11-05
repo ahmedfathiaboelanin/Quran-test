@@ -97,7 +97,13 @@ export function TestingView({ engine }: TestingViewProps) {
   };
 
   return (
-    <div className="space-y-4 pb-[calc(10rem+env(safe-area-inset-bottom))] sm:space-y-5 lg:pb-0">
+    <div
+      className={`space-y-4 ${
+        pageMode
+          ? 'pb-[calc(17rem+env(safe-area-inset-bottom))] sm:pb-[calc(12rem+env(safe-area-inset-bottom))]'
+          : 'pb-[calc(10rem+env(safe-area-inset-bottom))]'
+      } sm:space-y-5 lg:pb-0`}
+    >
       <section className="rounded-2xl border border-stone-200/80 bg-white/85 p-3.5 shadow-sm shadow-stone-900/[0.03] sm:rounded-3xl sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
@@ -268,6 +274,20 @@ export function TestingView({ engine }: TestingViewProps) {
             isLastQuestion={currentIndex === totalQuestions - 1}
             viewedAyahs={viewedAyahs}
             onSubmit={submitEvaluation}
+            mobilePageNavigation={
+              pageMode
+                ? {
+                    currentIndex,
+                    totalQuestions,
+                    currentPage: currentAyah.page,
+                    progressPercent,
+                    canGoPrevious,
+                    canGoNext,
+                    onPrevious: handlePrevious,
+                    onNext: handleNext,
+                  }
+                : undefined
+            }
           />
         </aside>
       </div>
