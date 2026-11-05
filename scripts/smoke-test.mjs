@@ -348,6 +348,8 @@ try {
 
   await clickButton('إنهاء مبكر', { exact: true });
   await waitForText('نتيجة التقييم');
+  await assertText('ملاحظات المختبر', 'Dedicated examiner notes section shown');
+  await assertText('١ ملاحظة', 'Examiner notes count shown');
   await assertText('ملاحظة اختبار الهاتف', 'Mobile note saved with the evaluation');
   await assertNoHorizontalOverflow('mobile results');
 

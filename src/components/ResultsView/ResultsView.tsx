@@ -6,6 +6,7 @@ import {
   Clock,
   Gauge,
   Music2,
+  NotebookPen,
   Printer,
   RefreshCcw,
   SlidersHorizontal,
@@ -153,6 +154,9 @@ export function ResultsView({
   const hifzPoints = summary.hifzMistakes;
   const tajweedPoints = summary.tajweedMistakes;
   const hesitationPoints = summary.hesitations * 0.5;
+  const notedResults = summary.results.filter(({ evaluation }) =>
+    Boolean(evaluation?.note.trim()),
+  );
 
   return (
     <div className="space-y-5">
@@ -274,6 +278,64 @@ export function ResultsView({
         />
       </div>
 
+      {notedResults.length > 0 ? (
+        <section className="rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 to-white p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-[11px] font-bold tracking-wide text-amber-700">
+                للمراجعة المركزة
+              </p>
+              <h2 className="mt-0.5 flex items-center gap-2 text-lg font-bold text-stone-900">
+                <NotebookPen className="h-4 w-4 text-amber-600" />
+                ملاحظات المختبر
+              </h2>
+            </div>
+            <span className="rounded-full bg-amber-100 px-3 py-1.5 text-[11px] font-semibold text-amber-800 ring-1 ring-amber-200">
+              {formatNumber(notedResults.length)} ملاحظة
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {notedResults.map(({ question, evaluation }) => (
+              <article
+                key={question.id}
+                className="rounded-xl border border-amber-100 bg-white/90 p-3.5"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="flex min-w-0 items-start gap-2.5">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-100 text-[10px] font-bold text-amber-800">
+                      {formatNumber(question.index + 1)}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-stone-800">
+                        {question.startAyah.surahName}
+                      </p>
+                      <p className="mt-0.5 text-[10px] text-stone-500">
+                        الآية {formatNumber(question.startAyah.numberInSurah)} • صفحة{' '}
+                        {formatNumber(question.startAyah.page)} • الجزء{' '}
+                        {formatNumber(question.startAyah.juz)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-700">
+                      <NotebookPen className="h-3 w-3" />
+                      ملاحظة
+                    </span>
+                    <PointsBadge evaluation={evaluation} />
+                  </div>
+                </div>
+
+                <p className="mt-2 whitespace-pre-wrap rounded-lg bg-amber-50/60 px-3 py-2 text-[12px] leading-6 text-stone-700">
+                  {evaluation?.note}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="rounded-3xl border border-stone-200/80 bg-white/85 p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -394,7 +456,7 @@ export function ResultsView({
               </div>
 
               {evaluation?.note ? (
-                <p className="mt-2 rounded-lg bg-stone-50 px-3 py-2 text-[11px] leading-6 text-stone-600">
+                <p className="mt-2 whitespace-pre-wrap rounded-lg bg-stone-50 px-3 py-2 text-[11px] leading-6 text-stone-600">
                   <span className="font-semibold text-stone-700">ملاحظة: </span>
                   {evaluation.note}
                 </p>
