@@ -85,6 +85,32 @@ describe('generateQuestions', () => {
     expect(ids.size).toBe(10);
   });
 
+  it('randomizes question order while preserving the same questions', () => {
+    const pool = makePool(50, 1);
+    const base = generateQuestions(pool, 10, { unit: 'page', random: () => 0 });
+    const shuffled = generateQuestions(pool, 10, {
+      unit: 'page',
+      random: () => 0,
+      shuffleQuestions: true,
+    });
+
+    expect(shuffled.questions.map((question) => question.index)).toEqual([
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+    ]);
+    expect(
+      shuffled.questions
+        .map((question) => question.startAyah.number)
+        .sort((a, b) => a - b),
+    ).toEqual(
+      base.questions
+        .map((question) => question.startAyah.number)
+        .sort((a, b) => a - b),
+    );
+    expect(shuffled.questions.map((question) => question.startAyah.number)).not.toEqual(
+      base.questions.map((question) => question.startAyah.number),
+    );
+  });
+
   it('returns an empty result for an empty pool', () => {
     const result = generateQuestions([], 10);
     expect(result.questions).toEqual([]);

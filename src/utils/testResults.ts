@@ -7,8 +7,9 @@ import type {
 import { formatPoints } from './scoring';
 
 /**
- * Builds the result summary around deduction points: every clear mistake costs
- * one point and every hesitation costs half a point. Lower totals are better.
+ * Builds the result summary around deduction points: an incorrect response
+ * costs one point, a prompt costs half a point, and a hesitation costs a
+ * quarter point. Lower totals are better.
  */
 export function computeTestSummary(
   questions: Question[],
@@ -29,18 +30,20 @@ export function computeTestSummary(
   );
 
   const totalPoints =
-    Math.round(rated.reduce((sum, evaluation) => sum + evaluation.points, 0) * 10) /
-    10;
+    Math.round(rated.reduce((sum, evaluation) => sum + evaluation.points, 0) * 100) /
+    100;
   const averagePoints =
-    rated.length > 0 ? Math.round((totalPoints / rated.length) * 10) / 10 : null;
+    rated.length > 0
+      ? Math.round((totalPoints / rated.length) * 100) / 100
+      : null;
   const cleanQuestions = rated.filter((evaluation) => evaluation.points === 0).length;
 
-  const hifzMistakes = evaluations.reduce(
-    (sum, evaluation) => sum + evaluation.hifzMistakes,
+  const responseMistakes = evaluations.reduce(
+    (sum, evaluation) => sum + evaluation.responseMistakes,
     0,
   );
-  const tajweedMistakes = evaluations.reduce(
-    (sum, evaluation) => sum + evaluation.tajweedMistakes,
+  const promptMistakes = evaluations.reduce(
+    (sum, evaluation) => sum + evaluation.promptMistakes,
     0,
   );
   const hesitations = evaluations.reduce(
@@ -54,7 +57,8 @@ export function computeTestSummary(
       surahName: string;
       questions: number;
       points: number;
-      mistakes: number;
+      responseMistakes: number;
+      promptMistakes: number;
       hesitations: number;
     }
   >();
@@ -66,13 +70,15 @@ export function computeTestSummary(
       surahName: question.startAyah.surahName,
       questions: 0,
       points: 0,
-      mistakes: 0,
+      responseMistakes: 0,
+      promptMistakes: 0,
       hesitations: 0,
     };
 
     existing.questions += 1;
-    existing.points = Math.round((existing.points + evaluation.points) * 10) / 10;
-    existing.mistakes += evaluation.hifzMistakes + evaluation.tajweedMistakes;
+    existing.points = Math.round((existing.points + evaluation.points) * 100) / 100;
+    existing.responseMistakes += evaluation.responseMistakes;
+    existing.promptMistakes += evaluation.promptMistakes;
     existing.hesitations += evaluation.hesitations;
     revisionMap.set(question.startAyah.surahNumber, existing);
   }
@@ -83,13 +89,15 @@ export function computeTestSummary(
       surahName: item.surahName,
       questions: item.questions,
       points: item.points,
-      mistakes: item.mistakes,
+      responseMistakes: item.responseMistakes,
+      promptMistakes: item.promptMistakes,
       hesitations: item.hesitations,
     }))
     .sort(
       (a, b) =>
         b.points - a.points ||
-        b.mistakes - a.mistakes ||
+        b.responseMistakes + b.promptMistakes -
+          (a.responseMistakes + a.promptMistakes) ||
         b.questions - a.questions,
     );
 
@@ -109,9 +117,9 @@ export function computeTestSummary(
     totalPoints,
     averagePoints,
     cleanQuestions,
-    totalMistakes: hifzMistakes + tajweedMistakes,
-    hifzMistakes,
-    tajweedMistakes,
+    totalMistakes: responseMistakes + promptMistakes,
+    responseMistakes,
+    promptMistakes,
     hesitations,
     revisionSurahs,
     results,

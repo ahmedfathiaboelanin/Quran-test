@@ -7,6 +7,8 @@ import type {
 
 export interface GenerateQuestionsOptions {
   unit?: DistributionUnit;
+  /** Randomize the final question order instead of keeping mushaf order. */
+  shuffleQuestions?: boolean;
   /** Injectable RNG to make the algorithm deterministic in tests. */
   random?: () => number;
 }
@@ -56,6 +58,26 @@ function pickRandom<T>(items: T[], random: () => number): T {
   return items[Math.min(Math.max(index, 0), items.length - 1)];
 }
 
+function shuffleItems<T>(items: T[], random: () => number): T[] {
+  const result = [...items];
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const target = Math.floor(random() * (index + 1));
+    [result[index], result[target]] = [result[target], result[index]];
+  }
+  return result;
+}
+
+function orderQuestions(
+  questions: Question[],
+  shuffleQuestions: boolean,
+  random: () => number,
+): Question[] {
+  const ordered = shuffleQuestions ? shuffleItems(questions, random) : questions;
+  return ordered.map((question, index) =>
+    question.index === index ? question : { ...question, index },
+  );
+}
+
 /**
  * Fair distribution algorithm.
  *
@@ -70,7 +92,11 @@ export function generateQuestions(
   requestedCount: number,
   options: GenerateQuestionsOptions = {},
 ): GenerateQuestionsResult {
-  const { unit = 'auto', random = Math.random } = options;
+  const {
+    unit = 'auto',
+    shuffleQuestions = false,
+    random = Math.random,
+  } = options;
   const sortedPool = dedupeAndSort(pool);
   const requested = Math.max(0, Math.floor(requestedCount));
 
@@ -103,7 +129,7 @@ export function generateQuestions(
     }
 
     const segments = createBalancedSegments(uniquePages, targetCount);
-    const questions = segments.map((pageSegment, index) => {
+    const generatedQuestions = segments.map((pageSegment, index) => {
       const page = pickRandom(pageSegment, random);
       const candidates = pageAyahs.get(page) ?? [sortedPool[0]];
       const startAyah = pickRandom(candidates, random);
@@ -121,6 +147,7 @@ export function generateQuestions(
         },
       } satisfies Question;
     });
+    const questions = orderQuestions(generatedQuestions, shuffleQuestions, random);
 
     return {
       questions,
@@ -132,7 +159,7 @@ export function generateQuestions(
   }
 
   const segments = createBalancedSegments(sortedPool, targetCount);
-  const questions = segments.map((ayahSegment, index) => {
+  const generatedQuestions = segments.map((ayahSegment, index) => {
     const startAyah = pickRandom(ayahSegment, random);
 
     return {
@@ -148,6 +175,7 @@ export function generateQuestions(
       },
     } satisfies Question;
   });
+  const questions = orderQuestions(generatedQuestions, shuffleQuestions, random);
 
   return {
     questions,

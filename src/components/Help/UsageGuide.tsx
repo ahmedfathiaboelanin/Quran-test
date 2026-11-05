@@ -18,19 +18,19 @@ const STEPS = [
   {
     title: 'اضبط الاختبار',
     description:
-      'اختر عدد الأسئلة وطريقة التوزيع، وفعّل الوضع الأعمى إن أردت إخفاء النص.',
+      'اختر عدد الأسئلة وطريقة التوزيع، وحدد عرض آية واحدة أو الصفحة كاملة، وفعّل الترتيب العشوائي أو الوضع الأعمى إن أردت.',
     icon: SlidersHorizontal,
   },
   {
     title: 'ابدأ التسميع',
     description:
-      'اقرأ الآية وتنقّل بين الآيات، وأظهر النص أو أخفه أثناء التسميع.',
+      'اقرأ الآية أو الصفحة كاملة، وتنقّل بين الآيات أو الصفحات، وأظهر النص أو أخفه أثناء التسميع.',
     icon: Play,
   },
   {
     title: 'قيّم بالدرجات',
     description:
-      'سجّل الترددات والأخطاء من شريط التقييم السفلي على الهاتف: كل خطأ واضح = درجة، وكل تردد = نصف درجة.',
+      'سجّل الترددات والردود الخاطئة والتنبيهات من شريط التقييم السفلي على الهاتف: الرد = درجة، والتنبيه = نصف درجة، والتردد = ربع درجة.',
     icon: CheckCheck,
   },
   {
@@ -83,11 +83,15 @@ export function UsageGuide() {
         <span className="font-bold text-stone-700">حساب الدرجة:</span>
         <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-800">
           <Clock className="h-3 w-3" />
-          تردد = نصف درجة
+          تردد = ربع درجة
         </span>
         <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 font-semibold text-rose-800">
           <AlertCircle className="h-3 w-3" />
-          خطأ واضح = درجة
+          رد خاطئ = درجة
+        </span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 font-semibold text-violet-800">
+          <AlertCircle className="h-3 w-3" />
+          تنبيه = نصف درجة
         </span>
         <span className="text-stone-500">
           النتيجة هي مجموع الأخطاء وليست مكافأة على الإجابات الصحيحة — الأقل أفضل،

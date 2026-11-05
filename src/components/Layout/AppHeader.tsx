@@ -1,4 +1,4 @@
-import { CheckCircle2, Database, Download, WifiOff } from 'lucide-react';
+import { CheckCircle2, Database, Download, HelpCircle, WifiOff } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { BrandMark } from '../ui/BrandMark';
 import { formatNumber } from '../../utils/helpers';
@@ -7,6 +7,7 @@ interface AppHeaderProps {
   isOnline: boolean;
   canInstall: boolean;
   onInstall: () => void;
+  onHelp: () => void;
   dataStats: {
     surahs: number;
     ayaat: number;
@@ -19,6 +20,7 @@ export function AppHeader({
   isOnline,
   canInstall,
   onInstall,
+  onHelp,
   dataStats,
 }: AppHeaderProps) {
   return (
@@ -64,6 +66,16 @@ export function AppHeader({
             <Database className="h-3.5 w-3.5" />
             {formatNumber(dataStats.ayaat)} آية محلية
           </span>
+
+          <button
+            type="button"
+            onClick={onHelp}
+            aria-label="تعليمات الاستخدام"
+            title="تعليمات الاستخدام"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-stone-200 bg-white/80 text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+          >
+            <HelpCircle className="h-5 w-5" />
+          </button>
 
           {canInstall ? (
             <Button size="sm" variant="secondary" onClick={onInstall}>

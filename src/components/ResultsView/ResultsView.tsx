@@ -1,14 +1,16 @@
 import {
   Award,
+  Bell,
   CalendarDays,
   CheckCircle2,
   ClipboardList,
   Clock,
+  Files,
   Gauge,
-  Music2,
   NotebookPen,
   Printer,
   RefreshCcw,
+  Shuffle,
   SlidersHorizontal,
   Sparkles,
   Target,
@@ -63,23 +65,23 @@ function MistakeBadges({ evaluation }: { evaluation: QuestionEvaluation | null }
   if (!evaluation || evaluation.points === null) return null;
 
   const hasMistakes =
-    evaluation.hifzMistakes > 0 ||
-    evaluation.tajweedMistakes > 0 ||
+    evaluation.responseMistakes > 0 ||
+    evaluation.promptMistakes > 0 ||
     evaluation.hesitations > 0;
   if (!hasMistakes) return null;
 
   return (
     <span className="flex flex-wrap items-center gap-1">
-      {evaluation.hifzMistakes > 0 ? (
+      {evaluation.responseMistakes > 0 ? (
         <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700">
           <TriangleAlert className="h-2.5 w-2.5" />
-          حفظ ×{formatNumber(evaluation.hifzMistakes)}
+          رد خاطئ ×{formatNumber(evaluation.responseMistakes)}
         </span>
       ) : null}
-      {evaluation.tajweedMistakes > 0 ? (
+      {evaluation.promptMistakes > 0 ? (
         <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
-          <TriangleAlert className="h-2.5 w-2.5" />
-          تجويد ×{formatNumber(evaluation.tajweedMistakes)}
+          <Bell className="h-2.5 w-2.5" />
+          تنبيه ×{formatNumber(evaluation.promptMistakes)}
         </span>
       ) : null}
       {evaluation.hesitations > 0 ? (
@@ -151,9 +153,9 @@ export function ResultsView({
   onRestartSameScope,
   onNewTest,
 }: ResultsViewProps) {
-  const hifzPoints = summary.hifzMistakes;
-  const tajweedPoints = summary.tajweedMistakes;
-  const hesitationPoints = summary.hesitations * 0.5;
+  const responsePoints = summary.responseMistakes * 1;
+  const promptPoints = summary.promptMistakes * 0.5;
+  const hesitationPoints = summary.hesitations * 0.25;
   const notedResults = summary.results.filter(({ evaluation }) =>
     Boolean(evaluation?.note.trim()),
   );
@@ -193,7 +195,8 @@ export function ResultsView({
                 {getResultMessage(summary)}
               </p>
               <p className="mt-2 inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-teal-50/90 ring-1 ring-white/10">
-                الدرجات تعبّر عن الأخطاء — كل خطأ واضح = درجة، وكل تردد = نصف درجة
+                الدرجات تعبّر عن الأخطاء — الرد = درجة، التنبيه = نصف درجة، والتردد
+                = ربع درجة
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] text-teal-100/75">
                 <span className="inline-flex items-center gap-1">
@@ -205,14 +208,28 @@ export function ResultsView({
                   {formatNumber(summary.totalQuestions)} سؤال
                 </span>
                 {config ? (
-                  <span className="inline-flex items-center gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    {config.distributionUnit === 'page'
-                      ? 'توزيع على الصفحات'
-                      : config.distributionUnit === 'ayah'
-                        ? 'توزيع على الآيات'
-                        : 'توزيع تلقائي'}
-                  </span>
+                  <>
+                    <span className="inline-flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" />
+                      {config.distributionUnit === 'page'
+                        ? 'توزيع على الصفحات'
+                        : config.distributionUnit === 'ayah'
+                          ? 'توزيع على الآيات'
+                          : 'توزيع تلقائي'}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Files className="h-3 w-3" />
+                      {config.displayMode === 'page'
+                        ? 'عرض الصفحة كاملة'
+                        : 'عرض آية واحدة'}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Shuffle className="h-3 w-3" />
+                      {config.randomizeQuestionOrder
+                        ? 'ترتيب عشوائي'
+                        : 'ترتيب المصحف'}
+                    </span>
+                  </>
                 ) : null}
               </div>
             </div>
@@ -353,27 +370,28 @@ export function ResultsView({
           <div className="rounded-xl border border-rose-100 bg-rose-50/50 p-3">
             <p className="flex items-center gap-1.5 text-xs font-bold text-rose-800">
               <TriangleAlert className="h-3.5 w-3.5" />
-              أخطاء الحفظ
+              الردود الخاطئة
             </p>
             <p className="mt-1 text-xl font-bold tabular-nums text-rose-900">
-              {formatNumber(summary.hifzMistakes)}
+              {formatNumber(summary.responseMistakes)}
             </p>
             <p className="text-[10px] text-stone-500">
-              {formatNumber(summary.hifzMistakes)} × درجة = {formatPoints(hifzPoints)} درجة
+              {formatNumber(summary.responseMistakes)} × درجة ={' '}
+              {formatPoints(responsePoints)} درجة
             </p>
           </div>
 
           <div className="rounded-xl border border-violet-100 bg-violet-50/50 p-3">
             <p className="flex items-center gap-1.5 text-xs font-bold text-violet-800">
-              <Music2 className="h-3.5 w-3.5" />
-              أخطاء التجويد
+              <Bell className="h-3.5 w-3.5" />
+              التنبيهات
             </p>
             <p className="mt-1 text-xl font-bold tabular-nums text-violet-900">
-              {formatNumber(summary.tajweedMistakes)}
+              {formatNumber(summary.promptMistakes)}
             </p>
             <p className="text-[10px] text-stone-500">
-              {formatNumber(summary.tajweedMistakes)} × درجة ={' '}
-              {formatPoints(tajweedPoints)} درجة
+              {formatNumber(summary.promptMistakes)} × نصف درجة ={' '}
+              {formatPoints(promptPoints)} درجة
             </p>
           </div>
 
@@ -386,7 +404,7 @@ export function ResultsView({
               {formatNumber(summary.hesitations)}
             </p>
             <p className="text-[10px] text-stone-500">
-              {formatNumber(summary.hesitations)} × نصف درجة ={' '}
+              {formatNumber(summary.hesitations)} × ربع درجة ={' '}
               {formatPoints(hesitationPoints)} درجة
             </p>
           </div>

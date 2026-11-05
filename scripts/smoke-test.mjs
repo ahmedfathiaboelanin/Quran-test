@@ -127,8 +127,10 @@ try {
   if (direction !== 'rtl') throw new Error('The document is not RTL');
   console.log('  ✓ Document direction is RTL');
 
-  await assertText('طريقة الاستخدام في ٥ خطوات', 'Usage guide rendered');
+  await clickAriaLabel('تعليمات الاستخدام');
+  await assertText('طريقة الاستخدام في ٥ خطوات', 'Usage guide rendered in popup');
   await assertText('حساب الدرجة', 'Points scoring explained');
+  await clickAriaLabel('إغلاق تعليمات الاستخدام');
   await assertText('نطاق الاختبار', 'Scope selector rendered');
   await assertText('إعدادات الاختبار', 'Test settings rendered');
   await assertText('٦٬٢٣٦', 'Full local Quran dataset is loaded');
@@ -193,6 +195,8 @@ try {
   await assertText('تقييم التسميع بالدرجات', 'Evaluation panel rendered');
   await assertText('درجة السؤال', 'Deduction points total rendered');
   await assertText('تردد', 'Hesitation counter rendered');
+  await assertText('الرد', 'Response counter rendered');
+  await assertText('تنبيه', 'Prompt counter rendered');
   const firstVerse = await page.$eval('.quran-text', (node) => node.textContent ?? '');
   if (firstVerse.trim().length < 5) throw new Error('Verse text was not rendered');
   console.log('  ✓ Quran verse rendered');
@@ -212,11 +216,11 @@ try {
   await clickButton('بداية السؤال', { exact: true });
 
   const evaluations = [
-    { hifz: 0, tajweed: 0, hesitations: 0 },
-    { hifz: 1, tajweed: 0, hesitations: 0 },
-    { hifz: 0, tajweed: 1, hesitations: 0 },
-    { hifz: 0, tajweed: 0, hesitations: 2 },
-    { hifz: 1, tajweed: 0, hesitations: 1 },
+    { response: 0, prompt: 0, hesitations: 0 },
+    { response: 1, prompt: 0, hesitations: 0 },
+    { response: 0, prompt: 1, hesitations: 0 },
+    { response: 0, prompt: 0, hesitations: 2 },
+    { response: 1, prompt: 0, hesitations: 1 },
   ];
 
   for (let index = 0; index < evaluations.length; index += 1) {
@@ -224,15 +228,15 @@ try {
     for (let count = 0; count < evaluation.hesitations; count += 1) {
       await clickAriaLabel('زيادة تردد');
     }
-    for (let count = 0; count < evaluation.hifz; count += 1) {
-      await clickAriaLabel('زيادة خطأ حفظ');
+    for (let count = 0; count < evaluation.response; count += 1) {
+      await clickAriaLabel('زيادة الرد');
     }
-    for (let count = 0; count < evaluation.tajweed; count += 1) {
-      await clickAriaLabel('زيادة خطأ تجويد');
+    for (let count = 0; count < evaluation.prompt; count += 1) {
+      await clickAriaLabel('زيادة تنبيه');
     }
 
     if (index === 4) {
-      await assertText('١٫٥', 'Half-point deductions are added correctly');
+      await assertText('١٫٢٥', 'Quarter-point deductions are added correctly');
     }
 
     const isLast = index === evaluations.length - 1;
@@ -248,14 +252,14 @@ try {
   console.log('Results screen reached');
 
   await assertText('إجمالي الدرجات', 'Deduction points total shown');
-  await assertText('٤٫٥', 'Expected total points computed');
-  await assertText('٠٫٩ درجة', 'Expected average points computed');
+  await assertText('٣٫٢٥', 'Expected total points computed');
+  await assertText('٠٫٦٥ درجة', 'Expected average points computed');
   await assertText('أسئلة بدون أخطاء', 'Clean questions stat shown');
   await assertText('تفصيل الدرجات', 'Points breakdown shown');
   await assertText('سور تحتاج مراجعة', 'Revision plan shown');
   await assertText('تفاصيل الأسئلة', 'Question breakdown shown');
-  await assertText('حفظ ×١', 'Hifz mistake badge shown');
-  await assertText('تجويد ×١', 'Tajweed mistake badge shown');
+  await assertText('رد خاطئ ×١', 'Response mistake badge shown');
+  await assertText('تنبيه ×١', 'Prompt badge shown');
   await assertText('تردد ×٢', 'Hesitation badge shown');
   await assertText('بدون أخطاء', 'Clean question badge shown');
 
@@ -281,6 +285,27 @@ try {
   await clickButton('تحديد الكل', { exact: true });
   await assertText('تم اختيار ١١٤ سورة', 'Surah multi-select works');
   await clickButton('إعادة تعيين', { exact: true });
+
+  // Full-page display + randomized question order.
+  await clickButton('المفصل', { exact: true });
+  await clickButton('الصفحة كاملة');
+  await page.click('#randomize-question-order');
+  await clickButton('ابدأ الاختبار', { exact: true });
+  await waitForText('السؤال ١ من ٥');
+  await assertText('عرض الصفحة كاملة', 'Full-page display mode applied');
+  await assertText('بداية السؤال', 'Question start is marked on the page');
+  const firstPageText = await page.$eval('.quran-text', (node) => node.textContent ?? '');
+  await clickAriaLabel('الصفحة التالية');
+  const secondPageText = await page.$eval('.quran-text', (node) => node.textContent ?? '');
+  if (firstPageText === secondPageText) {
+    throw new Error('Page navigation did not change the displayed page');
+  }
+  console.log('  ✓ Full page display and page navigation work');
+
+  await clickButton('إنهاء مبكر', { exact: true });
+  await waitForText('نتيجة التقييم');
+  await clickButton('العودة إلى الإعدادات', { exact: true });
+  await waitForText('نطاق الاختبار');
 
   // Responsive check: no horizontal page overflow on a small mobile viewport.
   await page.setViewport({ width: 390, height: 844, isMobile: true });
@@ -318,10 +343,12 @@ try {
       document.querySelector('[aria-label^="درجة السؤال"]')?.getAttribute('aria-label') ??
       '',
   );
-  if (!dockScore.includes('٠٫٥')) {
-    throw new Error('The mobile evaluation dock did not record a half-point hesitation');
+  if (!dockScore.includes('٠٫٢٥')) {
+    throw new Error(
+      'The mobile evaluation dock did not record a quarter-point hesitation',
+    );
   }
-  console.log('  ✓ Mobile dock records half-point hesitations');
+  console.log('  ✓ Mobile dock records quarter-point hesitations');
 
   await clickAriaLabel('ملاحظات المختبر');
   await page.waitForFunction(() =>

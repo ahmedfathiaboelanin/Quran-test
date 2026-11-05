@@ -6,14 +6,19 @@ import type {
   TestPhase,
   TestSummary,
 } from '../types';
-import { getAdjacentAyah, getAyah, resolveScope } from '../utils/quranHelpers';
+import {
+  getAdjacentAyah,
+  getAyah,
+  getPageAyahs,
+  resolveScope,
+} from '../utils/quranHelpers';
 import { generateQuestions } from '../utils/samplingAlgorithm';
 import { computeEvaluationPoints } from '../utils/scoring';
 import { computeTestSummary } from '../utils/testResults';
 
 export interface EvaluationDraft {
-  hifzMistakes: number;
-  tajweedMistakes: number;
+  responseMistakes: number;
+  promptMistakes: number;
   hesitations: number;
   note: string;
   /** When true, the question is saved as skipped without deduction points. */
@@ -197,6 +202,7 @@ export interface TestEngine {
   startTest: (config: TestConfig) => void;
   nextAyah: () => void;
   previousAyah: () => void;
+  goToAyah: (ayahNumber: number) => void;
   goToQuestionStart: () => void;
   submitEvaluation: (draft: EvaluationDraft, finishAfter?: boolean) => void;
   finishTest: () => void;
@@ -215,6 +221,7 @@ export function useTestEngine(): TestEngine {
     const pool = resolveScope(config.scope);
     const generated = generateQuestions(pool, config.questionCount, {
       unit: config.distributionUnit,
+      shuffleQuestions: config.randomizeQuestionOrder,
     });
 
     return {
@@ -239,6 +246,10 @@ export function useTestEngine(): TestEngine {
 
   const nextAyah = useCallback(() => dispatch({ type: 'NEXT_AYAH' }), []);
   const previousAyah = useCallback(() => dispatch({ type: 'PREV_AYAH' }), []);
+  const goToAyah = useCallback(
+    (ayahNumber: number) => dispatch({ type: 'GO_TO_AYAH', ayahNumber }),
+    [],
+  );
 
   const currentQuestion = state.questions[state.currentIndex] ?? null;
 
@@ -247,30 +258,44 @@ export function useTestEngine(): TestEngine {
     dispatch({ type: 'GO_TO_AYAH', ayahNumber: currentQuestion.startAyah.number });
   }, [currentQuestion]);
 
+  const reviewedAyahs = useMemo(() => {
+    if (state.config?.displayMode !== 'page') return state.viewedAyahNumbers.length;
+
+    const pages = new Set<number>();
+    for (const ayahNumber of state.viewedAyahNumbers) {
+      const ayah = getAyah(ayahNumber);
+      if (ayah) pages.add(ayah.page);
+    }
+    return [...pages].reduce(
+      (total, page) => total + getPageAyahs(page).length,
+      0,
+    );
+  }, [state.config?.displayMode, state.viewedAyahNumbers]);
+
   const submitEvaluation = useCallback(
     (draft: EvaluationDraft, finishAfter = false) => {
       if (!currentQuestion) return;
 
-      const hifzMistakes = draft.skipped ? 0 : draft.hifzMistakes;
-      const tajweedMistakes = draft.skipped ? 0 : draft.tajweedMistakes;
+      const responseMistakes = draft.skipped ? 0 : draft.responseMistakes;
+      const promptMistakes = draft.skipped ? 0 : draft.promptMistakes;
       const hesitations = draft.skipped ? 0 : draft.hesitations;
 
       const evaluation: QuestionEvaluation = {
         questionId: currentQuestion.id,
         points: draft.skipped
           ? null
-          : computeEvaluationPoints({ hifzMistakes, tajweedMistakes, hesitations }),
-        hifzMistakes,
-        tajweedMistakes,
+          : computeEvaluationPoints({ responseMistakes, promptMistakes, hesitations }),
+        responseMistakes,
+        promptMistakes,
         hesitations,
         note: draft.note.trim(),
-        reviewedAyahs: state.viewedAyahNumbers.length,
+        reviewedAyahs,
         completedAt: new Date().toISOString(),
       };
 
       dispatch({ type: 'SUBMIT', evaluation, finishAfter });
     },
-    [currentQuestion, state.viewedAyahNumbers.length],
+    [currentQuestion, reviewedAyahs],
   );
 
   const finishTest = useCallback(() => dispatch({ type: 'FINISH' }), []);
@@ -325,7 +350,7 @@ export function useTestEngine(): TestEngine {
     currentAyah,
     currentIndex: state.currentIndex,
     totalQuestions: state.questions.length,
-    viewedAyahs: state.viewedAyahNumbers.length,
+    viewedAyahs: reviewedAyahs,
     sampling: state.sampling,
     evaluations: state.evaluations,
     summary,
@@ -336,6 +361,7 @@ export function useTestEngine(): TestEngine {
     startTest,
     nextAyah,
     previousAyah,
+    goToAyah,
     goToQuestionStart,
     submitEvaluation,
     finishTest,

@@ -60,11 +60,16 @@ export type ScopeTab = 'surah' | 'pages' | 'juz' | 'ranges';
 export type TestPhase = 'setup' | 'running' | 'results';
 
 export type DistributionUnit = 'auto' | 'page' | 'ayah';
+export type QuestionDisplayMode = 'ayah' | 'page';
 
 export interface TestConfig {
   scope: ScopeSelection;
   questionCount: number;
   distributionUnit: DistributionUnit;
+  /** Show only the question's start ayah, or the full mushaf page containing it. */
+  displayMode: QuestionDisplayMode;
+  /** Randomize the order of generated questions instead of mushaf order. */
+  randomizeQuestionOrder: boolean;
   blindMode: boolean;
 }
 
@@ -84,7 +89,7 @@ export interface QuestionSegment {
 
 export interface Question {
   id: string;
-  /** Zero-based question index. */
+  /** Zero-based question index in the displayed test order. */
   index: number;
   startAyah: AyahRef;
   segment: QuestionSegment;
@@ -94,15 +99,15 @@ export interface QuestionEvaluation {
   questionId: string;
   /**
    * Deduction points decided by the examiner: 0 = no mistakes,
-   * each clear mistake = 1, each hesitation = 0.5.
+   * each incorrect response = 1, each prompt = 0.5, each hesitation = 0.25.
    * `null` means the question was skipped without evaluation.
    */
   points: number | null;
-  /** Number of clear memorization mistakes. */
-  hifzMistakes: number;
-  /** Number of clear tajweed mistakes. */
-  tajweedMistakes: number;
-  /** Number of hesitations (half a point each). */
+  /** Number of incorrect responses (one point each). */
+  responseMistakes: number;
+  /** Number of examiner prompts (half a point each). */
+  promptMistakes: number;
+  /** Number of hesitations (a quarter point each). */
   hesitations: number;
   note: string;
   /** Number of distinct ayaat the examiner opened for this question. */
@@ -132,8 +137,11 @@ export interface SurahRevisionItem {
   questions: number;
   /** Total deduction points accumulated in this surah. */
   points: number;
-  /** Clear mistakes (memorization + tajweed). */
-  mistakes: number;
+  /** Incorrect responses worth one point each. */
+  responseMistakes: number;
+  /** Examiner prompts worth half a point each. */
+  promptMistakes: number;
+  /** Hesitations worth a quarter point each. */
   hesitations: number;
 }
 
@@ -154,10 +162,10 @@ export interface TestSummary {
   averagePoints: number | null;
   /** Questions evaluated with zero mistakes. */
   cleanQuestions: number;
-  /** Clear mistakes (memorization + tajweed). */
+  /** Incorrect responses plus examiner prompts. */
   totalMistakes: number;
-  hifzMistakes: number;
-  tajweedMistakes: number;
+  responseMistakes: number;
+  promptMistakes: number;
   hesitations: number;
   revisionSurahs: SurahRevisionItem[];
   results: QuestionResult[];

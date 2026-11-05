@@ -6,6 +6,7 @@ import { AppHeader } from './components/Layout/AppHeader';
 import { SetupView } from './components/SetupView/SetupView';
 import { TestingView } from './components/TestingView/TestingView';
 import { ResultsView } from './components/ResultsView/ResultsView';
+import { UsageGuideModal } from './components/Help/UsageGuideModal';
 import type { TestConfig } from './types';
 import { formatNumber } from './utils/helpers';
 
@@ -13,6 +14,7 @@ export default function App() {
   const data = useOfflineData();
   const engine = useTestEngine();
   const [lastConfig, setLastConfig] = useState<TestConfig | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const handleStart = (config: TestConfig) => {
     setLastConfig(config);
@@ -28,6 +30,7 @@ export default function App() {
           onInstall={() => {
             void data.installApp();
           }}
+          onHelp={() => setHelpOpen(true)}
           dataStats={data.dataStats}
         />
       </div>
@@ -81,6 +84,8 @@ export default function App() {
           </p>
         </div>
       </footer>
+
+      {helpOpen ? <UsageGuideModal onClose={() => setHelpOpen(false)} /> : null}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, RotateCcw, TriangleAlert } from 'lucide-react';
+import { Bell, CheckCircle2, Clock, RotateCcw, TriangleAlert } from 'lucide-react';
 import type { SurahRevisionItem } from '../../types';
 import { formatNumber } from '../../utils/helpers';
 import { formatPoints } from '../../utils/scoring';
@@ -52,12 +52,21 @@ export function RevisionList({ items }: RevisionListProps) {
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-stone-500">
                 <span>{formatNumber(item.questions)} سؤال للمراجعة</span>
-                {item.mistakes > 0 ? (
+                {item.responseMistakes > 0 ? (
                   <>
                     <span className="h-1 w-1 rounded-full bg-stone-300" />
                     <span className="inline-flex items-center gap-1 text-rose-600">
                       <TriangleAlert className="h-3 w-3" />
-                      {formatNumber(item.mistakes)} خطأ واضح
+                      {formatNumber(item.responseMistakes)} رد خاطئ
+                    </span>
+                  </>
+                ) : null}
+                {item.promptMistakes > 0 ? (
+                  <>
+                    <span className="h-1 w-1 rounded-full bg-stone-300" />
+                    <span className="inline-flex items-center gap-1 text-violet-600">
+                      <Bell className="h-3 w-3" />
+                      {formatNumber(item.promptMistakes)} تنبيه
                     </span>
                   </>
                 ) : null}

@@ -27,13 +27,13 @@ function makeQuestion(id: string, index: number, surahNumber: number, surahName:
 function makeEvaluation(
   questionId: string,
   points: number | null,
-  counts: { hifz?: number; tajweed?: number; hesitations?: number } = {},
+  counts: { response?: number; prompt?: number; hesitations?: number } = {},
 ): QuestionEvaluation {
   return {
     questionId,
     points,
-    hifzMistakes: counts.hifz ?? 0,
-    tajweedMistakes: counts.tajweed ?? 0,
+    responseMistakes: counts.response ?? 0,
+    promptMistakes: counts.prompt ?? 0,
     hesitations: counts.hesitations ?? 0,
     note: '',
     reviewedAyahs: 1,
@@ -42,12 +42,20 @@ function makeEvaluation(
 }
 
 describe('computeEvaluationPoints', () => {
-  it('charges one point per clear mistake and half a point per hesitation', () => {
+  it('charges one point per incorrect response, half per prompt and a quarter per hesitation', () => {
     expect(
-      computeEvaluationPoints({ hifzMistakes: 2, tajweedMistakes: 1, hesitations: 3 }),
-    ).toBe(4.5);
+      computeEvaluationPoints({
+        responseMistakes: 2,
+        promptMistakes: 1,
+        hesitations: 3,
+      }),
+    ).toBe(3.25);
     expect(
-      computeEvaluationPoints({ hifzMistakes: 0, tajweedMistakes: 0, hesitations: 0 }),
+      computeEvaluationPoints({
+        responseMistakes: 0,
+        promptMistakes: 0,
+        hesitations: 0,
+      }),
     ).toBe(0);
   });
 });
@@ -61,25 +69,25 @@ describe('computeTestSummary', () => {
 
   it('sums deduction points and separates clean, skipped and unrated questions', () => {
     const summary = computeTestSummary(questions, {
-      q1: makeEvaluation('q1', 1, { hifz: 1 }),
+      q1: makeEvaluation('q1', 1, { response: 1 }),
       q2: makeEvaluation('q2', 0),
-      q3: makeEvaluation('q3', 0.5, { hesitations: 1 }),
+      q3: makeEvaluation('q3', 0.25, { hesitations: 1 }),
     });
 
-    expect(summary.totalPoints).toBe(1.5);
-    expect(summary.averagePoints).toBe(0.5);
+    expect(summary.totalPoints).toBe(1.25);
+    expect(summary.averagePoints).toBe(0.42);
     expect(summary.cleanQuestions).toBe(1);
     expect(summary.ratedQuestions).toBe(3);
     expect(summary.unratedQuestions).toBe(0);
-    expect(summary.hifzMistakes).toBe(1);
-    expect(summary.tajweedMistakes).toBe(0);
+    expect(summary.responseMistakes).toBe(1);
+    expect(summary.promptMistakes).toBe(0);
     expect(summary.hesitations).toBe(1);
     expect(summary.totalMistakes).toBe(1);
   });
 
   it('excludes skipped questions from points but keeps them as reviewed', () => {
     const summary = computeTestSummary(questions, {
-      q1: makeEvaluation('q1', 1, { hifz: 1 }),
+      q1: makeEvaluation('q1', 1, { response: 1 }),
       q2: makeEvaluation('q2', null),
     });
 
@@ -92,25 +100,44 @@ describe('computeTestSummary', () => {
 
   it('builds a revision plan sorted by accumulated points', () => {
     const summary = computeTestSummary(questions, {
-      q1: makeEvaluation('q1', 1, { hifz: 1 }),
+      q1: makeEvaluation('q1', 1, { response: 1 }),
       q2: makeEvaluation('q2', 0),
-      q3: makeEvaluation('q3', 0.5, { hesitations: 1 }),
+      q3: makeEvaluation('q3', 0.25, { hesitations: 1 }),
     });
 
     expect(summary.revisionSurahs).toHaveLength(2);
     expect(summary.revisionSurahs[0]).toMatchObject({
       surahNumber: 50,
       points: 1,
-      mistakes: 1,
+      responseMistakes: 1,
+      promptMistakes: 0,
       hesitations: 0,
       questions: 1,
     });
     expect(summary.revisionSurahs[1]).toMatchObject({
       surahNumber: 51,
-      points: 0.5,
-      mistakes: 0,
+      points: 0.25,
+      responseMistakes: 0,
+      promptMistakes: 0,
       hesitations: 1,
       questions: 1,
+    });
+  });
+
+  it('accumulates prompts separately from incorrect responses', () => {
+    const summary = computeTestSummary(questions, {
+      q1: makeEvaluation('q1', 0.5, { prompt: 1 }),
+      q2: makeEvaluation('q2', 0.5, { prompt: 1 }),
+    });
+
+    expect(summary.totalPoints).toBe(1);
+    expect(summary.promptMistakes).toBe(2);
+    expect(summary.responseMistakes).toBe(0);
+    expect(summary.totalMistakes).toBe(2);
+    expect(summary.revisionSurahs[0]).toMatchObject({
+      surahNumber: 50,
+      promptMistakes: 2,
+      questions: 2,
     });
   });
 

@@ -9,6 +9,8 @@ import {
 } from '../../data/quranData';
 import {
   getJuzSummaries,
+  getPageAyahs,
+  getPageFirstAyah,
   getScopeStats,
   isScopeEmpty,
   resolveScope,
@@ -38,6 +40,18 @@ describe('bundled Quran data', () => {
     const summaries = getJuzSummaries();
     expect(summaries).toHaveLength(30);
     expect(summaries.reduce((sum, juz) => sum + juz.ayahCount, 0)).toBe(TOTAL_AYAHS);
+  });
+
+  it('indexes every ayah by its mushaf page', () => {
+    let total = 0;
+    for (let page = 1; page <= TOTAL_PAGES; page += 1) {
+      const pageAyahs = getPageAyahs(page);
+      expect(pageAyahs.length).toBeGreaterThan(0);
+      expect(pageAyahs.every((ayah) => ayah.page === page)).toBe(true);
+      expect(getPageFirstAyah(page)).toBe(pageAyahs[0]);
+      total += pageAyahs.length;
+    }
+    expect(total).toBe(TOTAL_AYAHS);
   });
 });
 

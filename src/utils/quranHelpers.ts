@@ -4,6 +4,7 @@ import {
   AYAH_INDEX_BY_NUMBER,
   AYAHS_BY_SURAH,
   AYAH_NUMBERS_BY_JUZ,
+  AYAH_NUMBERS_BY_PAGE,
   SURAH_BY_NUMBER,
   SURAHS,
   TOTAL_AYAHS,
@@ -48,6 +49,16 @@ export function getAdjacentAyah(
   const index = AYAH_INDEX_BY_NUMBER.get(globalNumber);
   if (index === undefined) return undefined;
   return ALL_AYAHS[index + direction];
+}
+
+/** Every ayah on a mushaf page, in reading order. */
+export function getPageAyahs(page: number): AyahRef[] {
+  return AYAH_NUMBERS_BY_PAGE.get(page) ?? [];
+}
+
+/** The first ayah of a page, used when navigating page by page. */
+export function getPageFirstAyah(page: number): AyahRef | undefined {
+  return getPageAyahs(page)[0];
 }
 
 export function isScopeEmpty(selection: ScopeSelection): boolean {

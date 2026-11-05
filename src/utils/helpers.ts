@@ -1,5 +1,5 @@
 const arabicNumberFormatter = new Intl.NumberFormat('ar-EG', {
-  maximumFractionDigits: 1,
+  maximumFractionDigits: 2,
 });
 
 const dateFormatter = new Intl.DateTimeFormat('ar-EG', {

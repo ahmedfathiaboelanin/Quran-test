@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   AlertCircle,
+  Bell,
   CheckCheck,
   Clock,
   Info,
   Minus,
-  Music2,
   NotebookPen,
   Plus,
   SkipForward,
@@ -277,13 +277,13 @@ function NoteSheet({ textareaId, value, onChange, onClose }: NoteSheetProps) {
 interface MobileEvaluationDockProps {
   question: Question;
   isLastQuestion: boolean;
-  hifzMistakes: number;
-  tajweedMistakes: number;
+  responseMistakes: number;
+  promptMistakes: number;
   hesitations: number;
   note: string;
   totalPoints: number;
-  onHifzChange: (value: number) => void;
-  onTajweedChange: (value: number) => void;
+  onResponseChange: (value: number) => void;
+  onPromptChange: (value: number) => void;
   onHesitationsChange: (value: number) => void;
   onSave: () => void;
   onSkip: () => void;
@@ -293,13 +293,13 @@ interface MobileEvaluationDockProps {
 function MobileEvaluationDock({
   question,
   isLastQuestion,
-  hifzMistakes,
-  tajweedMistakes,
+  responseMistakes,
+  promptMistakes,
   hesitations,
   note,
   totalPoints,
-  onHifzChange,
-  onTajweedChange,
+  onResponseChange,
+  onPromptChange,
   onHesitationsChange,
   onSave,
   onSkip,
@@ -316,27 +316,27 @@ function MobileEvaluationDock({
         <div className="grid grid-cols-2 gap-1.5 min-[360px]:grid-cols-3">
           <DockCounter
             label="تردد"
-            pointsLabel="٠٫٥"
+            pointsLabel="٠٫٢٥"
             value={hesitations}
             tone="amber"
             icon={Clock}
             onChange={onHesitationsChange}
           />
           <DockCounter
-            label="حفظ"
+            label="الرد"
             pointsLabel="١"
-            value={hifzMistakes}
+            value={responseMistakes}
             tone="rose"
             icon={AlertCircle}
-            onChange={onHifzChange}
+            onChange={onResponseChange}
           />
           <DockCounter
-            label="تجويد"
-            pointsLabel="١"
-            value={tajweedMistakes}
+            label="تنبيه"
+            pointsLabel="٠٫٥"
+            value={promptMistakes}
             tone="violet"
-            icon={Music2}
-            onChange={onTajweedChange}
+            icon={Bell}
+            onChange={onPromptChange}
           />
         </div>
 
@@ -394,8 +394,8 @@ function MobileEvaluationDock({
         </div>
 
         <p className="mt-1 text-center text-[9px] leading-4 text-stone-400">
-          السؤال {formatNumber(question.index + 1)} • كل خطأ = درجة، والتردد = نصف
-          درجة
+          السؤال {formatNumber(question.index + 1)} • الرد = درجة، التنبيه = نصف
+          درجة، والتردد = ربع درجة
         </p>
       </div>
     </div>,
@@ -409,21 +409,21 @@ export function EvaluationPanel({
   viewedAyahs,
   onSubmit,
 }: EvaluationPanelProps) {
-  const [hifzMistakes, setHifzMistakes] = useState(0);
-  const [tajweedMistakes, setTajweedMistakes] = useState(0);
+  const [responseMistakes, setResponseMistakes] = useState(0);
+  const [promptMistakes, setPromptMistakes] = useState(0);
   const [hesitations, setHesitations] = useState(0);
   const [note, setNote] = useState('');
   const [noteOpen, setNoteOpen] = useState(false);
 
   const totalPoints = computeEvaluationPoints({
-    hifzMistakes,
-    tajweedMistakes,
+    responseMistakes,
+    promptMistakes,
     hesitations,
   });
 
   const draft: EvaluationDraft = {
-    hifzMistakes,
-    tajweedMistakes,
+    responseMistakes,
+    promptMistakes,
     hesitations,
     note,
   };
@@ -433,8 +433,8 @@ export function EvaluationPanel({
   const handleSkip = useCallback(() => {
     onSubmit(
       {
-        hifzMistakes: 0,
-        tajweedMistakes: 0,
+        responseMistakes: 0,
+        promptMistakes: 0,
         hesitations: 0,
         note: '',
         skipped: true,
@@ -490,8 +490,8 @@ export function EvaluationPanel({
               <button
                 type="button"
                 onClick={() => {
-                  setHifzMistakes(0);
-                  setTajweedMistakes(0);
+                  setResponseMistakes(0);
+                  setPromptMistakes(0);
                   setHesitations(0);
                 }}
                 className="rounded-lg px-2 py-1 text-[11px] font-semibold text-stone-500 hover:bg-stone-100 hover:text-stone-800"
@@ -504,27 +504,27 @@ export function EvaluationPanel({
           <div className="space-y-2">
             <MistakeCounter
               label="تردد"
-              hint="نصف درجة لكل تردد"
+              hint="ربع درجة لكل تردد"
               value={hesitations}
               tone="amber"
               icon={Clock}
               onChange={setHesitations}
             />
             <MistakeCounter
-              label="خطأ حفظ"
-              hint="درجة واحدة لكل خطأ واضح"
-              value={hifzMistakes}
+              label="الرد"
+              hint="درجة واحدة لكل رد خاطئ"
+              value={responseMistakes}
               tone="rose"
               icon={AlertCircle}
-              onChange={setHifzMistakes}
+              onChange={setResponseMistakes}
             />
             <MistakeCounter
-              label="خطأ تجويد"
-              hint="درجة واحدة لكل خطأ واضح"
-              value={tajweedMistakes}
+              label="تنبيه"
+              hint="نصف درجة لكل تنبيه"
+              value={promptMistakes}
               tone="violet"
-              icon={Music2}
-              onChange={setTajweedMistakes}
+              icon={Bell}
+              onChange={setPromptMistakes}
             />
           </div>
         </div>
@@ -532,7 +532,8 @@ export function EvaluationPanel({
         <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-teal-50/70 p-2.5 text-[10px] leading-5 text-teal-900">
           <Info className="mt-0.5 h-3 w-3 shrink-0" />
           التقييم بيد المختبر: الدرجة تعبّر عن الأخطاء وليست عن الإجابات الصحيحة.
-          كل خطأ واضح = درجة، وكل تردد = نصف درجة. إذا لم تسجّل أي خطأ ستكون الدرجة ٠.
+          كل رد خاطئ = درجة، وكل تنبيه = نصف درجة، وكل تردد = ربع درجة. إذا لم
+          تسجّل أي خطأ ستكون الدرجة ٠.
         </p>
 
         <div className="mt-4">
@@ -574,13 +575,13 @@ export function EvaluationPanel({
       <MobileEvaluationDock
         question={question}
         isLastQuestion={isLastQuestion}
-        hifzMistakes={hifzMistakes}
-        tajweedMistakes={tajweedMistakes}
+        responseMistakes={responseMistakes}
+        promptMistakes={promptMistakes}
         hesitations={hesitations}
         note={note}
         totalPoints={totalPoints}
-        onHifzChange={setHifzMistakes}
-        onTajweedChange={setTajweedMistakes}
+        onResponseChange={setResponseMistakes}
+        onPromptChange={setPromptMistakes}
         onHesitationsChange={setHesitations}
         onSave={() => onSubmit(draft, false)}
         onSkip={handleSkip}

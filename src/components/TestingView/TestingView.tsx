@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import type { TestEngine } from '../../hooks/useTestEngine';
 import { formatNumber } from '../../utils/helpers';
+import { getPageAyahs, getPageFirstAyah } from '../../utils/quranHelpers';
 import { formatPoints } from '../../utils/scoring';
 import { Button } from '../ui/Button';
 import { ProgressBar } from '../ui/ProgressBar';
@@ -42,12 +43,41 @@ export function TestingView({ engine }: TestingViewProps) {
     progressPercent,
     nextAyah,
     previousAyah,
+    goToAyah,
     goToQuestionStart,
     submitEvaluation,
     finishTest,
   } = engine;
 
   if (!currentQuestion || !currentAyah) return null;
+
+  const pageMode = engine.config?.displayMode === 'page';
+  const pageAyahs = pageMode ? getPageAyahs(currentAyah.page) : [currentAyah];
+  const previousPageAyah = pageMode
+    ? getPageFirstAyah(currentAyah.page - 1)
+    : undefined;
+  const nextPageAyah = pageMode ? getPageFirstAyah(currentAyah.page + 1) : undefined;
+  const canGoPrevious = pageMode ? Boolean(previousPageAyah) : canGoPreviousAyah;
+  const canGoNext = pageMode ? Boolean(nextPageAyah) : canGoNextAyah;
+  const pageContainsQuestionStart = pageAyahs.some(
+    (ayah) => ayah.number === currentQuestion.startAyah.number,
+  );
+
+  const handlePrevious = () => {
+    if (pageMode) {
+      if (previousPageAyah) goToAyah(previousPageAyah.number);
+      return;
+    }
+    previousAyah();
+  };
+
+  const handleNext = () => {
+    if (pageMode) {
+      if (nextPageAyah) goToAyah(nextPageAyah.number);
+      return;
+    }
+    nextAyah();
+  };
 
   const offsetFromStart = currentAyah.number - currentQuestion.startAyah.number;
   const segmentLabel =
@@ -131,19 +161,28 @@ export function TestingView({ engine }: TestingViewProps) {
       </section>
 
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
-        <div className="space-y-3 sm:space-y-4">
+        <div className="min-w-0 space-y-3 sm:space-y-4">
           <div className="rounded-2xl border border-stone-200/80 bg-white/85 p-2 shadow-sm shadow-stone-900/[0.02] sm:p-2.5">
             <div className="flex items-center gap-1.5">
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={previousAyah}
-                disabled={!canGoPreviousAyah}
-                aria-label="الآية السابقة"
+                onClick={handlePrevious}
+                disabled={!canGoPrevious}
+                aria-label={pageMode ? 'الصفحة السابقة' : 'الآية السابقة'}
                 className="min-h-10 min-w-0 flex-1 px-2 sm:flex-none sm:px-3"
               >
                 <ChevronRight className="h-4 w-4 shrink-0" />
-                <span className="truncate">السابقة</span>
+                <span className="truncate">
+                  {pageMode ? (
+                    <>
+                      <span className="sm:hidden">السابقة</span>
+                      <span className="hidden sm:inline">الصفحة السابقة</span>
+                    </>
+                  ) : (
+                    'السابقة'
+                  )}
+                </span>
               </Button>
               <Button
                 variant="ghost"
@@ -159,12 +198,21 @@ export function TestingView({ engine }: TestingViewProps) {
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={nextAyah}
-                disabled={!canGoNextAyah}
-                aria-label="الآية التالية"
+                onClick={handleNext}
+                disabled={!canGoNext}
+                aria-label={pageMode ? 'الصفحة التالية' : 'الآية التالية'}
                 className="min-h-10 min-w-0 flex-1 px-2 sm:flex-none sm:px-3"
               >
-                <span className="truncate">التالية</span>
+                <span className="truncate">
+                  {pageMode ? (
+                    <>
+                      <span className="sm:hidden">التالية</span>
+                      <span className="hidden sm:inline">الصفحة التالية</span>
+                    </>
+                  ) : (
+                    'التالية'
+                  )}
+                </span>
                 <ChevronLeft className="h-4 w-4 shrink-0" />
               </Button>
 
@@ -192,8 +240,10 @@ export function TestingView({ engine }: TestingViewProps) {
 
           <VerseCard
             ayah={currentAyah}
+            pageAyahs={pageMode ? pageAyahs : undefined}
+            questionStartAyahNumber={currentQuestion.startAyah.number}
             isHidden={hideText}
-            isQuestionStart={isAtQuestionStart}
+            isQuestionStart={pageMode ? pageContainsQuestionStart : isAtQuestionStart}
             offsetFromStart={offsetFromStart}
             onReveal={() => setHideText(false)}
           />
@@ -204,14 +254,14 @@ export function TestingView({ engine }: TestingViewProps) {
               أثناء التسميع
             </p>
             <p className="mt-1">
-              استخدم «التالية» للتحقق من تتابع الآيات، و«السابقة» للرجوع عند الحاجة.
-              التنقل بين الآيات لا يغيّر السؤال الحالي؛ احفظ التقييم عند الانتهاء
-              للانتقال إلى الشريحة التالية.
+              {pageMode
+                ? 'استخدم «الصفحة التالية» و«الصفحة السابقة» للتنقل بين صفحات المصحف. التنقل لا يغيّر السؤال الحالي؛ احفظ التقييم عند الانتهاء للانتقال إلى الشريحة التالية.'
+                : 'استخدم «التالية» للتحقق من تتابع الآيات، و«السابقة» للرجوع عند الحاجة. التنقل بين الآيات لا يغيّر السؤال الحالي؛ احفظ التقييم عند الانتهاء للانتقال إلى الشريحة التالية.'}
             </p>
           </div>
         </div>
 
-        <aside className="lg:sticky lg:top-24">
+        <aside className="min-w-0 lg:sticky lg:top-24">
           <EvaluationPanel
             key={currentQuestion.id}
             question={currentQuestion}
