@@ -67,52 +67,53 @@ export function TestingView({ engine }: TestingViewProps) {
   };
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-3xl border border-stone-200/80 bg-white/85 p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-teal-700 text-white">
-                <Target className="h-4 w-4" />
-              </span>
-              <div>
-                <p className="text-[11px] font-bold text-teal-700">جلسة اختبار</p>
-                <h2 className="text-lg font-bold text-stone-900">
-                  السؤال {formatNumber(currentIndex + 1)} من{' '}
-                  {formatNumber(totalQuestions)}
-                </h2>
-              </div>
+    <div className="space-y-4 pb-[calc(10rem+env(safe-area-inset-bottom))] sm:space-y-5 lg:pb-0">
+      <section className="rounded-2xl border border-stone-200/80 bg-white/85 p-3.5 shadow-sm shadow-stone-900/[0.03] sm:rounded-3xl sm:p-6">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-teal-700 text-white sm:h-9 sm:w-9">
+              <Target className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="hidden text-[11px] font-bold text-teal-700 sm:block">
+                جلسة اختبار
+              </p>
+              <h2 className="truncate text-base font-bold text-stone-900 sm:text-lg">
+                السؤال {formatNumber(currentIndex + 1)} من{' '}
+                {formatNumber(totalQuestions)}
+              </h2>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-stone-600">
+          <div className="flex shrink-0 items-center gap-1.5">
+            <span className="hidden items-center gap-1.5 rounded-full border border-stone-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-stone-600 sm:inline-flex">
               <CheckCheck className="h-3.5 w-3.5 text-emerald-500" />
               قُيّم {formatNumber(summary.ratedQuestions)}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-stone-600">
+            <span className="hidden items-center gap-1.5 rounded-full border border-stone-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-stone-600 sm:inline-flex">
               <AlertCircle className="h-3.5 w-3.5 text-rose-400" />
               درجات {formatPoints(summary.totalPoints)}
             </span>
             <button
               type="button"
               onClick={handleEarlyFinish}
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-[11px] font-semibold text-stone-400 hover:bg-stone-100 hover:text-stone-700"
+              aria-label="إنهاء مبكر"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-[11px] font-semibold text-stone-400 hover:bg-stone-100 hover:text-stone-700 sm:px-2.5"
             >
               <LogOut className="h-3.5 w-3.5" />
-              إنهاء مبكر
+              <span className="hidden sm:inline">إنهاء مبكر</span>
             </button>
           </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-3 sm:mt-4">
           <ProgressBar value={progressPercent} />
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-stone-500">
-            <span className="inline-flex items-center gap-1.5">
-              <Layers3 className="h-3 w-3" />
-              شريحة السؤال: {segmentLabel}
+          <div className="mt-1.5 flex items-center justify-between gap-2 text-[10px] text-stone-500 sm:mt-2 sm:text-[11px]">
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <Layers3 className="h-3 w-3 shrink-0" />
+              <span className="truncate">شريحة السؤال: {segmentLabel}</span>
             </span>
-            <span className="inline-flex items-center gap-1.5">
+            <span className="hidden items-center gap-1.5 sm:inline-flex">
               <Activity className="h-3 w-3" />
               {hideText ? 'وضع أعمى — النص مخفي' : 'وضع المختبر — النص ظاهر'}
             </span>
@@ -129,58 +130,60 @@ export function TestingView({ engine }: TestingViewProps) {
         ) : null}
       </section>
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-stone-200/80 bg-white/85 p-2.5 shadow-sm shadow-stone-900/[0.02]">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={previousAyah}
-                  disabled={!canGoPreviousAyah}
-                  aria-label="الآية السابقة"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                  السابقة
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={goToQuestionStart}
-                  disabled={isAtQuestionStart}
-                  aria-label="العودة إلى بداية السؤال"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">بداية السؤال</span>
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={nextAyah}
-                  disabled={!canGoNextAyah}
-                  aria-label="الآية التالية"
-                >
-                  التالية
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-              </div>
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="rounded-2xl border border-stone-200/80 bg-white/85 p-2 shadow-sm shadow-stone-900/[0.02] sm:p-2.5">
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={previousAyah}
+                disabled={!canGoPreviousAyah}
+                aria-label="الآية السابقة"
+                className="min-h-10 min-w-0 flex-1 px-2 sm:flex-none sm:px-3"
+              >
+                <ChevronRight className="h-4 w-4 shrink-0" />
+                <span className="truncate">السابقة</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={goToQuestionStart}
+                disabled={isAtQuestionStart}
+                aria-label="العودة إلى بداية السؤال"
+                className="min-h-10 shrink-0 px-2 sm:px-3"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">بداية السؤال</span>
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={nextAyah}
+                disabled={!canGoNextAyah}
+                aria-label="الآية التالية"
+                className="min-h-10 min-w-0 flex-1 px-2 sm:flex-none sm:px-3"
+              >
+                <span className="truncate">التالية</span>
+                <ChevronLeft className="h-4 w-4 shrink-0" />
+              </Button>
 
               <button
                 type="button"
                 onClick={() => setHideText((current) => !current)}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold text-stone-500 hover:bg-stone-100 hover:text-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-stone-500 hover:bg-stone-100 hover:text-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 sm:ms-auto sm:px-2.5"
                 aria-pressed={hideText}
+                aria-label={hideText ? 'إظهار النص' : 'إخفاء النص'}
               >
                 {hideText ? (
                   <>
-                    <Eye className="h-3.5 w-3.5" />
-                    إظهار النص
+                    <Eye className="h-4 w-4" />
+                    <span className="hidden sm:inline">إظهار النص</span>
                   </>
                 ) : (
                   <>
-                    <EyeOff className="h-3.5 w-3.5" />
-                    إخفاء النص
+                    <EyeOff className="h-4 w-4" />
+                    <span className="hidden sm:inline">إخفاء النص</span>
                   </>
                 )}
               </button>
@@ -195,7 +198,7 @@ export function TestingView({ engine }: TestingViewProps) {
             onReveal={() => setHideText(false)}
           />
 
-          <div className="rounded-2xl border border-stone-200/70 bg-white/50 p-3.5 text-[11px] leading-6 text-stone-500">
+          <div className="hidden rounded-2xl border border-stone-200/70 bg-white/50 p-3.5 text-[11px] leading-6 text-stone-500 sm:block">
             <p className="flex items-center gap-1.5 font-bold text-stone-700">
               <Info className="h-3.5 w-3.5 text-teal-600" />
               أثناء التسميع

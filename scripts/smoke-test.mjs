@@ -49,7 +49,12 @@ async function clickButton(text, { exact = false, selector = 'button' } = {}) {
   const clicked = await page.evaluate(
     (needle, isExact, buttonSelector) => {
       const normalize = (value) => value.replace(/\s+/g, ' ').trim();
+      const isVisible = (node) => {
+        const box = node.getBoundingClientRect();
+        return box.width > 0 && box.height > 0;
+      };
       const element = [...document.querySelectorAll(buttonSelector)].find((node) => {
+        if (!isVisible(node)) return false;
         const label = normalize(node.textContent ?? '');
         return isExact ? label === needle : label.includes(needle);
       });
@@ -68,7 +73,12 @@ async function clickButton(text, { exact = false, selector = 'button' } = {}) {
 
 async function clickAriaLabel(label) {
   const clicked = await page.evaluate((value) => {
-    const element = document.querySelector(`button[aria-label="${value}"]`);
+    const element = [...document.querySelectorAll(`button[aria-label="${value}"]`)].find(
+      (node) => {
+        const box = node.getBoundingClientRect();
+        return box.width > 0 && box.height > 0;
+      },
+    );
     if (!element) return false;
     element.click();
     return true;
@@ -284,8 +294,61 @@ try {
   await waitForText('السؤال ١ من ٥');
   await assertNoHorizontalOverflow('mobile testing');
 
+  const saveInViewport = await page.evaluate(() => {
+    const button = [...document.querySelectorAll('button')].find((node) => {
+      const box = node.getBoundingClientRect();
+      return (
+        box.width > 0 &&
+        box.height > 0 &&
+        (node.textContent ?? '').replace(/\s+/g, ' ').trim().includes('حفظ والتالي')
+      );
+    });
+    if (!button) return false;
+    const box = button.getBoundingClientRect();
+    return box.top >= 0 && box.bottom <= window.innerHeight;
+  });
+  if (!saveInViewport) {
+    throw new Error('The next-question button is not visible without scrolling on mobile');
+  }
+  console.log('  ✓ Next-question button is always in view on mobile');
+
+  await clickAriaLabel('زيادة تردد');
+  const dockScore = await page.evaluate(
+    () =>
+      document.querySelector('[aria-label^="درجة السؤال"]')?.getAttribute('aria-label') ??
+      '',
+  );
+  if (!dockScore.includes('٠٫٥')) {
+    throw new Error('The mobile evaluation dock did not record a half-point hesitation');
+  }
+  console.log('  ✓ Mobile dock records half-point hesitations');
+
+  await clickAriaLabel('ملاحظات المختبر');
+  await page.waitForFunction(() =>
+    [...document.querySelectorAll('textarea')].some(
+      (node) => node.getBoundingClientRect().height > 0,
+    ),
+  );
+  await page.evaluate(() => {
+    const textarea = [...document.querySelectorAll('textarea')].find(
+      (node) => node.getBoundingClientRect().height > 0,
+    );
+    if (!textarea) return;
+    const setter = Object.getOwnPropertyDescriptor(
+      HTMLTextAreaElement.prototype,
+      'value',
+    )?.set;
+    setter?.call(textarea, 'ملاحظة اختبار الهاتف');
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await clickButton('تم', { exact: true });
+  await clickButton('حفظ والتالي', { exact: true });
+  await waitForText('السؤال ٢ من ٥');
+  console.log('  ✓ Mobile save button advances to the next question');
+
   await clickButton('إنهاء مبكر', { exact: true });
   await waitForText('نتيجة التقييم');
+  await assertText('ملاحظة اختبار الهاتف', 'Mobile note saved with the evaluation');
   await assertNoHorizontalOverflow('mobile results');
 
   if (pageErrors.length > 0) {
