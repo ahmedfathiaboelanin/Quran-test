@@ -168,10 +168,51 @@ export function ResultsView({
       summary.totalPoints === 0
         ? '🏆 النتيجة: ممتاز (بدون أخطاء)'
         : `📉 مجموع الأخطاء: ${formatPoints(summary.totalPoints)} درجة`;
+
+    const questionsDetails = summary.results
+      .map(({ question, evaluation }) => {
+        const qNum = formatNumber(question.index + 1);
+        const surah = question.startAyah.surahName;
+        const ayahNum = formatNumber(question.startAyah.numberInSurah);
+
+        let evalText = 'لم يُقيّم';
+        const mistakeParts: string[] = [];
+
+        if (evaluation) {
+          if (evaluation.points === null) {
+            evalText = 'تم التخطي';
+          } else if (evaluation.points === 0) {
+            evalText = 'بدون أخطاء ✓';
+          } else {
+            if (evaluation.responseMistakes > 0) {
+              mistakeParts.push(`رد خاطئ ×${formatNumber(evaluation.responseMistakes)}`);
+            }
+            if (evaluation.promptMistakes > 0) {
+              mistakeParts.push(`تنبيه ×${formatNumber(evaluation.promptMistakes)}`);
+            }
+            if (evaluation.hesitations > 0) {
+              mistakeParts.push(`تردد ×${formatNumber(evaluation.hesitations)}`);
+            }
+            const mistakesStr = mistakeParts.length > 0 ? ` (${mistakeParts.join('، ')})` : '';
+            evalText = `${formatPoints(evaluation.points)} درجة${mistakesStr}`;
+          }
+        }
+
+        let line = `${qNum}. سورة ${surah} (آية ${ayahNum}) ← ${evalText}`;
+        if (evaluation?.note?.trim()) {
+          line += `\n   📝 ملاحظة: ${evaluation.note.trim()}`;
+        }
+        return line;
+      })
+      .join('\n');
+
     const shareText = `📖 نتيجة اختبار حفظ القرآن الكريم
 ${studentLine}${scoreLine}
 🎯 الأسئلة: ${formatNumber(summary.ratedQuestions)} من ${formatNumber(summary.totalQuestions)} سؤال
-📅 التاريخ: ${formatDate(summary.completedAt)}`;
+📅 التاريخ: ${formatDate(summary.completedAt)}
+
+📋 تفاصيل الأسئلة والملاحظات:
+${questionsDetails}`;
 
     if (navigator.share) {
       try {
