@@ -1,19 +1,17 @@
+import { useState } from 'react';
 import {
   Award,
   Bell,
-  CalendarDays,
+  Check,
   CheckCircle2,
   ClipboardList,
   Clock,
-  Files,
   Gauge,
   NotebookPen,
   Printer,
   RefreshCcw,
-  Shuffle,
+  Share2,
   SlidersHorizontal,
-  Sparkles,
-  Target,
   TriangleAlert,
   User,
 } from 'lucide-react';
@@ -154,6 +152,7 @@ export function ResultsView({
   onRestartSameScope,
   onNewTest,
 }: ResultsViewProps) {
+  const [copied, setCopied] = useState(false);
   const responsePoints = summary.responseMistakes * 1;
   const promptPoints = summary.promptMistakes * 0.5;
   const hesitationPoints = summary.hesitations * 0.25;
@@ -161,119 +160,139 @@ export function ResultsView({
     Boolean(evaluation?.note.trim()),
   );
 
+  const handleShare = async () => {
+    const studentLine = config?.studentName
+      ? `👤 المختبَر: ${config.studentName}\n`
+      : '';
+    const scoreLine =
+      summary.totalPoints === 0
+        ? '🏆 النتيجة: ممتاز (بدون أخطاء)'
+        : `📉 مجموع الأخطاء: ${formatPoints(summary.totalPoints)} درجة`;
+    const shareText = `📖 نتيجة اختبار حفظ القرآن الكريم
+${studentLine}${scoreLine}
+🎯 الأسئلة: ${formatNumber(summary.ratedQuestions)} من ${formatNumber(summary.totalQuestions)} سؤال
+📅 التاريخ: ${formatDate(summary.completedAt)}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'نتيجة اختبار حفظ القرآن الكريم',
+          text: shareText,
+        });
+        return;
+      } catch {
+        // User cancelled or share failed, fallback to clipboard
+      }
+    }
+
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(shareText);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
   return (
     <div className="space-y-5">
       <section className="relative overflow-hidden rounded-3xl border border-teal-900/10 bg-gradient-to-br from-teal-800 via-teal-700 to-emerald-900 p-5 text-white shadow-xl shadow-teal-950/15 sm:p-7">
         <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_10%_10%,#fef3c7_0,transparent_28%),radial-gradient(circle_at_90%_90%,#5eead4_0,transparent_30%)]" />
-        <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-5">
+
+        <div className="relative flex flex-col gap-5 sm:gap-6">
+          {/* الاسم والدرجة */}
+          <div className="flex flex-col items-center justify-between gap-5 text-center sm:flex-row sm:text-right">
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-teal-100 ring-1 ring-white/15">
+                <Award className="h-3.5 w-3.5 text-amber-300" />
+                نتيجة التقييم
+              </span>
+
+              {config?.studentName ? (
+                <div className="flex items-center justify-center gap-2 sm:justify-start">
+                  <User className="h-6 w-6 shrink-0 text-amber-300" />
+                  <h2 className="truncate text-2xl font-bold sm:text-3xl text-white">
+                    {config.studentName}
+                  </h2>
+                </div>
+              ) : (
+                <h2 className="text-2xl font-bold sm:text-3xl text-white">
+                  {summary.ratedQuestions === 0 ? 'لا يوجد تقييم' : 'نتيجة الاختبار'}
+                </h2>
+              )}
+
+              <p className="text-xs text-teal-100/80 sm:text-sm">
+                {getResultMessage(summary)}
+              </p>
+            </div>
+
+            {/* عرض الدرجة */}
             <div
-              className="grid h-32 w-32 shrink-0 place-items-center rounded-full bg-white/10 p-2 ring-1 ring-white/20 sm:h-36 sm:w-36"
+              className="grid h-28 w-28 shrink-0 place-items-center rounded-full bg-white/10 p-2 ring-1 ring-white/20 sm:h-32 sm:w-32"
               role="img"
-              aria-label={`إجمالي الدرجات ${formatPoints(summary.totalPoints)}`}
+              aria-label={`الدرجة ${formatPoints(summary.totalPoints)}`}
             >
               <div className="grid h-full w-full place-items-center rounded-full bg-teal-800 text-center shadow-inner">
                 <div>
-                  <p className="text-4xl font-bold tabular-nums">
+                  <p className="text-3xl font-bold tabular-nums sm:text-4xl">
                     {formatPoints(summary.totalPoints)}
                   </p>
-                  <p className="mt-0.5 text-[10px] text-teal-100/80">
-                    إجمالي الدرجات
+                  <p className="mt-0.5 text-[11px] font-medium text-teal-100/90">
+                    الدرجة
                   </p>
                 </div>
               </div>
             </div>
-
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-teal-50 ring-1 ring-white/15">
-                  <Award className="h-3 w-3 text-amber-300" />
-                  نتيجة التقييم
-                </p>
-                {config?.studentName ? (
-                  <p className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold text-white ring-1 ring-white/30">
-                    <User className="h-3.5 w-3.5 text-teal-200" />
-                    المختبَر: {config.studentName}
-                  </p>
-                ) : null}
-              </div>
-              <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
-                {summary.ratedQuestions === 0 ? 'لا يوجد تقييم بعد' : 'مجموع الأخطاء'}
-              </h2>
-              <p className="mt-2 max-w-lg text-xs leading-6 text-teal-50/85 sm:text-sm">
-                {getResultMessage(summary)}
-              </p>
-              <p className="mt-2 inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-teal-50/90 ring-1 ring-white/10">
-                الدرجات تعبّر عن الأخطاء — الرد = درجة، التنبيه = نصف درجة، والتردد
-                = ربع درجة
-              </p>
-              <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] text-teal-100/75">
-                {config?.studentName ? (
-                  <span className="inline-flex items-center gap-1 font-bold text-white">
-                    <User className="h-3 w-3 text-teal-200" />
-                    {config.studentName}
-                  </span>
-                ) : null}
-                <span className="inline-flex items-center gap-1">
-                  <CalendarDays className="h-3 w-3" />
-                  {formatDate(summary.completedAt)}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Target className="h-3 w-3" />
-                  {formatNumber(summary.totalQuestions)} سؤال
-                </span>
-                {config ? (
-                  <>
-                    <span className="inline-flex items-center gap-1">
-                      <Sparkles className="h-3 w-3" />
-                      {config.distributionUnit === 'page'
-                        ? 'توزيع على الصفحات'
-                        : config.distributionUnit === 'ayah'
-                          ? 'توزيع على الآيات'
-                          : 'توزيع تلقائي'}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Files className="h-3 w-3" />
-                      {config.displayMode === 'page'
-                        ? 'عرض الصفحة كاملة'
-                        : 'عرض آية واحدة'}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Shuffle className="h-3 w-3" />
-                      {config.randomizeQuestionOrder
-                        ? 'ترتيب عشوائي'
-                        : 'ترتيب المصحف'}
-                    </span>
-                  </>
-                ) : null}
-              </div>
-            </div>
           </div>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-2 print:hidden">
+          {/* أزرار التحكم */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 border-t border-white/10 pt-4 sm:justify-start print:hidden">
+            <Button
+              variant="secondary"
+              onClick={onNewTest}
+              className="border-white/20 bg-white font-bold text-teal-950 shadow-sm hover:bg-teal-50"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              بدء اختبار جديد
+            </Button>
+
             <Button
               variant="secondary"
               onClick={onRestartSameScope}
-              className="border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+              className="border-white/25 bg-white/15 font-semibold text-white hover:bg-white/25 hover:text-white"
             >
               <RefreshCcw className="h-4 w-4" />
               إعادة بنفس النطاق
             </Button>
-            <Button
-              variant="secondary"
-              onClick={onNewTest}
-              className="border-white/20 bg-white text-teal-900 hover:bg-teal-50"
+
+            <button
+              type="button"
+              onClick={handleShare}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/25 bg-white/15 px-4 text-xs font-bold text-white transition hover:bg-white/25 active:scale-95"
             >
-              <SlidersHorizontal className="h-4 w-4" />
-              اختبار جديد
-            </Button>
+              {copied ? (
+                <>
+                  <Check className="h-4 w-4 text-emerald-300" />
+                  <span>تم نسخ النتيجة!</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-4 w-4 text-teal-200" />
+                  <span>مشاركة النتيجة</span>
+                </>
+              )}
+            </button>
+
             <button
               type="button"
               onClick={() => window.print()}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-teal-50 hover:bg-white/10"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-xs font-medium text-teal-100 hover:bg-white/10 hover:text-white transition"
+              title="طباعة النتيجة"
             >
               <Printer className="h-4 w-4" />
-              طباعة
+              <span>طباعة</span>
             </button>
           </div>
         </div>
