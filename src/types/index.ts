@@ -63,6 +63,7 @@ export type DistributionUnit = 'auto' | 'page' | 'ayah';
 export type QuestionDisplayMode = 'ayah' | 'page';
 
 export interface TestConfig {
+  studentName?: string;
   scope: ScopeSelection;
   questionCount: number;
   distributionUnit: DistributionUnit;

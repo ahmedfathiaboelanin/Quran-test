@@ -10,6 +10,7 @@ import {
   Plus,
   Shuffle,
   Sparkles,
+  User,
 } from 'lucide-react';
 import type {
   DistributionUnit,
@@ -99,6 +100,7 @@ export function SetupView({
   const [selection, setSelection] = useState<ScopeSelection>(() =>
     initialConfig ? cloneSelection(initialConfig.scope) : cloneSelection(EMPTY_SELECTION),
   );
+  const [studentName, setStudentName] = useState(initialConfig?.studentName ?? '');
   const [activeTab, setActiveTab] = useState<ScopeTab>(() =>
     initialConfig ? inferScopeTab(initialConfig.scope) : 'surah',
   );
@@ -136,6 +138,7 @@ export function SetupView({
   const handleStart = () => {
     if (!canStart) return;
     onStart({
+      studentName: studentName.trim() || undefined,
       scope: cloneSelection(selection),
       questionCount: plannedCount,
       distributionUnit,
@@ -165,6 +168,27 @@ export function SetupView({
           <h2 className="mt-1 text-xl font-bold text-stone-900">إعدادات الاختبار</h2>
 
           <div className="mt-5 space-y-5">
+            <div>
+              <label
+                htmlFor="student-name"
+                className="mb-1.5 flex items-center justify-between text-sm font-semibold text-stone-800"
+              >
+                <span className="flex items-center gap-1.5">
+                  <User className="h-4 w-4 text-teal-700" />
+                  اسم المختبَر
+                </span>
+                <span className="text-[11px] font-normal text-stone-400">اختياري</span>
+              </label>
+              <input
+                id="student-name"
+                type="text"
+                value={studentName}
+                onChange={(event) => setStudentName(event.target.value)}
+                placeholder="أدخل اسم الطالب أو المختبَر..."
+                className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3.5 text-sm font-medium text-stone-900 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+              />
+            </div>
+
             <div>
               <div className="mb-2 flex items-center justify-between gap-2">
                 <label

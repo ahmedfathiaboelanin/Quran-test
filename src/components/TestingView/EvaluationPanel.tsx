@@ -8,10 +8,12 @@ import {
   ChevronRight,
   Clock,
   Info,
+  LogOut,
   Minus,
   NotebookPen,
   Plus,
   SkipForward,
+  User,
   X,
 } from 'lucide-react';
 import type { EvaluationDraft } from '../../hooks/useTestEngine';
@@ -36,6 +38,8 @@ interface EvaluationPanelProps {
   isLastQuestion: boolean;
   viewedAyahs: number;
   totalQuestions?: number;
+  studentName?: string;
+  onEarlyFinish?: () => void;
   onSubmit: (draft: EvaluationDraft, finishAfter?: boolean) => void;
   /** Extra controls shown at the top of the mobile dock. */
   mobilePageNavigation?: MobilePageNavigation;
@@ -362,6 +366,7 @@ interface MobileEvaluationDockProps {
   note: string;
   totalPoints: number;
   pageNavigation?: MobilePageNavigation;
+  onEarlyFinish?: () => void;
   onResponseChange: (value: number) => void;
   onPromptChange: (value: number) => void;
   onHesitationsChange: (value: number) => void;
@@ -379,6 +384,7 @@ function MobileEvaluationDock({
   note,
   totalPoints,
   pageNavigation,
+  onEarlyFinish,
   onResponseChange,
   onPromptChange,
   onHesitationsChange,
@@ -474,6 +480,18 @@ function MobileEvaluationDock({
           >
             <SkipForward className="h-4 w-4" />
           </button>
+
+          {onEarlyFinish ? (
+            <button
+              type="button"
+              onClick={onEarlyFinish}
+              aria-label="خروج من الاختبار"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-rose-200 bg-rose-50 text-rose-600 transition hover:bg-rose-100 hover:text-rose-800"
+              title="خروج"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          ) : null}
         </div>
 
         {pageNavigation ? null : (
@@ -493,6 +511,8 @@ export function EvaluationPanel({
   isLastQuestion,
   viewedAyahs,
   totalQuestions,
+  studentName,
+  onEarlyFinish,
   onSubmit,
   mobilePageNavigation,
 }: EvaluationPanelProps) {
@@ -539,6 +559,12 @@ export function EvaluationPanel({
               السؤال {formatNumber(question.index + 1)}
               {totalQuestions ? ` من ${formatNumber(totalQuestions)}` : ''}
             </p>
+            {studentName ? (
+              <p className="mt-0.5 inline-flex items-center gap-1 text-xs font-semibold text-stone-600">
+                <User className="h-3 w-3 text-teal-700" />
+                المختبَر: <span className="font-bold text-stone-900">{studentName}</span>
+              </p>
+            ) : null}
             <h2 className="mt-0.5 text-lg font-bold text-stone-900">
               تقييم التسميع بالدرجات
             </h2>
@@ -669,6 +695,7 @@ export function EvaluationPanel({
         note={note}
         totalPoints={totalPoints}
         pageNavigation={mobilePageNavigation}
+        onEarlyFinish={onEarlyFinish}
         onResponseChange={setResponseMistakes}
         onPromptChange={setPromptMistakes}
         onHesitationsChange={setHesitations}

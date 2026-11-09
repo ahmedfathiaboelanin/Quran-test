@@ -15,6 +15,7 @@ import {
   Sparkles,
   Target,
   TriangleAlert,
+  User,
 } from 'lucide-react';
 import type { QuestionEvaluation, TestConfig, TestSummary } from '../../types';
 import { formatDate, formatNumber } from '../../utils/helpers';
@@ -184,10 +185,18 @@ export function ResultsView({
             </div>
 
             <div className="min-w-0">
-              <p className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-teal-50 ring-1 ring-white/15">
-                <Award className="h-3 w-3 text-amber-300" />
-                نتيجة التقييم
-              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-teal-50 ring-1 ring-white/15">
+                  <Award className="h-3 w-3 text-amber-300" />
+                  نتيجة التقييم
+                </p>
+                {config?.studentName ? (
+                  <p className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold text-white ring-1 ring-white/30">
+                    <User className="h-3.5 w-3.5 text-teal-200" />
+                    المختبَر: {config.studentName}
+                  </p>
+                ) : null}
+              </div>
               <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
                 {summary.ratedQuestions === 0 ? 'لا يوجد تقييم بعد' : 'مجموع الأخطاء'}
               </h2>
@@ -199,6 +208,12 @@ export function ResultsView({
                 = ربع درجة
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] text-teal-100/75">
+                {config?.studentName ? (
+                  <span className="inline-flex items-center gap-1 font-bold text-white">
+                    <User className="h-3 w-3 text-teal-200" />
+                    {config.studentName}
+                  </span>
+                ) : null}
                 <span className="inline-flex items-center gap-1">
                   <CalendarDays className="h-3 w-3" />
                   {formatDate(summary.completedAt)}
