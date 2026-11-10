@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   BookOpenText,
   EyeOff,
@@ -9,6 +10,7 @@ import {
   Play,
   Plus,
   Shuffle,
+  SlidersHorizontal,
   Sparkles,
   User,
 } from 'lucide-react';
@@ -22,7 +24,7 @@ import type {
   TestConfig,
 } from '../../types';
 import { cloneSelection, EMPTY_SELECTION } from '../../data/presets';
-import { formatNumber } from '../../utils/helpers';
+import { cn, formatNumber } from '../../utils/helpers';
 import { getScopeStats } from '../../utils/quranHelpers';
 import { ScopeSelector } from '../ScopeSelector/ScopeSelector';
 import { Button } from '../ui/Button';
@@ -148,8 +150,23 @@ export function SetupView({
     });
   };
 
+  const scrollToSettings = () => {
+    const el = document.getElementById('test-settings-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const onFloatingStartClick = () => {
+    if (!canStart) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    handleStart();
+  };
+
   return (
-    <div className="grid gap-5 pb-20 lg:pb-0 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+    <div className="grid gap-5 pb-28 sm:pb-32 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
       <ScopeSelector
         surahs={surahs}
         juzSummaries={juzSummaries}
@@ -161,7 +178,10 @@ export function SetupView({
       />
 
       <aside className="space-y-4 lg:sticky lg:top-24">
-        <section className="rounded-3xl border border-stone-200/80 bg-white/90 p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6">
+        <section
+          id="test-settings-section"
+          className="rounded-3xl border border-stone-200/80 bg-white/90 p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6"
+        >
           <p className="text-[11px] font-bold tracking-wide text-teal-700">
             الخطوة الثانية
           </p>
@@ -421,35 +441,83 @@ export function SetupView({
         </div>
       </aside>
 
-      {/* شريط البدء العائم للموبايل لتسهيل البدء السريع دون الحاجة للتمرير */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200/90 bg-white/95 px-4 py-3 shadow-[0_-8px_25px_rgba(0,0,0,0.08)] backdrop-blur-md lg:hidden print:hidden">
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-bold text-stone-900">
-              {stats.surahCount > 0
-                ? `${formatNumber(stats.surahCount)} سورة محددة`
-                : stats.pageCount > 0
-                  ? `${formatNumber(stats.pageCount)} صفحة محددة`
-                  : 'حدد النطاق للبدء'}
-            </p>
-            <p className="text-[10px] text-stone-500">
-              {canStart
-                ? `${formatNumber(plannedCount)} سؤال مخطط`
-                : 'اختر نطاقاً يحتوي على آيات'}
-            </p>
-          </div>
+      {/* شريط البدء العائم المتاح على كل الشاشات عبر createPortal لضمان ثباته فوق أي تحريك لصفحة الإعدادات */}
+      {createPortal(
+        <div
+          className="fixed inset-x-0 bottom-0 z-50 border-t border-stone-200/90 bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl dark:border-stone-800 dark:bg-[#0c1211]/95 print:hidden"
+          dir="rtl"
+          role="region"
+          aria-label="شريط بدء الاختبار"
+        >
+          <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-2.5">
+              <span
+                className={cn(
+                  'grid h-9 w-9 shrink-0 place-items-center rounded-xl transition',
+                  canStart
+                    ? 'bg-teal-700 text-white shadow-sm dark:bg-teal-600'
+                    : 'bg-stone-100 text-stone-400 dark:bg-stone-800 dark:text-stone-500',
+                )}
+              >
+                <Sparkles className="h-4 w-4" />
+              </span>
 
-          <Button
-            size="md"
-            disabled={!canStart}
-            onClick={handleStart}
-            className="shrink-0 px-4 text-xs font-bold shadow-sm"
-          >
-            <Play className="h-4 w-4" />
-            ابدأ الاختبار
-          </Button>
-        </div>
-      </div>
+              <div className="min-w-0">
+                <p className="truncate text-xs font-bold text-stone-900 dark:text-stone-100 sm:text-sm">
+                  {canStart
+                    ? stats.surahCount > 0
+                      ? `${formatNumber(stats.surahCount)} سورة محددة (${formatNumber(stats.ayahCount)} آية)`
+                      : stats.pageCount > 0
+                        ? `${formatNumber(stats.pageCount)} صفحة محددة (${formatNumber(stats.ayahCount)} آية)`
+                        : `${formatNumber(stats.ayahCount)} آية في النطاق`
+                    : 'اختر سورة أو جزءاً لبدء الاختبار'}
+                </p>
+                <p className="flex items-center gap-2 text-[11px] text-stone-500 dark:text-stone-400">
+                  <span>
+                    {canStart
+                      ? `${formatNumber(plannedCount)} سؤال مخطط`
+                      : 'حدد نطاق التسميع أولاً'}
+                  </span>
+                  {studentName.trim() ? (
+                    <>
+                      <span className="h-1 w-1 rounded-full bg-stone-300 dark:bg-stone-700" />
+                      <span className="truncate font-semibold text-teal-700 dark:text-teal-400">
+                        المختبَر: {studentName.trim()}
+                      </span>
+                    </>
+                  ) : null}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={scrollToSettings}
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-50 px-3 text-xs font-semibold text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+                title="الانتقال لإعدادات الاختبار"
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                <span className="hidden sm:inline">الإعدادات</span>
+              </button>
+
+              <Button
+                size="md"
+                onClick={onFloatingStartClick}
+                className={cn(
+                  'min-h-10 px-5 text-xs font-bold shadow-md transition active:scale-95 sm:text-sm',
+                  !canStart &&
+                    'cursor-pointer bg-stone-500 opacity-70 hover:bg-stone-600 hover:opacity-90',
+                )}
+              >
+                <Play className="h-4 w-4 shrink-0 fill-current" />
+                <span>ابدأ الاختبار</span>
+              </Button>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
     </div>
   );
 }
