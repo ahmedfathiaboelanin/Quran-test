@@ -16,7 +16,7 @@ import {
   User,
 } from 'lucide-react';
 import type { QuestionEvaluation, TestConfig, TestSummary } from '../../types';
-import { formatDate, formatNumber } from '../../utils/helpers';
+import { cn, formatDate, formatNumber } from '../../utils/helpers';
 import { formatPoints } from '../../utils/scoring';
 import { formatAveragePoints } from '../../utils/testResults';
 import { Button } from '../ui/Button';
@@ -153,12 +153,28 @@ export function ResultsView({
   onNewTest,
 }: ResultsViewProps) {
   const [copied, setCopied] = useState(false);
+  const [questionFilter, setQuestionFilter] = useState<'all' | 'mistakes' | 'clean'>('all');
+
   const responsePoints = summary.responseMistakes * 1;
   const promptPoints = summary.promptMistakes * 0.5;
   const hesitationPoints = summary.hesitations * 0.25;
   const notedResults = summary.results.filter(({ evaluation }) =>
     Boolean(evaluation?.note.trim()),
   );
+
+  const mistakeQuestions = summary.results.filter(
+    (r) => r.evaluation && r.evaluation.points !== null && r.evaluation.points > 0,
+  );
+  const cleanQuestions = summary.results.filter(
+    (r) => r.evaluation && r.evaluation.points === 0,
+  );
+
+  const displayedResults =
+    questionFilter === 'mistakes'
+      ? mistakeQuestions
+      : questionFilter === 'clean'
+        ? cleanQuestions
+        : summary.results;
 
   const handleShare = async () => {
     const studentLine = config?.studentName
@@ -502,61 +518,108 @@ ${questionsDetails}`;
       </section>
 
       <section className="rounded-3xl border border-stone-200/80 bg-white/85 p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-bold tracking-wide text-teal-700">
               سجل الأسئلة
             </p>
             <h2 className="mt-0.5 text-lg font-bold text-stone-900">تفاصيل الأسئلة</h2>
           </div>
-          <span className="rounded-full bg-stone-100 px-3 py-1.5 text-[11px] font-semibold text-stone-600">
-            {formatNumber(summary.results.length)} سؤال
-          </span>
+
+          {/* تبويبات الفلترة السريعة */}
+          <div className="flex flex-wrap items-center gap-1 rounded-xl border border-stone-200 bg-stone-100/70 p-1">
+            <button
+              type="button"
+              onClick={() => setQuestionFilter('all')}
+              className={cn(
+                'rounded-lg px-2.5 py-1 text-xs font-semibold transition',
+                questionFilter === 'all'
+                  ? 'bg-white text-stone-900 shadow-2xs'
+                  : 'text-stone-600 hover:text-stone-900',
+              )}
+            >
+              الكل ({formatNumber(summary.results.length)})
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setQuestionFilter('mistakes')}
+              className={cn(
+                'rounded-lg px-2.5 py-1 text-xs font-semibold transition',
+                questionFilter === 'mistakes'
+                  ? 'bg-rose-500 text-white shadow-2xs'
+                  : 'text-rose-700 hover:bg-rose-50',
+              )}
+            >
+              بها أخطاء ({formatNumber(mistakeQuestions.length)})
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setQuestionFilter('clean')}
+              className={cn(
+                'rounded-lg px-2.5 py-1 text-xs font-semibold transition',
+                questionFilter === 'clean'
+                  ? 'bg-emerald-600 text-white shadow-2xs'
+                  : 'text-emerald-700 hover:bg-emerald-50',
+              )}
+            >
+              متقنة ({formatNumber(cleanQuestions.length)})
+            </button>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          {summary.results.map(({ question, evaluation }) => (
-            <article
-              key={question.id}
-              className="rounded-xl border border-stone-200 bg-white p-3.5 transition hover:border-stone-300"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="flex min-w-0 items-start gap-3">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-stone-100 text-xs font-bold text-stone-600">
-                    {formatNumber(question.index + 1)}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-stone-800">
-                      {question.startAyah.surahName}
-                    </p>
-                    <p className="mt-0.5 text-[10px] text-stone-500">
-                      الآية {formatNumber(question.startAyah.numberInSurah)} • صفحة{' '}
-                      {formatNumber(question.startAyah.page)} • الجزء{' '}
-                      {formatNumber(question.startAyah.juz)}
-                    </p>
+        {displayedResults.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50/70 p-8 text-center text-sm font-medium text-stone-500">
+            {questionFilter === 'mistakes'
+              ? 'ما شاء الله! لا توجد أي أسئلة بها أخطاء.'
+              : 'لا توجد أسئلة تطابق الفلتر المحدد.'}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {displayedResults.map(({ question, evaluation }) => (
+              <article
+                key={question.id}
+                className="rounded-xl border border-stone-200 bg-white p-3.5 transition hover:border-stone-300"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-stone-100 text-xs font-bold text-stone-600">
+                      {formatNumber(question.index + 1)}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-stone-800">
+                        {question.startAyah.surahName}
+                      </p>
+                      <p className="mt-0.5 text-[10px] text-stone-500">
+                        الآية {formatNumber(question.startAyah.numberInSurah)} • صفحة{' '}
+                        {formatNumber(question.startAyah.page)} • الجزء{' '}
+                        {formatNumber(question.startAyah.juz)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-stone-50 px-2 py-1 text-[10px] font-semibold text-stone-500">
+                      {evaluation
+                        ? `${formatNumber(evaluation.reviewedAyahs)} آية`
+                        : 'لم يُقيّم'}
+                    </span>
+                    <PointsBadge evaluation={evaluation} />
+                    <MistakeBadges evaluation={evaluation} />
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-stone-50 px-2 py-1 text-[10px] font-semibold text-stone-500">
-                    {evaluation
-                      ? `${formatNumber(evaluation.reviewedAyahs)} آية`
-                      : 'لم يُقيّم'}
-                  </span>
-                  <PointsBadge evaluation={evaluation} />
-                  <MistakeBadges evaluation={evaluation} />
-                </div>
-              </div>
-
-              {evaluation?.note ? (
-                <p className="mt-2 whitespace-pre-wrap rounded-lg bg-stone-50 px-3 py-2 text-[11px] leading-6 text-stone-600">
-                  <span className="font-semibold text-stone-700">ملاحظة: </span>
-                  {evaluation.note}
-                </p>
-              ) : null}
-            </article>
-          ))}
-        </div>
+                {evaluation?.note ? (
+                  <p className="mt-2 whitespace-pre-wrap rounded-lg bg-stone-50 px-3 py-2 text-[11px] leading-6 text-stone-600">
+                    <span className="font-semibold text-stone-700">ملاحظة: </span>
+                    {evaluation.note}
+                  </p>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       <div className="flex flex-wrap items-center justify-center gap-2 pb-4 print:hidden">

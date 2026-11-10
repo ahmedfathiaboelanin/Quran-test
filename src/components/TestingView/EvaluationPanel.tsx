@@ -63,19 +63,19 @@ const counterToneClasses: Record<
   amber: {
     icon: 'bg-amber-100 text-amber-700',
     active: 'border-amber-300 bg-amber-50/70',
-    button: 'hover:bg-amber-100 text-amber-800',
+    button: 'border-amber-200 bg-amber-100 text-amber-800 hover:bg-amber-200 shadow-2xs',
     value: 'text-amber-700',
   },
   rose: {
     icon: 'bg-rose-100 text-rose-700',
     active: 'border-rose-300 bg-rose-50/70',
-    button: 'hover:bg-rose-100 text-rose-800',
+    button: 'border-rose-200 bg-rose-100 text-rose-800 hover:bg-rose-200 shadow-2xs',
     value: 'text-rose-700',
   },
   violet: {
     icon: 'bg-violet-100 text-violet-700',
     active: 'border-violet-300 bg-violet-50/70',
-    button: 'hover:bg-violet-100 text-violet-800',
+    button: 'border-violet-200 bg-violet-100 text-violet-800 hover:bg-violet-200 shadow-2xs',
     value: 'text-violet-700',
   },
 };
@@ -107,22 +107,22 @@ function MistakeCounter({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="flex shrink-0 items-center gap-1.5">
         <button
           type="button"
           onClick={() => onChange(Math.max(0, value - 1))}
           disabled={value === 0}
           aria-label={`تقليل ${label}`}
           className={cn(
-            'grid h-8 w-8 place-items-center rounded-lg border border-stone-200 bg-white text-stone-500 transition',
+            'grid h-9 w-9 place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 transition active:scale-95',
             'hover:border-stone-300 hover:text-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
-            'disabled:cursor-not-allowed disabled:opacity-35',
+            'disabled:cursor-not-allowed disabled:opacity-30',
           )}
         >
-          <Minus className="h-3.5 w-3.5" />
+          <Minus className="h-4 w-4" />
         </button>
         <span
-          className="w-7 text-center text-sm font-bold tabular-nums text-stone-900"
+          className="w-7 text-center text-base font-bold tabular-nums text-stone-900"
           aria-live="polite"
         >
           {formatNumber(value)}
@@ -132,12 +132,12 @@ function MistakeCounter({
           onClick={() => onChange(Math.min(99, value + 1))}
           aria-label={`زيادة ${label}`}
           className={cn(
-            'grid h-8 w-8 place-items-center rounded-lg border border-stone-200 bg-white text-stone-500 transition',
-            'hover:border-stone-300 hover:text-stone-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
+            'grid h-9 w-9 place-items-center rounded-xl border transition active:scale-95 font-bold',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
             tones.button,
           )}
         >
-          <Plus className="h-3.5 w-3.5" />
+          <Plus className="h-4 w-4" />
         </button>
       </div>
     </div>
@@ -550,6 +550,38 @@ export function EvaluationPanel({
     );
   }, [onSubmit]);
 
+  // اختصارات لوحة المفاتيح لتسجيل الأخطاء والانتقال السريع
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (e.key === '1') {
+        e.preventDefault();
+        setResponseMistakes((v) => Math.min(99, v + 1));
+      } else if (e.key === '2') {
+        e.preventDefault();
+        setPromptMistakes((v) => Math.min(99, v + 1));
+      } else if (e.key === '3') {
+        e.preventDefault();
+        setHesitations((v) => Math.min(99, v + 1));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        onSubmit(draft, false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [draft, onSubmit]);
+
   return (
     <>
       <section className="hidden rounded-3xl border border-stone-200/80 bg-white/90 p-5 shadow-sm shadow-stone-900/[0.03] lg:block">
@@ -613,6 +645,39 @@ export function EvaluationPanel({
                 تصفير
               </button>
             ) : null}
+          </div>
+
+          {/* أزرار سريعة بنقرة واحدة */}
+          <div className="mb-3 grid grid-cols-3 gap-1.5">
+            <button
+              type="button"
+              onClick={() => setResponseMistakes((v) => Math.min(99, v + 1))}
+              className="flex items-center justify-center gap-1 rounded-xl border border-rose-200 bg-rose-50/80 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-100 active:scale-95 shadow-2xs"
+              title="تسجيل رد خاطئ (+١ درجة) — مفتاح [1]"
+            >
+              <span>+١ رد</span>
+              <kbd className="hidden text-[10px] opacity-60 sm:inline">[1]</kbd>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPromptMistakes((v) => Math.min(99, v + 1))}
+              className="flex items-center justify-center gap-1 rounded-xl border border-violet-200 bg-violet-50/80 py-2 text-xs font-bold text-violet-700 transition hover:bg-violet-100 active:scale-95 shadow-2xs"
+              title="تسجيل تنبيه (+٠٫٥ درجة) — مفتاح [2]"
+            >
+              <span>+٠٫٥ تنبيه</span>
+              <kbd className="hidden text-[10px] opacity-60 sm:inline">[2]</kbd>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setHesitations((v) => Math.min(99, v + 1))}
+              className="flex items-center justify-center gap-1 rounded-xl border border-amber-200 bg-amber-50/80 py-2 text-xs font-bold text-amber-700 transition hover:bg-amber-100 active:scale-95 shadow-2xs"
+              title="تسجيل تردد (+٠٫٢٥ درجة) — مفتاح [3]"
+            >
+              <span>+٠٫٢٥ تردد</span>
+              <kbd className="hidden text-[10px] opacity-60 sm:inline">[3]</kbd>
+            </button>
           </div>
 
           <div className="space-y-2">

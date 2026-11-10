@@ -86,10 +86,32 @@ export function ScopeSelector({
   const applyPreset = (presetId: string) => {
     const preset = SCOPE_PRESETS.find((item) => item.id === presetId);
     if (!preset) return;
-    if (!activePresets[preset.id]) {
+
+    if (activePresets[preset.id]) {
+      const pSel = preset.selection;
+      const removeSurahs = new Set(pSel.surahNumbers);
+      const removeJuz = new Set(pSel.juzNumbers);
+      onChange({
+        surahNumbers: selection.surahNumbers.filter((n) => !removeSurahs.has(n)),
+        juzNumbers: selection.juzNumbers.filter((n) => !removeJuz.has(n)),
+        pageRange:
+          selection.pageRange &&
+          pSel.pageRange &&
+          selection.pageRange.from === pSel.pageRange.from &&
+          selection.pageRange.to === pSel.pageRange.to
+            ? null
+            : selection.pageRange,
+        customRanges: selection.customRanges.filter(
+          (cr) =>
+            !pSel.customRanges.some(
+              (pcr) => pcr.fromSurah === cr.fromSurah && pcr.toSurah === cr.toSurah,
+            ),
+        ),
+      });
+    } else {
       onChange(mergeSelections(selection, preset.selection));
+      onActiveTabChange(preset.tab);
     }
-    onActiveTabChange(preset.tab);
   };
 
   return (

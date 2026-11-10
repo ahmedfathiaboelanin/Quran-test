@@ -149,7 +149,7 @@ export function SetupView({
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+    <div className="grid gap-5 pb-20 lg:pb-0 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
       <ScopeSelector
         surahs={surahs}
         juzSummaries={juzSummaries}
@@ -420,6 +420,36 @@ export function SetupView({
           </p>
         </div>
       </aside>
+
+      {/* شريط البدء العائم للموبايل لتسهيل البدء السريع دون الحاجة للتمرير */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200/90 bg-white/95 px-4 py-3 shadow-[0_-8px_25px_rgba(0,0,0,0.08)] backdrop-blur-md lg:hidden print:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-bold text-stone-900">
+              {stats.surahCount > 0
+                ? `${formatNumber(stats.surahCount)} سورة محددة`
+                : stats.pageCount > 0
+                  ? `${formatNumber(stats.pageCount)} صفحة محددة`
+                  : 'حدد النطاق للبدء'}
+            </p>
+            <p className="text-[10px] text-stone-500">
+              {canStart
+                ? `${formatNumber(plannedCount)} سؤال مخطط`
+                : 'اختر نطاقاً يحتوي على آيات'}
+            </p>
+          </div>
+
+          <Button
+            size="md"
+            disabled={!canStart}
+            onClick={handleStart}
+            className="shrink-0 px-4 text-xs font-bold shadow-sm"
+          >
+            <Play className="h-4 w-4" />
+            ابدأ الاختبار
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

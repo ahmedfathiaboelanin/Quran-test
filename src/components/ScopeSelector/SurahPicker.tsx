@@ -10,15 +10,41 @@ interface SurahPickerProps {
   onChange: (surahNumbers: number[]) => void;
 }
 
+type SurahCategory = 'all' | 'juz_amma' | 'juz_tabarak' | 'mufassal' | 'meccan' | 'medinan';
+
+const CATEGORIES: Array<{ id: SurahCategory; label: string }> = [
+  { id: 'all', label: 'الكل (١١٤)' },
+  { id: 'juz_amma', label: 'جزء عم (٧٨–١١٤)' },
+  { id: 'juz_tabarak', label: 'جزء تبارك (٦٧–٧٧)' },
+  { id: 'mufassal', label: 'المفصّل (٥٠–١١٤)' },
+  { id: 'meccan', label: 'مكية' },
+  { id: 'medinan', label: 'مدنية' },
+];
+
 export function SurahPicker({ surahs, value, onChange }: SurahPickerProps) {
   const [query, setQuery] = useState('');
+  const [category, setCategory] = useState<SurahCategory>('all');
   const selected = useMemo(() => new Set(value), [value]);
 
   const filtered = useMemo(() => {
-    const normalizedQuery = normalizeArabic(query);
-    if (!normalizedQuery) return surahs;
+    let list = surahs;
 
-    return surahs.filter((surah) => {
+    if (category === 'juz_amma') {
+      list = list.filter((s) => s.number >= 78 && s.number <= 114);
+    } else if (category === 'juz_tabarak') {
+      list = list.filter((s) => s.number >= 67 && s.number <= 77);
+    } else if (category === 'mufassal') {
+      list = list.filter((s) => s.number >= 50 && s.number <= 114);
+    } else if (category === 'meccan') {
+      list = list.filter((s) => s.revelationType === 'Meccan');
+    } else if (category === 'medinan') {
+      list = list.filter((s) => s.revelationType === 'Medinan');
+    }
+
+    const normalizedQuery = normalizeArabic(query);
+    if (!normalizedQuery) return list;
+
+    return list.filter((surah) => {
       const name = normalizeArabic(surah.name);
       const english = surah.englishName.toLowerCase();
       const translation = surah.englishNameTranslation.toLowerCase();
@@ -29,7 +55,7 @@ export function SurahPicker({ surahs, value, onChange }: SurahPickerProps) {
         String(surah.number) === normalizedQuery
       );
     });
-  }, [query, surahs]);
+  }, [category, query, surahs]);
 
   const toggleSurah = (surahNumber: number) => {
     if (selected.has(surahNumber)) {
@@ -39,9 +65,41 @@ export function SurahPicker({ surahs, value, onChange }: SurahPickerProps) {
     }
   };
 
+  const selectAllFiltered = () => {
+    const combined = new Set([...value, ...filtered.map((s) => s.number)]);
+    onChange(Array.from(combined).sort((a, b) => a - b));
+  };
+
+  const deselectAllFiltered = () => {
+    const toRemove = new Set(filtered.map((s) => s.number));
+    onChange(value.filter((n) => !toRemove.has(n)));
+  };
+
+  const isAllFilteredSelected =
+    filtered.length > 0 && filtered.every((s) => selected.has(s.number));
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div className="space-y-3.5">
+      {/* Category Pills */}
+      <div className="flex flex-wrap gap-1.5">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat.id}
+            type="button"
+            onClick={() => setCategory(cat.id)}
+            className={cn(
+              'rounded-full px-3 py-1 text-xs font-semibold transition',
+              category === cat.id
+                ? 'bg-teal-700 text-white shadow-sm'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80 hover:text-stone-900',
+            )}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
           <input
@@ -49,29 +107,39 @@ export function SurahPicker({ surahs, value, onChange }: SurahPickerProps) {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="ابحث باسم السورة أو رقمها..."
-            className="h-11 w-full rounded-xl border border-stone-300 bg-white pr-10 pl-9 text-sm text-stone-800 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+            className="h-10 w-full rounded-xl border border-stone-300 bg-white pr-9 pl-9 text-xs sm:text-sm text-stone-800 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
             aria-label="البحث في السور"
           />
           {query ? (
             <button
               type="button"
               onClick={() => setQuery('')}
-              className="absolute left-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-stone-400 hover:bg-stone-100 hover:text-stone-700"
+              className="absolute left-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-full text-stone-400 hover:bg-stone-100 hover:text-stone-700"
               aria-label="مسح البحث"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5" />
             </button>
           ) : null}
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onChange(surahs.map((surah) => surah.number))}
-            className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-teal-700 hover:bg-teal-50"
-          >
-            تحديد الكل
-          </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {category !== 'all' || query ? (
+            <button
+              type="button"
+              onClick={isAllFilteredSelected ? deselectAllFiltered : selectAllFiltered}
+              className="rounded-lg border border-teal-200 bg-teal-50/70 px-2.5 py-1.5 text-xs font-semibold text-teal-800 hover:bg-teal-100"
+            >
+              {isAllFilteredSelected ? 'إلغاء المعروض' : 'تحديد المعروض'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onChange(surahs.map((surah) => surah.number))}
+              className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-teal-700 hover:bg-teal-50"
+            >
+              تحديد الكل
+            </button>
+          )}
           <span className="h-4 w-px bg-stone-200" />
           <button
             type="button"
@@ -79,7 +147,7 @@ export function SurahPicker({ surahs, value, onChange }: SurahPickerProps) {
             disabled={value.length === 0}
             className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-stone-500 hover:bg-stone-100 hover:text-stone-800 disabled:opacity-40"
           >
-            مسح
+            مسح ({formatNumber(value.length)})
           </button>
         </div>
       </div>

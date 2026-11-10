@@ -1,4 +1,15 @@
-import { BookOpenText, Eye, EyeOff, FileText, Layers3, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import {
+  BookOpenText,
+  Check,
+  Copy,
+  Eye,
+  EyeOff,
+  FileText,
+  Layers3,
+  Sparkles,
+  Type,
+} from 'lucide-react';
 import type { AyahRef } from '../../types';
 import { cn, formatNumber } from '../../utils/helpers';
 import { getAyahReferenceLabel } from '../../utils/quranHelpers';
@@ -25,6 +36,39 @@ export function VerseCard({
 }: VerseCardProps) {
   const pageMode = Boolean(pageAyahs);
   const displayedPageAyahs = pageAyahs?.length ? pageAyahs : [ayah];
+
+  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'huge'>(() => {
+    try {
+      const saved = localStorage.getItem('quran_verse_font_size');
+      if (saved === 'normal' || saved === 'large' || saved === 'huge') return saved;
+    } catch {}
+    return 'normal';
+  });
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    const textToCopy = pageMode
+      ? displayedPageAyahs.map((a) => a.text).join(' ')
+      : ayah.text;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const cycleFontSize = () => {
+    setFontSize((current) => {
+      const next = current === 'normal' ? 'large' : current === 'large' ? 'huge' : 'normal';
+      try {
+        localStorage.setItem('quran_verse_font_size', next);
+      } catch {}
+      return next;
+    });
+  };
+
+  const fontSizeLabel =
+    fontSize === 'normal' ? 'خط عادي' : fontSize === 'large' ? 'خط كبير' : 'خط كبير جداً';
 
   return (
     <article
@@ -89,6 +133,33 @@ export function VerseCard({
               <Layers3 className="h-3 w-3" />
               الجزء {formatNumber(ayah.juz)}
             </span>
+
+            {/* زر تعديل حجم الخط */}
+            <button
+              type="button"
+              onClick={cycleFontSize}
+              title={`حجم الخط: ${fontSizeLabel} — اضغط للتكبير`}
+              aria-label={`حجم الخط: ${fontSizeLabel}`}
+              className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white/90 px-2 py-1 text-[10px] font-bold text-stone-700 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900 transition shadow-2xs"
+            >
+              <Type className="h-3 w-3 text-teal-600" />
+              <span>{fontSize === 'normal' ? 'خط عادي' : fontSize === 'large' ? 'خط كبير' : 'خط أقصى'}</span>
+            </button>
+
+            {/* زر نسخ النص */}
+            <button
+              type="button"
+              onClick={handleCopy}
+              title={copied ? 'تم النسخ!' : 'نسخ النص'}
+              aria-label={copied ? 'تم النسخ!' : 'نسخ النص'}
+              className="grid h-6 w-6 place-items-center rounded-full border border-stone-200 bg-white/90 text-stone-500 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 transition shadow-2xs"
+            >
+              {copied ? (
+                <Check className="h-3 w-3 text-emerald-600" />
+              ) : (
+                <Copy className="h-3 w-3" />
+              )}
+            </button>
           </div>
         </div>
 
@@ -119,7 +190,14 @@ export function VerseCard({
             <div
               dir="rtl"
               lang="ar"
-              className="quran-text text-center text-[1.3rem] leading-[2.15] text-stone-900 sm:text-[1.7rem] sm:leading-[2.2] lg:text-[1.9rem]"
+              className={cn(
+                'quran-text text-center text-stone-900 transition-[font-size]',
+                fontSize === 'huge'
+                  ? 'text-[1.65rem] leading-[2.4] sm:text-[2.1rem] sm:leading-[2.5] lg:text-[2.35rem]'
+                  : fontSize === 'large'
+                    ? 'text-[1.45rem] leading-[2.3] sm:text-[1.9rem] sm:leading-[2.35] lg:text-[2.1rem]'
+                    : 'text-[1.3rem] leading-[2.15] sm:text-[1.7rem] sm:leading-[2.2] lg:text-[1.9rem]',
+              )}
             >
               {displayedPageAyahs.map((pageAyah, index) => {
                 const previousAyah = displayedPageAyahs[index - 1];
@@ -161,7 +239,14 @@ export function VerseCard({
             <p
               dir="rtl"
               lang="ar"
-              className="quran-text text-center text-[1.5rem] font-normal text-stone-900 sm:text-[2.1rem] lg:text-[2.35rem]"
+              className={cn(
+                'quran-text text-center font-normal text-stone-900 transition-[font-size]',
+                fontSize === 'huge'
+                  ? 'text-[2.0rem] leading-[2.2] sm:text-[2.75rem] sm:leading-[2.4] lg:text-[3.1rem]'
+                  : fontSize === 'large'
+                    ? 'text-[1.75rem] leading-[2.15] sm:text-[2.4rem] sm:leading-[2.3] lg:text-[2.7rem]'
+                    : 'text-[1.5rem] leading-[2.1] sm:text-[2.1rem] sm:leading-[2.2] lg:text-[2.35rem]',
+              )}
             >
               {ayah.text}
             </p>

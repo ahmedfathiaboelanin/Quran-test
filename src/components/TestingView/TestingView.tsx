@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
   Eye,
   EyeOff,
   Info,
+  Keyboard,
   LogOut,
   RotateCcw,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ interface TestingViewProps {
 
 export function TestingView({ engine }: TestingViewProps) {
   const [hideText, setHideText] = useState(engine.config?.blindMode ?? false);
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
   const {
     currentQuestion,
@@ -78,6 +80,38 @@ export function TestingView({ engine }: TestingViewProps) {
     );
     if (confirmed) finishTest();
   };
+
+  // اختصارات لوحة المفاتيح للتنقل
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (canGoPrevious) handlePrevious();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (canGoNext) handleNext();
+      } else if (e.key === 'h' || e.key === 'H' || e.key === 'v' || e.key === 'V') {
+        e.preventDefault();
+        setHideText((c) => !c);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goToQuestionStart();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [canGoNext, canGoPrevious, goToQuestionStart, handleNext, handlePrevious]);
 
   return (
     <div
@@ -167,6 +201,16 @@ export function TestingView({ engine }: TestingViewProps) {
                     </>
                   )}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setShowKeyboardHelp((c) => !c)}
+                  className="hidden sm:inline-flex min-h-9 items-center gap-1 rounded-lg border border-stone-200 bg-white px-2 text-xs font-semibold text-stone-500 hover:bg-stone-50 hover:text-stone-800 transition"
+                  title="عرض اختصارات لوحة المفاتيح"
+                  aria-label="عرض اختصارات لوحة المفاتيح"
+                >
+                  <Keyboard className="h-3.5 w-3.5" />
+                  <span className="text-[11px]">اختصارات</span>
+                </button>
               </div>
 
               <button
@@ -179,6 +223,26 @@ export function TestingView({ engine }: TestingViewProps) {
                 <span>خروج</span>
               </button>
             </div>
+
+            {/* شريط معلومات الاختصارات عند تفعيله */}
+            {showKeyboardHelp ? (
+              <div className="rounded-xl border border-teal-100 bg-teal-50/70 p-2.5 text-xs text-teal-900 animate-in fade-in">
+                <p className="font-bold mb-1 flex items-center gap-1">
+                  <Keyboard className="h-3.5 w-3.5 text-teal-700" />
+                  اختصارات لوحة المفاتيح السريعة:
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                  <span><kbd className="bg-white px-1.5 py-0.5 rounded border border-teal-200 font-mono text-[10px]">←</kbd> الآية التالية</span>
+                  <span><kbd className="bg-white px-1.5 py-0.5 rounded border border-teal-200 font-mono text-[10px]">→</kbd> الآية السابقة</span>
+                  <span><kbd className="bg-white px-1.5 py-0.5 rounded border border-teal-200 font-mono text-[10px]">1</kbd> +١ رد خاطئ</span>
+                  <span><kbd className="bg-white px-1.5 py-0.5 rounded border border-teal-200 font-mono text-[10px]">2</kbd> +٠٫٥ تنبيه</span>
+                  <span><kbd className="bg-white px-1.5 py-0.5 rounded border border-teal-200 font-mono text-[10px]">3</kbd> +٠٫٢٥ تردد</span>
+                  <span><kbd className="bg-white px-1.5 py-0.5 rounded border border-teal-200 font-mono text-[10px]">Enter</kbd> حفظ والتالي</span>
+                  <span><kbd className="bg-white px-1.5 py-0.5 rounded border border-teal-200 font-mono text-[10px]">H</kbd> إظهار/إخفاء</span>
+                  <span><kbd className="bg-white px-1.5 py-0.5 rounded border border-teal-200 font-mono text-[10px]">Home</kbd> بداية السؤال</span>
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="hidden rounded-2xl border border-stone-200/70 bg-white/50 p-3.5 text-[11px] leading-6 text-stone-500 sm:block">
