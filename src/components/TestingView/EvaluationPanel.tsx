@@ -3,12 +3,14 @@ import { createPortal } from 'react-dom';
 import {
   AlertCircle,
   Bell,
+  BookOpenText,
   CheckCheck,
   ChevronLeft,
   ChevronRight,
   Clock,
   Eye,
   EyeOff,
+  FileText,
   Info,
   LogOut,
   Minus,
@@ -38,6 +40,8 @@ export interface MobilePageNavigation {
   isAtStart?: boolean;
   onToggleHideText?: () => void;
   isTextHidden?: boolean;
+  onToggleDisplayMode?: () => void;
+  isPageMode?: boolean;
 }
 
 interface EvaluationPanelProps {
@@ -319,6 +323,8 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
     isAtStart,
     onToggleHideText,
     isTextHidden,
+    onToggleDisplayMode,
+    isPageMode,
   } = navigation;
 
   return (
@@ -355,7 +361,33 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
           <span className="truncate font-bold text-stone-800 dark:text-stone-200">
             السؤال {formatNumber(currentIndex + 1)} من {formatNumber(totalQuestions)}
           </span>
-          {currentPage ? (
+          {onToggleDisplayMode ? (
+            <button
+              type="button"
+              onClick={onToggleDisplayMode}
+              title={
+                isPageMode
+                  ? 'الوضع: صفحة كاملة — اضغط للتبديل لعرض آية واحدة [P]'
+                  : 'الوضع: آية واحدة — اضغط للتبديل لعرض الصفحة كاملة [P]'
+              }
+              aria-label={
+                isPageMode ? 'التبديل إلى عرض آية واحدة' : 'التبديل إلى عرض الصفحة كاملة'
+              }
+              className="inline-flex items-center gap-0.5 rounded-md border border-stone-200/90 bg-white/90 px-1 py-0.5 text-[9px] font-bold text-teal-850 shadow-2xs transition hover:bg-teal-50 active:scale-95 dark:border-stone-700 dark:bg-stone-800 dark:text-teal-300"
+            >
+              {isPageMode ? (
+                <>
+                  <FileText className="h-2.5 w-2.5 text-teal-600 dark:text-teal-400" />
+                  <span>صفحة {currentPage ? formatNumber(currentPage) : ''}</span>
+                </>
+              ) : (
+                <>
+                  <BookOpenText className="h-2.5 w-2.5 text-teal-600 dark:text-teal-400" />
+                  <span>آية</span>
+                </>
+              )}
+            </button>
+          ) : currentPage ? (
             <span className="shrink-0 font-semibold text-teal-700 dark:text-teal-400">
               (ص {formatNumber(currentPage)})
             </span>

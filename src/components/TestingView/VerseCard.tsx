@@ -23,6 +23,7 @@ interface VerseCardProps {
   isQuestionStart: boolean;
   offsetFromStart: number;
   onReveal: () => void;
+  onToggleDisplayMode?: () => void;
 }
 
 export function VerseCard({
@@ -33,6 +34,7 @@ export function VerseCard({
   isQuestionStart,
   offsetFromStart,
   onReveal,
+  onToggleDisplayMode,
 }: VerseCardProps) {
   const pageMode = Boolean(pageAyahs);
   const displayedPageAyahs = pageAyahs?.length ? pageAyahs : [ayah];
@@ -101,7 +103,38 @@ export function VerseCard({
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5">
-            {pageMode ? (
+            {onToggleDisplayMode ? (
+              <button
+                type="button"
+                onClick={onToggleDisplayMode}
+                title={
+                  pageMode
+                    ? 'الوضع الحالي: عرض الصفحة كاملة — اضغط للتبديل لعرض آية واحدة [P]'
+                    : 'الوضع الحالي: عرض آية واحدة — اضغط للتبديل لعرض الصفحة كاملة [P]'
+                }
+                aria-label={
+                  pageMode ? 'التبديل إلى عرض آية واحدة' : 'التبديل إلى عرض الصفحة كاملة'
+                }
+                className={cn(
+                  'inline-flex min-h-7 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold shadow-2xs transition active:scale-95',
+                  pageMode
+                    ? 'border-teal-300 bg-teal-50 text-teal-800 hover:bg-teal-100 dark:border-teal-700 dark:bg-teal-950/60 dark:text-teal-200'
+                    : 'border-stone-200 bg-white/90 text-stone-700 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300',
+                )}
+              >
+                {pageMode ? (
+                  <>
+                    <FileText className="h-3 w-3 text-teal-600 dark:text-teal-400" />
+                    <span>الصفحة كاملة</span>
+                  </>
+                ) : (
+                  <>
+                    <BookOpenText className="h-3 w-3 text-teal-600 dark:text-teal-400" />
+                    <span>آية واحدة</span>
+                  </>
+                )}
+              </button>
+            ) : pageMode ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white/80 px-2 py-1 text-[10px] font-semibold text-stone-600 sm:px-2.5">
                 <FileText className="h-3 w-3" />
                 الصفحة كاملة

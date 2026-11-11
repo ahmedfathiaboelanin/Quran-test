@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Info } from 'lucide-react';
 import type { TestEngine } from '../../hooks/useTestEngine';
+import type { QuestionDisplayMode } from '../../types';
 import { getPageAyahs, getPageFirstAyah } from '../../utils/quranHelpers';
 import { VerseCard } from './VerseCard';
 import { EvaluationPanel } from './EvaluationPanel';
@@ -11,6 +12,9 @@ interface TestingViewProps {
 
 export function TestingView({ engine }: TestingViewProps) {
   const [hideText, setHideText] = useState(engine.config?.blindMode ?? false);
+  const [displayMode, setDisplayMode] = useState<QuestionDisplayMode>(
+    () => engine.config?.displayMode ?? 'ayah',
+  );
 
   const {
     currentQuestion,
@@ -32,7 +36,7 @@ export function TestingView({ engine }: TestingViewProps) {
 
   if (!currentQuestion || !currentAyah) return null;
 
-  const pageMode = engine.config?.displayMode === 'page';
+  const pageMode = displayMode === 'page';
   const pageAyahs = pageMode ? getPageAyahs(currentAyah.page) : [currentAyah];
   const previousPageAyah = pageMode
     ? getPageFirstAyah(currentAyah.page - 1)
@@ -43,6 +47,10 @@ export function TestingView({ engine }: TestingViewProps) {
   const pageContainsQuestionStart = pageAyahs.some(
     (ayah) => ayah.number === currentQuestion.startAyah.number,
   );
+
+  const handleToggleDisplayMode = () => {
+    setDisplayMode((curr) => (curr === 'page' ? 'ayah' : 'page'));
+  };
 
   const handlePrevious = () => {
     if (pageMode) {
@@ -91,6 +99,9 @@ export function TestingView({ engine }: TestingViewProps) {
       } else if (e.key === 'h' || e.key === 'H' || e.key === 'v' || e.key === 'V') {
         e.preventDefault();
         setHideText((c) => !c);
+      } else if (e.key === 'p' || e.key === 'P') {
+        e.preventDefault();
+        handleToggleDisplayMode();
       } else if (e.key === 'Home') {
         e.preventDefault();
         goToQuestionStart();
@@ -115,6 +126,7 @@ export function TestingView({ engine }: TestingViewProps) {
             isQuestionStart={pageMode ? pageContainsQuestionStart : isAtQuestionStart}
             offsetFromStart={offsetFromStart}
             onReveal={() => setHideText(false)}
+            onToggleDisplayMode={handleToggleDisplayMode}
           />
 
           <div className="hidden rounded-2xl border border-stone-200/70 bg-white/50 p-3.5 text-[11px] leading-6 text-stone-500 sm:block">
@@ -124,8 +136,8 @@ export function TestingView({ engine }: TestingViewProps) {
             </p>
             <p className="mt-1">
               {pageMode
-                ? 'استخدم «الصفحة التالية» و«الصفحة السابقة» للتنقل بين صفحات المصحف. التنقل لا يغيّر السؤال الحالي؛ احفظ التقييم عند الانتهاء للانتقال إلى الشريحة التالية.'
-                : 'استخدم «التالية» للتحقق من تتابع الآيات، و«السابقة» للرجوع عند الحاجة. التنقل بين الآيات لا يغيّر السؤال الحالي؛ احفظ التقييم عند الانتهاء للانتقال إلى الشريحة التالية.'}
+                ? 'وضع عرض الصفحة كاملة: استخدم «الصفحة التالية» و«الصفحة السابقة» للتنقل بين الصفحات. يمكنك التبديل لعرض آية واحدة بالزر أعلاه أو الضغط على مفتاح [P].'
+                : 'وضع عرض الآية: استخدم «التالية» و«السابقة» للتحقق من تتابع الآيات. يمكنك التبديل لعرض صفحة كاملة بالزر أعلاه أو الضغط على مفتاح [P].'}
             </p>
           </div>
         </div>
@@ -143,7 +155,7 @@ export function TestingView({ engine }: TestingViewProps) {
             mobilePageNavigation={{
               currentIndex,
               totalQuestions,
-              currentPage: pageMode ? currentAyah.page : undefined,
+              currentPage: currentAyah.page,
               progressPercent,
               canGoPrevious,
               canGoNext,
@@ -153,6 +165,8 @@ export function TestingView({ engine }: TestingViewProps) {
               isAtStart: isAtQuestionStart,
               onToggleHideText: () => setHideText((c) => !c),
               isTextHidden: hideText,
+              onToggleDisplayMode: handleToggleDisplayMode,
+              isPageMode: pageMode,
             }}
           />
         </aside>
