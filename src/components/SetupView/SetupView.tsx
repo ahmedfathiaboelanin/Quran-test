@@ -9,6 +9,7 @@ import {
   Minus,
   Play,
   Plus,
+  RotateCcw,
   Shuffle,
   SlidersHorizontal,
   Sparkles,
@@ -165,6 +166,17 @@ export function SetupView({
     handleStart();
   };
 
+  const handleResetAll = () => {
+    setSelection(cloneSelection(EMPTY_SELECTION));
+    setStudentName('');
+    setActiveTab('surah');
+    setQuestionCount(10);
+    setDistributionUnit('auto');
+    setDisplayMode('ayah');
+    setRandomizeQuestionOrder(false);
+    setBlindMode(false);
+  };
+
   return (
     <div className="grid gap-5 pb-28 sm:pb-32 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
       <ScopeSelector
@@ -182,10 +194,23 @@ export function SetupView({
           id="test-settings-section"
           className="rounded-3xl border border-stone-200/80 bg-white/90 p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6"
         >
-          <p className="text-[11px] font-bold tracking-wide text-teal-700">
-            الخطوة الثانية
-          </p>
-          <h2 className="mt-1 text-xl font-bold text-stone-900">إعدادات الاختبار</h2>
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="text-[11px] font-bold tracking-wide text-teal-700">
+                الخطوة الثانية
+              </p>
+              <h2 className="mt-1 text-xl font-bold text-stone-900">إعدادات الاختبار</h2>
+            </div>
+            <button
+              type="button"
+              onClick={handleResetAll}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1.5 text-xs font-semibold text-stone-500 transition hover:bg-stone-100 hover:text-stone-800 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700"
+              title="إعادة تعيين كافة النطاقات والاسم والإعدادات"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span>إعادة تعيين</span>
+            </button>
+          </div>
 
           <div className="mt-5 space-y-5">
             <div>

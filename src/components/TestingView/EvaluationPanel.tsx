@@ -7,11 +7,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  Eye,
+  EyeOff,
   Info,
   LogOut,
   Minus,
   NotebookPen,
   Plus,
+  RotateCcw,
   SkipForward,
   User,
   X,
@@ -31,6 +34,10 @@ export interface MobilePageNavigation {
   canGoNext: boolean;
   onPrevious: () => void;
   onNext: () => void;
+  onGoToStart?: () => void;
+  isAtStart?: boolean;
+  onToggleHideText?: () => void;
+  isTextHidden?: boolean;
 }
 
 interface EvaluationPanelProps {
@@ -308,34 +315,53 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
     canGoNext,
     onPrevious,
     onNext,
+    onGoToStart,
+    isAtStart,
+    onToggleHideText,
+    isTextHidden,
   } = navigation;
 
   return (
-    <div className="mb-1.5 flex items-center gap-1.5 rounded-xl border border-teal-100 bg-teal-50/60 p-1">
-      <button
-        type="button"
-        onClick={onPrevious}
-        disabled={!canGoPrevious}
-        aria-label="السابقة"
-        className="inline-flex min-h-9 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-stone-200 bg-white px-1.5 text-[10px] font-semibold text-stone-600 transition active:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-35"
-      >
-        <ChevronRight className="h-3.5 w-3.5" />
-        السابقة
-      </button>
+    <div className="mb-1.5 flex items-center justify-between gap-1 rounded-xl border border-teal-100/80 bg-teal-50/70 p-1 dark:border-stone-800 dark:bg-stone-900/80">
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={onPrevious}
+          disabled={!canGoPrevious}
+          aria-label="الآية أو الصفحة السابقة"
+          className="inline-flex min-h-8 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-stone-200 bg-white px-2 text-[10px] font-semibold text-stone-700 transition active:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
+        >
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span>السابقة</span>
+        </button>
 
-      <div className="min-w-0 flex-1 px-0.5">
-        <div className="flex items-center justify-between gap-1.5 text-[10px] leading-4">
-          <span className="truncate font-bold text-stone-800">
-            السؤال {formatNumber(currentIndex + 1)} من{' '}
-            {formatNumber(totalQuestions)}
+        {onGoToStart ? (
+          <button
+            type="button"
+            onClick={onGoToStart}
+            disabled={isAtStart}
+            aria-label="العودة لبداية السؤال"
+            title="العودة لبداية السؤال"
+            className="inline-flex min-h-8 shrink-0 touch-manipulation items-center gap-1 rounded-lg border border-stone-200 bg-white px-1.5 text-[10px] font-semibold text-stone-600 transition active:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
+          >
+            <RotateCcw className="h-3 w-3 text-teal-600 dark:text-teal-400" />
+            <span className="hidden min-[360px]:inline">البداية</span>
+          </button>
+        ) : null}
+      </div>
+
+      <div className="min-w-0 flex-1 px-1 text-center">
+        <div className="flex items-center justify-center gap-1 text-[10px] leading-4">
+          <span className="truncate font-bold text-stone-800 dark:text-stone-200">
+            السؤال {formatNumber(currentIndex + 1)} من {formatNumber(totalQuestions)}
           </span>
           {currentPage ? (
-            <span className="shrink-0 font-semibold text-teal-700">
-              صفحة {formatNumber(currentPage)}
+            <span className="shrink-0 font-semibold text-teal-700 dark:text-teal-400">
+              (ص {formatNumber(currentPage)})
             </span>
           ) : null}
         </div>
-        <div className="mt-1 h-1 overflow-hidden rounded-full bg-white">
+        <div className="mx-auto mt-0.5 h-1 max-w-[120px] overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
           <div
             className="h-full rounded-full bg-teal-600 transition-[width] duration-300"
             style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
@@ -343,16 +369,42 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={onNext}
-        disabled={!canGoNext}
-        aria-label="التالية"
-        className="inline-flex min-h-9 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-teal-200 bg-teal-700 px-1.5 text-[10px] font-semibold text-white transition active:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-35"
-      >
-        التالية
-        <ChevronLeft className="h-3.5 w-3.5" />
-      </button>
+      <div className="flex items-center gap-1">
+        {onToggleHideText ? (
+          <button
+            type="button"
+            onClick={onToggleHideText}
+            aria-label={isTextHidden ? 'إظهار النص' : 'إخفاء النص'}
+            title={isTextHidden ? 'إظهار النص' : 'إخفاء النص'}
+            className={cn(
+              'inline-flex min-h-8 shrink-0 touch-manipulation items-center gap-1 rounded-lg border px-1.5 text-[10px] font-semibold transition active:scale-95',
+              isTextHidden
+                ? 'border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300'
+                : 'border-stone-200 bg-white text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300',
+            )}
+          >
+            {isTextHidden ? (
+              <Eye className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+            ) : (
+              <EyeOff className="h-3 w-3 text-stone-500 dark:text-stone-400" />
+            )}
+            <span className="hidden min-[360px]:inline">
+              {isTextHidden ? 'إظهار' : 'إخفاء'}
+            </span>
+          </button>
+        ) : null}
+
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={!canGoNext}
+          aria-label="الآية أو الصفحة التالية"
+          className="inline-flex min-h-8 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-teal-600 bg-teal-700 px-2 text-[10px] font-semibold text-white transition active:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-30"
+        >
+          <span>التالية</span>
+          <ChevronLeft className="h-3.5 w-3.5" />
+        </button>
+      </div>
     </div>
   );
 }
@@ -606,6 +658,12 @@ export function EvaluationPanel({
           </span>
         </div>
 
+        {mobilePageNavigation ? (
+          <div className="mt-3.5">
+            <DockPageNavigation navigation={mobilePageNavigation} />
+          </div>
+        ) : null}
+
         <div
           className={cn(
             'mt-4 rounded-2xl border p-4 text-center transition-colors',
@@ -748,6 +806,17 @@ export function EvaluationPanel({
             <SkipForward className="h-3 w-3" />
             تخطي هذا السؤال بدون تقييم
           </button>
+
+          {onEarlyFinish ? (
+            <button
+              type="button"
+              onClick={onEarlyFinish}
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-800 transition"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              إنهاء الاختبار وعرض النتائج
+            </button>
+          ) : null}
         </div>
       </section>
 

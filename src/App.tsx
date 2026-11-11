@@ -15,12 +15,14 @@ export default function App() {
   const data = useOfflineData();
   const engine = useTestEngine();
   const theme = useTheme();
-  const [lastConfig, setLastConfig] = useState<TestConfig | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
 
   const handleStart = (config: TestConfig) => {
-    setLastConfig(config);
     engine.startTest(config);
+  };
+
+  const handleNewTest = () => {
+    engine.resetTest();
   };
 
   return (
@@ -55,7 +57,7 @@ export default function App() {
             <SetupView
               surahs={data.surahs}
               juzSummaries={data.juzSummaries}
-              initialConfig={lastConfig}
+              initialConfig={null}
               onStart={handleStart}
             />
           ) : null}
@@ -65,9 +67,9 @@ export default function App() {
           {engine.phase === 'results' ? (
             <ResultsView
               summary={engine.summary}
-              config={engine.config ?? lastConfig}
+              config={engine.config}
               onRestartSameScope={engine.restartSameScope}
-              onNewTest={engine.resetTest}
+              onNewTest={handleNewTest}
             />
           ) : null}
         </div>
