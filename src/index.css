@@ -165,8 +165,39 @@
 .dark [class~="bg-white/70"],
 .dark [class~="bg-white/80"],
 .dark [class~="bg-white/85"],
-.dark [class~="bg-white/90"] {
+.dark [class~="bg-white/90"],
+.dark [class~="bg-white/95"] {
   background-color: #131b19;
+}
+
+/* Neutral borders: lift them just enough to stay legible on dark surfaces. */
+.dark [class~="border-stone-100"] {
+  border-color: #26322f;
+}
+
+.dark [class~="border-stone-200"] {
+  border-color: #3a4944;
+}
+
+.dark [class~="border-stone-200/70"] {
+  border-color: rgb(58 73 68 / 0.7);
+}
+
+.dark [class~="border-stone-200/80"] {
+  border-color: rgb(58 73 68 / 0.8);
+}
+
+.dark [class~="border-stone-200/90"] {
+  border-color: rgb(58 73 68 / 0.9);
+}
+
+.dark [class~="border-stone-300"] {
+  border-color: #4a5953;
+}
+
+.dark [class~="border-stone-400"],
+.dark [class~="hover:border-stone-400"]:hover {
+  border-color: #63726c;
 }
 
 .dark [class*="bg-[#f8f5ee]"] {
@@ -376,6 +407,10 @@
 .dark [class~="border-teal-800/10"],
 .dark [class~="border-teal-900/10"] {
   border-color: rgb(20 184 166 / 0.14);
+}
+
+.dark [class~="border-teal-900/15"] {
+  border-color: rgb(20 184 166 / 0.2);
 }
 
 .dark [class~="border-teal-300"],

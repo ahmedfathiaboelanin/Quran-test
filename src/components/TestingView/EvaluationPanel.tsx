@@ -320,14 +320,14 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
   } = navigation;
 
   return (
-    <div className="mb-1.5 flex items-center justify-between gap-1 rounded-xl border border-teal-100/80 bg-teal-50/70 p-1 dark:border-stone-800 dark:bg-stone-900/80">
+    <div className="mb-1.5 flex items-center justify-between gap-1 rounded-xl border border-teal-100/80 bg-teal-50/70 p-1">
       <div className="flex items-center gap-1">
         <button
           type="button"
           onClick={onPrevious}
           disabled={!canGoPrevious}
           aria-label={isPageMode ? 'الصفحة السابقة' : 'الآية السابقة'}
-          className="inline-flex min-h-8 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-stone-200 bg-white px-2 text-[10px] font-semibold text-stone-700 transition active:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
+          className="inline-flex min-h-8 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-stone-200 bg-white px-2 text-[10px] font-semibold text-stone-700 transition active:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-30"
         >
           <ChevronRight className="h-3.5 w-3.5" />
           <span>السابقة</span>
@@ -340,7 +340,7 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
             disabled={isAtStart}
             aria-label="العودة لبداية السؤال"
             title="العودة لبداية السؤال"
-            className="inline-flex min-h-8 shrink-0 touch-manipulation items-center gap-1 rounded-lg border border-stone-200 bg-white px-1.5 text-[10px] font-semibold text-stone-600 transition active:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
+            className="inline-flex min-h-8 shrink-0 touch-manipulation items-center gap-1 rounded-lg border border-stone-200 bg-white px-1.5 text-[10px] font-semibold text-stone-600 transition active:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-30"
           >
             <RotateCcw className="h-3 w-3 text-teal-600 dark:text-teal-400" />
             <span className="hidden min-[360px]:inline">البداية</span>
@@ -350,7 +350,7 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
 
       <div className="min-w-0 flex-1 px-1 text-center">
         <div className="flex items-center justify-center gap-1 text-[10px] leading-4">
-          <span className="truncate font-bold text-stone-800 dark:text-stone-200">
+          <span className="truncate font-bold text-stone-800">
             السؤال {formatNumber(currentIndex + 1)} من {formatNumber(totalQuestions)}
           </span>
           {onToggleDisplayMode ? (
@@ -365,7 +365,7 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
               aria-label={
                 isPageMode ? 'التبديل إلى عرض آية واحدة' : 'التبديل إلى عرض الصفحة كاملة'
               }
-              className="inline-flex items-center gap-0.5 rounded-md border border-stone-200/90 bg-white/90 px-1 py-0.5 text-[9px] font-bold text-teal-850 shadow-2xs transition hover:bg-teal-50 active:scale-95 dark:border-stone-700 dark:bg-stone-800 dark:text-teal-300"
+              className="inline-flex items-center gap-0.5 rounded-md border border-stone-200/90 bg-white/90 px-1 py-0.5 text-[9px] font-bold text-teal-850 shadow-2xs transition hover:bg-teal-50 active:scale-95 dark:text-teal-300"
             >
               {isPageMode ? (
                 <>
@@ -385,7 +385,7 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
             </span>
           ) : null}
         </div>
-        <div className="mx-auto mt-0.5 h-1 max-w-[120px] overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
+        <div className="mx-auto mt-0.5 h-1 max-w-[120px] overflow-hidden rounded-full bg-stone-200">
           <div
             className="h-full rounded-full bg-teal-600 transition-[width] duration-300"
             style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
@@ -404,13 +404,13 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
               'inline-flex min-h-8 shrink-0 touch-manipulation items-center gap-1 rounded-lg border px-1.5 text-[10px] font-semibold transition active:scale-95',
               isTextHidden
                 ? 'border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300'
-                : 'border-stone-200 bg-white text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300',
+                : 'border-stone-200 bg-white text-stone-600',
             )}
           >
             {isTextHidden ? (
               <Eye className="h-3 w-3 text-amber-600 dark:text-amber-400" />
             ) : (
-              <EyeOff className="h-3 w-3 text-stone-500 dark:text-stone-400" />
+              <EyeOff className="h-3 w-3 text-stone-500" />
             )}
             <span className="hidden min-[360px]:inline">
               {isTextHidden ? 'إظهار' : 'إخفاء'}
@@ -692,7 +692,7 @@ export function EvaluationPanel({
                 type="button"
                 onClick={mobilePageNavigation.onGoToStart}
                 disabled={mobilePageNavigation.isAtStart}
-                className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 disabled:cursor-not-allowed disabled:opacity-40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
+                className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <RotateCcw className="h-3 w-3" />
                 بداية السؤال

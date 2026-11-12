@@ -184,7 +184,7 @@ export function TestingView({ engine }: TestingViewProps) {
               'inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border px-2.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
               hideText
                 ? 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300'
-                : 'border-stone-200 bg-white text-stone-500 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300',
+                : 'border-stone-200 bg-white text-stone-500 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800',
             )}
             aria-label={hideText ? 'إظهار النص' : 'إخفاء النص'}
             title={hideText ? 'إظهار النص [H]' : 'إخفاء النص [H]'}
@@ -202,7 +202,7 @@ export function TestingView({ engine }: TestingViewProps) {
           <button
             type="button"
             onClick={() => setShortcutsOpen(true)}
-            className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
+            className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
             aria-label="عرض اختصارات لوحة المفاتيح"
             title="اختصارات لوحة المفاتيح [؟]"
           >

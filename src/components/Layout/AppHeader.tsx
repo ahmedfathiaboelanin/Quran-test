@@ -10,7 +10,7 @@ import {
 import type { TestPhase } from '../../types';
 import { Button } from '../ui/Button';
 import { BrandMark } from '../ui/BrandMark';
-import { formatNumber } from '../../utils/helpers';
+import { cn, formatNumber } from '../../utils/helpers';
 import type { Theme } from '../../hooks/useTheme';
 
 interface AppHeaderProps {
@@ -105,10 +105,20 @@ export function AppHeader({
             type="button"
             onClick={onToggleTheme}
             aria-label={isDark ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الداكن'}
+            aria-pressed={isDark}
             title={isDark ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الداكن'}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-stone-200 bg-white/80 text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+            className={cn(
+              'group grid h-10 w-10 shrink-0 place-items-center rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
+              isDark
+                ? 'border-amber-300/50 bg-amber-300/10 text-amber-200 shadow-sm shadow-amber-500/10 hover:border-amber-300/80 hover:bg-amber-300/20 hover:text-amber-100'
+                : 'border-stone-200 bg-white/80 text-stone-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800',
+            )}
           >
-            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {isDark ? (
+              <Sun className="h-5 w-5 transition-transform duration-300 group-hover:rotate-12" />
+            ) : (
+              <Moon className="h-5 w-5 transition-transform duration-300 group-hover:-rotate-12" />
+            )}
           </button>
 
           <button
@@ -132,7 +142,7 @@ export function AppHeader({
 
       {phase === 'running' ? (
         <div
-          className="h-0.5 w-full overflow-hidden bg-stone-200/70 dark:bg-stone-800"
+          className="h-0.5 w-full overflow-hidden bg-stone-200/70"
           aria-hidden="true"
         >
           <div

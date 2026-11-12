@@ -51,7 +51,7 @@ export function Toast({
     >
       <div
         className={cn(
-          'toast-enter pointer-events-auto inline-flex items-center gap-2 rounded-2xl border bg-white/95 px-4 py-2.5 text-sm font-semibold text-stone-800 shadow-lg shadow-stone-950/10 backdrop-blur dark:border-stone-700 dark:bg-stone-900/95 dark:text-stone-100',
+          'toast-enter pointer-events-auto inline-flex items-center gap-2 rounded-2xl border bg-white/95 px-4 py-2.5 text-sm font-semibold text-stone-800 shadow-lg shadow-stone-950/10 backdrop-blur',
           styles.border,
         )}
       >

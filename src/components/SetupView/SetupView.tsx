@@ -224,7 +224,7 @@ export function SetupView({
             <button
               type="button"
               onClick={requestResetAll}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1.5 text-xs font-semibold text-stone-500 transition hover:bg-stone-100 hover:text-stone-800 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1.5 text-xs font-semibold text-stone-500 transition hover:bg-stone-100 hover:text-stone-800 dark:hover:bg-stone-200"
               title="إعادة تعيين كافة النطاقات والاسم والإعدادات"
               aria-label="إعادة تعيين كافة النطاقات والاسم والإعدادات"
             >
@@ -522,7 +522,7 @@ export function SetupView({
       {/* شريط البدء العائم المتاح على كل الشاشات عبر createPortal لضمان ثباته فوق أي تحريك لصفحة الإعدادات */}
       {createPortal(
         <div
-          className="fixed inset-x-0 bottom-0 z-50 border-t border-stone-200/90 bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl dark:border-stone-800 dark:bg-[#0c1211]/95 print:hidden"
+          className="fixed inset-x-0 bottom-0 z-50 border-t border-stone-200/90 bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl dark:bg-[#0c1211]/95 print:hidden"
           dir="rtl"
           role="region"
           aria-label="شريط بدء الاختبار"
@@ -534,14 +534,14 @@ export function SetupView({
                   'grid h-9 w-9 shrink-0 place-items-center rounded-xl transition',
                   canStart
                     ? 'bg-teal-700 text-white shadow-sm dark:bg-teal-600'
-                    : 'bg-stone-100 text-stone-400 dark:bg-stone-800 dark:text-stone-500',
+                    : 'bg-stone-100 text-stone-400',
                 )}
               >
                 <Sparkles className="h-4 w-4" />
               </span>
 
               <div className="min-w-0">
-                <p className="truncate text-xs font-bold text-stone-900 dark:text-stone-100 sm:text-sm">
+                <p className="truncate text-xs font-bold text-stone-900 sm:text-sm">
                   {canStart
                     ? stats.surahCount > 0
                       ? `${formatNumber(stats.surahCount)} سورة محددة (${formatNumber(stats.ayahCount)} آية)`
@@ -550,7 +550,7 @@ export function SetupView({
                         : `${formatNumber(stats.ayahCount)} آية في النطاق`
                     : 'اختر سورة أو جزءاً لبدء الاختبار'}
                 </p>
-                <p className="flex items-center gap-2 text-[11px] text-stone-500 dark:text-stone-400">
+                <p className="flex items-center gap-2 text-[11px] text-stone-500">
                   <span>
                     {canStart
                       ? `${formatNumber(plannedCount)} سؤال مخطط`
@@ -558,7 +558,7 @@ export function SetupView({
                   </span>
                   {studentName.trim() ? (
                     <>
-                      <span className="h-1 w-1 rounded-full bg-stone-300 dark:bg-stone-700" />
+                      <span className="h-1 w-1 rounded-full bg-stone-300" />
                       <span className="truncate font-semibold text-teal-700 dark:text-teal-400">
                         المختبَر: {studentName.trim()}
                       </span>
@@ -572,7 +572,7 @@ export function SetupView({
               <button
                 type="button"
                 onClick={scrollToSettings}
-                className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-50 px-3 text-xs font-semibold text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-50 px-3 text-xs font-semibold text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 dark:hover:bg-stone-200"
                 title="الانتقال لإعدادات الاختبار"
               >
                 <SlidersHorizontal className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />

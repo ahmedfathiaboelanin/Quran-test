@@ -101,7 +101,7 @@ export function VerseCard({
 
   return (
     <article
-      className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-teal-900/15 bg-[#fffdf7] shadow-md shadow-teal-950/[0.04] dark:border-stone-800 dark:bg-[#121816]"
+      className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-teal-900/15 bg-[#fffdf7] shadow-md shadow-teal-950/[0.04]"
       aria-live="polite"
     >
       <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:radial-gradient(circle_at_15%_10%,#99f6e4_0,transparent_32%),radial-gradient(circle_at_85%_90%,#fde68a_0,transparent_30%)] dark:opacity-[0.18]" />
@@ -146,7 +146,7 @@ export function VerseCard({
                   'inline-flex min-h-7 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold shadow-2xs transition active:scale-95',
                   pageMode
                     ? 'border-teal-300 bg-teal-50 text-teal-800 hover:bg-teal-100 dark:border-teal-700 dark:bg-teal-950/60 dark:text-teal-200'
-                    : 'border-stone-200 bg-white/90 text-stone-700 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300',
+                    : 'border-stone-200 bg-white/90 text-stone-700 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900',
                 )}
               >
                 {pageMode ? (

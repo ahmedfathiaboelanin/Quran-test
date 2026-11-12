@@ -25,7 +25,7 @@ const ACTION_SHORTCUTS = [
 
 function Keycap({ children }: { children: string }) {
   return (
-    <kbd className="inline-grid min-h-7 min-w-7 place-items-center rounded-lg border border-stone-300 border-b-2 bg-white px-1.5 font-sans text-[11px] font-bold text-stone-700 shadow-2xs dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200">
+    <kbd className="inline-grid min-h-7 min-w-7 place-items-center rounded-lg border border-stone-300 border-b-2 bg-white px-1.5 font-sans text-[11px] font-bold text-stone-700 shadow-2xs">
       {children}
     </kbd>
   );
@@ -53,9 +53,9 @@ export function ShortcutsDialog({ open, onClose }: ShortcutsDialogProps) {
 
       <div
         ref={containerRef}
-        className="dialog-enter relative max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-3xl border border-stone-200/90 bg-[#fffdf7] shadow-2xl shadow-stone-950/20 dark:border-stone-800 dark:bg-[#101816]"
+        className="dialog-enter relative max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-3xl border border-stone-200/90 bg-[#fffdf7] shadow-2xl shadow-stone-950/20"
       >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-stone-200/80 bg-[#fffdf7]/95 px-5 py-4 backdrop-blur dark:border-stone-800 dark:bg-[#101816]/95">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-stone-200/80 bg-[#fffdf7]/95 px-5 py-4 backdrop-blur">
           <div className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300">
               <Keyboard className="h-5 w-5" />
@@ -77,7 +77,7 @@ export function ShortcutsDialog({ open, onClose }: ShortcutsDialogProps) {
             autoFocus
             onClick={onClose}
             aria-label="إغلاق"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 dark:hover:bg-stone-800"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 dark:hover:bg-stone-200"
           >
             <X className="h-4 w-4" />
           </button>
@@ -86,7 +86,7 @@ export function ShortcutsDialog({ open, onClose }: ShortcutsDialogProps) {
         <div className="space-y-5 p-5">
           <section>
             <h3 className="text-xs font-bold text-stone-500">التنقل</h3>
-            <ul className="mt-2 divide-y divide-stone-100 dark:divide-stone-800">
+            <ul className="mt-2 divide-y divide-stone-100 dark:divide-stone-200">
               {NAVIGATION_SHORTCUTS.map((shortcut) => (
                 <li
                   key={shortcut.label}
@@ -107,7 +107,7 @@ export function ShortcutsDialog({ open, onClose }: ShortcutsDialogProps) {
 
           <section>
             <h3 className="text-xs font-bold text-stone-500">التقييم والتحكم</h3>
-            <ul className="mt-2 divide-y divide-stone-100 dark:divide-stone-800">
+            <ul className="mt-2 divide-y divide-stone-100 dark:divide-stone-200">
               {ACTION_SHORTCUTS.map((shortcut) => (
                 <li
                   key={shortcut.label}

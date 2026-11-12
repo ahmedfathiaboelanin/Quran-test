@@ -67,13 +67,13 @@ export function ConfirmDialog({
 
       <div
         ref={containerRef}
-        className="dialog-enter relative w-full max-w-md overflow-hidden rounded-3xl border border-stone-200/90 bg-[#fffdf7] shadow-2xl shadow-stone-950/20 dark:border-stone-800 dark:bg-[#101816]"
+        className="dialog-enter relative w-full max-w-md overflow-hidden rounded-3xl border border-stone-200/90 bg-[#fffdf7] shadow-2xl shadow-stone-950/20"
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="إغلاق"
-          className="absolute left-3 top-3 grid h-9 w-9 place-items-center rounded-xl text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 dark:hover:bg-stone-800"
+          className="absolute left-3 top-3 grid h-9 w-9 place-items-center rounded-xl text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 dark:hover:bg-stone-200"
         >
           <X className="h-4 w-4" />
         </button>
