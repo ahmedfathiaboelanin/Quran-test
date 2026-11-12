@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Database, ShieldCheck, WifiOff } from 'lucide-react';
 import { useOfflineData } from './hooks/useOfflineData';
 import { useTestEngine } from './hooks/useTestEngine';
@@ -25,8 +25,19 @@ export default function App() {
     engine.resetTest();
   };
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [engine.phase]);
+
   return (
     <div className="min-h-screen">
+      <a
+        href="#main-content"
+        className="sr-only z-[100] rounded-xl bg-teal-700 px-4 py-2 text-sm font-bold text-white focus:not-sr-only focus:fixed focus:right-4 focus:top-4 focus:outline-none focus:ring-2 focus:ring-teal-300"
+      >
+        انتقل إلى المحتوى الرئيسي
+      </a>
+
       <div className="print:hidden">
         <AppHeader
           isOnline={data.isOnline}
@@ -38,6 +49,8 @@ export default function App() {
           dataStats={data.dataStats}
           theme={theme.theme}
           onToggleTheme={theme.toggleTheme}
+          phase={engine.phase}
+          progressPercent={engine.progressPercent}
         />
       </div>
 
@@ -51,7 +64,11 @@ export default function App() {
         </div>
       ) : null}
 
-      <main className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="mx-auto w-full max-w-7xl px-4 py-5 focus:outline-none sm:px-6 sm:py-7 lg:px-8"
+      >
         <div key={engine.phase} className="screen-enter">
           {engine.phase === 'setup' ? (
             <SetupView

@@ -22,6 +22,7 @@ import {
   X,
 } from 'lucide-react';
 import type { EvaluationDraft } from '../../hooks/useTestEngine';
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 import type { Question } from '../../types';
 import { cn, formatNumber } from '../../utils/helpers';
 import { computeEvaluationPoints, formatPoints } from '../../utils/scoring';
@@ -232,20 +233,7 @@ interface NoteSheetProps {
 }
 
 function NoteSheet({ textareaId, value, onChange, onClose }: NoteSheetProps) {
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onClose]);
+  const containerRef = useDialogFocus(true, onClose);
 
   return createPortal(
     <div
@@ -259,9 +247,12 @@ function NoteSheet({ textareaId, value, onChange, onClose }: NoteSheetProps) {
         type="button"
         aria-label="إغلاق ملاحظات المختبر"
         onClick={onClose}
-        className="absolute inset-0 h-full w-full bg-stone-950/45 backdrop-blur-sm"
+        className="overlay-enter absolute inset-0 h-full w-full cursor-default bg-stone-950/45 backdrop-blur-sm"
       />
-      <div className="absolute inset-x-0 bottom-0 rounded-t-3xl border-t border-stone-200 bg-[#fffdf7] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl">
+      <div
+        ref={containerRef}
+        className="sheet-enter absolute inset-x-0 bottom-0 rounded-t-3xl border-t border-stone-200 bg-[#fffdf7] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl"
+      >
         <div className="mx-auto w-full max-w-lg">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -290,6 +281,7 @@ function NoteSheet({ textareaId, value, onChange, onClose }: NoteSheetProps) {
             onChange={(event) => onChange(event.target.value)}
             rows={4}
             autoFocus
+            data-autofocus
             placeholder="مثال: تردد عند الوصل، أو تحسين موضع الوقف..."
             className="mt-3 w-full resize-y rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-base leading-6 text-stone-800 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
           />
@@ -334,7 +326,7 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
           type="button"
           onClick={onPrevious}
           disabled={!canGoPrevious}
-          aria-label="الآية أو الصفحة السابقة"
+          aria-label={isPageMode ? 'الصفحة السابقة' : 'الآية السابقة'}
           className="inline-flex min-h-8 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-stone-200 bg-white px-2 text-[10px] font-semibold text-stone-700 transition active:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
         >
           <ChevronRight className="h-3.5 w-3.5" />
@@ -430,7 +422,7 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
           type="button"
           onClick={onNext}
           disabled={!canGoNext}
-          aria-label="الآية أو الصفحة التالية"
+          aria-label={isPageMode ? 'الصفحة التالية' : 'الآية التالية'}
           className="inline-flex min-h-8 shrink-0 touch-manipulation items-center gap-0.5 rounded-lg border border-teal-600 bg-teal-700 px-2 text-[10px] font-semibold text-white transition active:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-30"
         >
           <span>التالية</span>
@@ -637,11 +629,17 @@ export function EvaluationPanel({
   // اختصارات لوحة المفاتيح لتسجيل الأخطاء والانتقال السريع
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Do not hijack keys while a dialog or sheet is open.
+      if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
+
       const target = e.target as HTMLElement | null;
       if (
         target &&
         (target.tagName === 'INPUT' ||
           target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.tagName === 'BUTTON' ||
+          target.tagName === 'A' ||
           target.isContentEditable)
       ) {
         return;
@@ -685,9 +683,22 @@ export function EvaluationPanel({
               تقييم التسميع بالدرجات
             </h2>
           </div>
-          <span className="rounded-full bg-stone-100 px-2.5 py-1 text-[10px] font-semibold text-stone-500">
-            {formatNumber(viewedAyahs)} آية مفتوحة
-          </span>
+          <div className="flex flex-wrap items-center justify-end gap-1.5">
+            <span className="rounded-full bg-stone-100 px-2.5 py-1 text-[10px] font-semibold text-stone-500">
+              {formatNumber(viewedAyahs)} آية مفتوحة
+            </span>
+            {mobilePageNavigation?.onGoToStart ? (
+              <button
+                type="button"
+                onClick={mobilePageNavigation.onGoToStart}
+                disabled={mobilePageNavigation.isAtStart}
+                className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 disabled:cursor-not-allowed disabled:opacity-40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
+              >
+                <RotateCcw className="h-3 w-3" />
+                بداية السؤال
+              </button>
+            ) : null}
+          </div>
         </div>
 
         {mobilePageNavigation ? (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   BookOpenText,
   Check,
@@ -13,6 +13,12 @@ import {
 import type { AyahRef } from '../../types';
 import { cn, formatNumber } from '../../utils/helpers';
 import { getAyahReferenceLabel } from '../../utils/quranHelpers';
+import { Toast } from '../ui/Toast';
+
+interface VerseToast {
+  message: string;
+  tone: 'success' | 'error';
+}
 
 interface VerseCardProps {
   ayah: AyahRef;
@@ -47,15 +53,36 @@ export function VerseCard({
     return 'normal';
   });
   const [copied, setCopied] = useState(false);
+  const [toast, setToast] = useState<VerseToast | null>(null);
 
-  const handleCopy = () => {
+  const closeToast = useCallback(() => setToast(null), []);
+
+  const handleCopy = async () => {
     const textToCopy = pageMode
       ? displayedPageAyahs.map((a) => a.text).join(' ')
       : ayah.text;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(textToCopy);
+
+    if (!navigator.clipboard?.writeText) {
+      setToast({
+        message: 'تعذّر النسخ — المتصفح لا يدعم الحافظة',
+        tone: 'error',
+      });
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      window.setTimeout(() => setCopied(false), 2000);
+      setToast({
+        message: pageMode ? 'تم نسخ نص الصفحة' : 'تم نسخ نص الآية',
+        tone: 'success',
+      });
+    } catch {
+      setToast({
+        message: 'تعذّر نسخ النص — تحقق من إذن الحافظة',
+        tone: 'error',
+      });
     }
   };
 
@@ -171,7 +198,7 @@ export function VerseCard({
               onClick={cycleFontSize}
               title={`حجم الخط: ${fontSizeLabel} — اضغط للتكبير`}
               aria-label={`حجم الخط: ${fontSizeLabel}`}
-              className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white/90 px-2 py-1 text-[10px] font-bold text-stone-700 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900 transition shadow-2xs"
+              className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white/90 px-2 py-1 text-[10px] font-bold text-stone-700 shadow-2xs transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffdf7] dark:focus-visible:ring-offset-[#121816]"
             >
               <Type className="h-3 w-3 text-teal-600" />
               <span>{fontSize === 'normal' ? 'خط عادي' : fontSize === 'large' ? 'خط كبير' : 'خط أقصى'}</span>
@@ -180,10 +207,10 @@ export function VerseCard({
             {/* زر نسخ النص */}
             <button
               type="button"
-              onClick={handleCopy}
+              onClick={() => void handleCopy()}
               title={copied ? 'تم النسخ!' : 'نسخ النص'}
               aria-label={copied ? 'تم النسخ!' : 'نسخ النص'}
-              className="grid h-6 w-6 place-items-center rounded-full border border-stone-200 bg-white/90 text-stone-500 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 transition shadow-2xs"
+              className="grid h-6 w-6 place-items-center rounded-full border border-stone-200 bg-white/90 text-stone-500 shadow-2xs transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffdf7] dark:focus-visible:ring-offset-[#121816]"
             >
               {copied ? (
                 <Check className="h-3 w-3 text-emerald-600" />
@@ -304,6 +331,10 @@ export function VerseCard({
           )}
         </div>
       </div>
+
+      {toast ? (
+        <Toast message={toast.message} tone={toast.tone} onClose={closeToast} />
+      ) : null}
     </article>
   );
 }

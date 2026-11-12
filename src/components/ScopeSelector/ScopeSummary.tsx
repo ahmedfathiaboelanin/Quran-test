@@ -1,5 +1,6 @@
 import { BookOpenText, Files, Layers3, Sparkles } from 'lucide-react';
 import type { ScopeStats } from '../../types';
+import { TOTAL_AYAHS } from '../../utils/quranHelpers';
 import { formatNumber } from '../../utils/helpers';
 
 interface ScopeSummaryProps {
@@ -8,6 +9,9 @@ interface ScopeSummaryProps {
 
 export function ScopeSummary({ stats }: ScopeSummaryProps) {
   const isEmpty = stats.ayahCount === 0;
+  const coverage = Math.min(100, (stats.ayahCount / TOTAL_AYAHS) * 100);
+  const coverageLabel =
+    coverage > 0 && coverage < 1 ? '< ١٪' : `${formatNumber(Math.round(coverage))}٪`;
 
   return (
     <div
@@ -65,6 +69,28 @@ export function ScopeSummary({ stats }: ScopeSummaryProps) {
           </div>
         </div>
       )}
+
+      {!isEmpty ? (
+        <div className="mt-3">
+          <div className="flex items-center justify-between gap-2 text-[10px] font-semibold text-teal-800/80">
+            <span>تغطية المصحف</span>
+            <span className="tabular-nums">{coverageLabel}</span>
+          </div>
+          <div
+            className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-white/90 ring-1 ring-teal-100"
+            role="progressbar"
+            aria-label="نسبة النطاق من المصحف"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(coverage)}
+          >
+            <div
+              className="h-full rounded-full bg-gradient-to-l from-teal-600 to-emerald-500 transition-[width] duration-500"
+              style={{ width: `${Math.max(1.5, coverage)}%` }}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

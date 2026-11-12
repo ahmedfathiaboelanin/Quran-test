@@ -69,6 +69,7 @@ export function PageRangePicker({ value, onChange }: PageRangePickerProps) {
                 type="number"
                 min={1}
                 max={to}
+                inputMode="numeric"
                 value={from}
                 onChange={(event) => updateFrom(Number(event.target.value))}
                 className="h-10 w-full rounded-lg border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-800 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
@@ -94,6 +95,7 @@ export function PageRangePicker({ value, onChange }: PageRangePickerProps) {
                 type="number"
                 min={from}
                 max={TOTAL_PAGES}
+                inputMode="numeric"
                 value={to}
                 onChange={(event) => updateTo(Number(event.target.value))}
                 className="h-10 w-full rounded-lg border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-800 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
@@ -135,6 +137,7 @@ export function PageRangePicker({ value, onChange }: PageRangePickerProps) {
             <button
               key={quickRange.label}
               type="button"
+              aria-pressed={isActive}
               onClick={() => onChange(quickRange.range)}
               className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
                 isActive

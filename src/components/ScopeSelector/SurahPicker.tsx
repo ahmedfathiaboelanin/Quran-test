@@ -215,6 +215,9 @@ export function SurahPicker({ surahs, value, onChange }: SurahPickerProps) {
         {value.length > 0
           ? `تم اختيار ${formatNumber(value.length)} سورة. يمكنك اختيار أكثر من سورة.`
           : 'اختر سورة واحدة أو أكثر، أو استخدم الاختيارات السريعة بالأعلى.'}
+        {filtered.length !== surahs.length
+          ? ` — يُعرض الآن ${formatNumber(filtered.length)} من أصل ${formatNumber(surahs.length)} سورة.`
+          : ''}
       </p>
     </div>
   );

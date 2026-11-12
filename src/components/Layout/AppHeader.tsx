@@ -7,6 +7,7 @@ import {
   Sun,
   WifiOff,
 } from 'lucide-react';
+import type { TestPhase } from '../../types';
 import { Button } from '../ui/Button';
 import { BrandMark } from '../ui/BrandMark';
 import { formatNumber } from '../../utils/helpers';
@@ -25,7 +26,15 @@ interface AppHeaderProps {
   };
   theme: Theme;
   onToggleTheme: () => void;
+  phase?: TestPhase;
+  progressPercent?: number;
 }
+
+const PHASE_SUBTITLES: Record<TestPhase, string> = {
+  setup: 'حدّد النطاق واضبط الأسئلة ثم ابدأ التسميع',
+  running: 'اختبار جارٍ — رتّب تسميعك بهدوء',
+  results: 'نتيجتك وخطة المراجعة في مكان واحد',
+};
 
 export function AppHeader({
   isOnline,
@@ -35,6 +44,8 @@ export function AppHeader({
   dataStats,
   theme,
   onToggleTheme,
+  phase = 'setup',
+  progressPercent = 0,
 }: AppHeaderProps) {
   const isDark = theme === 'dark';
 
@@ -44,11 +55,19 @@ export function AppHeader({
         <div className="flex min-w-0 items-center gap-3">
           <BrandMark className="h-11 w-11 shrink-0" />
           <div className="min-w-0">
-            <h1 className="truncate text-base font-bold text-stone-900 sm:text-lg">
-              اختبار حفظ القرآن الكريم
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="truncate text-base font-bold text-stone-900 sm:text-lg">
+                اختبار حفظ القرآن الكريم
+              </h1>
+              {phase === 'running' ? (
+                <span className="hidden items-center gap-1 rounded-full bg-teal-100/80 px-2 py-0.5 text-[10px] font-bold text-teal-800 sm:inline-flex dark:bg-teal-950/60 dark:text-teal-300">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-600" />
+                  جارٍ الآن
+                </span>
+              ) : null}
+            </div>
             <p className="hidden truncate text-xs text-stone-500 sm:block">
-              بيانات محلية كاملة — يعمل دون اتصال بالإنترنت
+              {PHASE_SUBTITLES[phase]}
             </p>
           </div>
         </div>
@@ -110,6 +129,18 @@ export function AppHeader({
           ) : null}
         </div>
       </div>
+
+      {phase === 'running' ? (
+        <div
+          className="h-0.5 w-full overflow-hidden bg-stone-200/70 dark:bg-stone-800"
+          aria-hidden="true"
+        >
+          <div
+            className="h-full bg-gradient-to-l from-teal-600 via-emerald-500 to-teal-400 transition-[width] duration-500 ease-out"
+            style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
+          />
+        </div>
+      ) : null}
     </header>
   );
 }

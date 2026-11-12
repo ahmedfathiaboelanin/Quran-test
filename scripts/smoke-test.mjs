@@ -224,9 +224,14 @@ try {
   );
   if (!presetStillActive) throw new Error('Preset lost its active state after combining');
   await clickButton('المفصل', { exact: true });
-  const afterSecondClick = await readScopeStat('الآيات');
-  if (afterSecondClick !== combinedAyahs) {
-    throw new Error('Clicking an active preset duplicated its scope');
+  const afterToggleOff = await readScopeStat('الآيات');
+  if (afterToggleOff === combinedAyahs) {
+    throw new Error('Clicking an active preset did not remove it');
+  }
+  await clickButton('المفصل', { exact: true });
+  const afterReAdd = await readScopeStat('الآيات');
+  if (afterReAdd !== combinedAyahs) {
+    throw new Error('Re-adding a preset duplicated its scope');
   }
   console.log('  ✓ Presets combine with other scopes without duplicates');
   await clickButton('إعادة تعيين', { exact: true });
@@ -321,6 +326,8 @@ try {
   console.log('  ✓ Restart with same scope works');
 
   await clickButton('إنهاء مبكر', { exact: true });
+  await assertText('إنهاء الاختبار الآن؟', 'Early finish asks for confirmation');
+  await clickButton('إنهاء وعرض النتائج', { exact: true });
   await waitForText('نتيجة التقييم');
 
   await clickButton('العودة إلى الإعدادات', { exact: true });
@@ -335,6 +342,7 @@ try {
 
   // Full-page display + randomized question order.
   await clickButton('المفصل', { exact: true });
+  await clickButton('٥', { exact: true });
   await clickButton('الصفحة كاملة');
   await page.click('#randomize-question-order');
   await clickButton('ابدأ الاختبار', { exact: true });
@@ -350,6 +358,7 @@ try {
   console.log('  ✓ Full page display and page navigation work');
 
   await clickButton('إنهاء مبكر', { exact: true });
+  await clickButton('إنهاء وعرض النتائج', { exact: true });
   await waitForText('نتيجة التقييم');
   await clickButton('العودة إلى الإعدادات', { exact: true });
   await waitForText('نطاق الاختبار');
@@ -421,6 +430,7 @@ try {
   console.log('  ✓ Mobile save button advances to the next question');
 
   await clickButton('إنهاء مبكر', { exact: true });
+  await clickButton('إنهاء وعرض النتائج', { exact: true });
   await waitForText('نتيجة التقييم');
   await assertText('ملاحظات المختبر', 'Dedicated examiner notes section shown');
   await assertText('١ ملاحظة', 'Examiner notes count shown');

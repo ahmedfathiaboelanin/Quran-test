@@ -482,6 +482,148 @@ html.dark [role="switch"] > span {
   }
 }
 
+/* Dialog, sheet and toast motion */
+.overlay-enter {
+  animation: overlay-enter 0.2s ease-out both;
+}
+
+.dialog-enter {
+  animation: dialog-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.sheet-enter {
+  animation: sheet-enter 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.toast-enter {
+  animation: toast-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes overlay-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sheet-enter {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay-enter,
+  .dialog-enter,
+  .sheet-enter,
+  .toast-enter {
+    animation-duration: 0.01ms;
+  }
+}
+
+/* A slim range slider that matches the app's teal accents. */
+.range-slider {
+  width: 100%;
+  height: 1.5rem;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.range-slider::-webkit-slider-runnable-track {
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: #d6d3d1;
+}
+
+.range-slider::-moz-range-track {
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: #d6d3d1;
+}
+
+.range-slider::-webkit-slider-thumb {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: -0.34rem;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  background: #0f766e;
+  box-shadow: 0 1px 4px rgb(15 118 110 / 0.35);
+  transition: transform 0.15s ease;
+}
+
+.range-slider::-moz-range-thumb {
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  background: #0f766e;
+  box-shadow: 0 1px 4px rgb(15 118 110 / 0.35);
+}
+
+.range-slider:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+}
+
+.range-slider:focus-visible {
+  outline: none;
+}
+
+.range-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgb(20 184 166 / 0.35);
+}
+
+html.dark .range-slider::-webkit-slider-runnable-track,
+html.dark .range-slider::-moz-range-track {
+  background: #33413d;
+}
+
+html.dark .range-slider::-webkit-slider-thumb {
+  border-color: #0f1715;
+  background: #2dd4bf;
+}
+
+html.dark .range-slider::-moz-range-thumb {
+  border-color: #0f1715;
+  background: #2dd4bf;
+}
+
+.range-slider:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 /* Slim, unobtrusive scrollbars inside pickers. */
 .overflow-y-auto {
   scrollbar-width: thin;

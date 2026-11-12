@@ -12,6 +12,7 @@ import {
   RefreshCcw,
   Share2,
   SlidersHorizontal,
+  Target,
   TriangleAlert,
   User,
 } from 'lucide-react';
@@ -125,6 +126,66 @@ function StatCard({
   );
 }
 
+interface ResultGrade {
+  label: string;
+  badgeClassName: string;
+  ringClassName: string;
+  barClassName: string;
+}
+
+function getResultGrade(summary: TestSummary): ResultGrade {
+  if (summary.ratedQuestions === 0) {
+    return {
+      label: 'بانتظار التقييم',
+      badgeClassName: 'bg-white/10 text-teal-100 ring-white/20',
+      ringClassName: 'ring-white/20',
+      barClassName: 'bg-teal-300/60',
+    };
+  }
+
+  if (summary.totalPoints === 0) {
+    return {
+      label: 'إتقان تام',
+      badgeClassName: 'bg-emerald-400/20 text-emerald-100 ring-emerald-300/40',
+      ringClassName: 'ring-emerald-300/40',
+      barClassName: 'bg-gradient-to-l from-emerald-300 to-teal-300',
+    };
+  }
+
+  const average = summary.averagePoints ?? 0;
+  if (average <= 0.5) {
+    return {
+      label: 'متقن',
+      badgeClassName: 'bg-emerald-400/20 text-emerald-100 ring-emerald-300/40',
+      ringClassName: 'ring-emerald-300/40',
+      barClassName: 'bg-gradient-to-l from-emerald-300 to-teal-300',
+    };
+  }
+  if (average <= 1) {
+    return {
+      label: 'جيد جدًا',
+      badgeClassName: 'bg-teal-300/20 text-teal-50 ring-teal-200/40',
+      ringClassName: 'ring-teal-200/40',
+      barClassName: 'bg-gradient-to-l from-teal-300 to-emerald-300',
+    };
+  }
+  if (average <= 1.75) {
+    return {
+      label: 'جيد — يحتاج مراجعة',
+      badgeClassName: 'bg-amber-300/20 text-amber-100 ring-amber-200/40',
+      ringClassName: 'ring-amber-200/40',
+      barClassName: 'bg-gradient-to-l from-amber-300 to-yellow-300',
+    };
+  }
+
+  return {
+    label: 'يحتاج مراجعة مكثفة',
+    badgeClassName: 'bg-rose-400/20 text-rose-100 ring-rose-300/40',
+    ringClassName: 'ring-rose-300/40',
+    barClassName: 'bg-gradient-to-l from-rose-300 to-orange-300',
+  };
+}
+
 function getResultMessage(summary: TestSummary): string {
   if (summary.ratedQuestions === 0) {
     return 'لم يتم تقييم أي سؤال بعد. يمكنك إعادة الاختبار وتقييم كل سؤال للحصول على تحليل كامل.';
@@ -158,6 +219,12 @@ export function ResultsView({
   const responsePoints = summary.responseMistakes * 1;
   const promptPoints = summary.promptMistakes * 0.5;
   const hesitationPoints = summary.hesitations * 0.25;
+  const breakdownTotal = responsePoints + promptPoints + hesitationPoints;
+  const masteryPercent =
+    summary.ratedQuestions > 0
+      ? Math.round((summary.cleanQuestions / summary.ratedQuestions) * 100)
+      : 0;
+  const grade = getResultGrade(summary);
   const notedResults = summary.results.filter(({ evaluation }) =>
     Boolean(evaluation?.note.trim()),
   );
@@ -262,10 +329,21 @@ ${questionsDetails}`;
           {/* الاسم والدرجة */}
           <div className="flex flex-col items-center justify-between gap-5 text-center sm:flex-row sm:text-right">
             <div className="min-w-0 flex-1 space-y-1.5">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-teal-100 ring-1 ring-white/15">
-                <Award className="h-3.5 w-3.5 text-amber-300" />
-                نتيجة التقييم
-              </span>
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-teal-100 ring-1 ring-white/15">
+                  <Award className="h-3.5 w-3.5 text-amber-300" />
+                  نتيجة التقييم
+                </span>
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ring-1',
+                    grade.badgeClassName,
+                  )}
+                >
+                  <Target className="h-3.5 w-3.5" />
+                  {grade.label}
+                </span>
+              </div>
 
               {config?.studentName ? (
                 <div className="flex items-center justify-center gap-2 sm:justify-start">
@@ -283,11 +361,46 @@ ${questionsDetails}`;
               <p className="text-xs text-teal-100/80 sm:text-sm">
                 {getResultMessage(summary)}
               </p>
+
+              <div className="mx-auto mt-3 w-full max-w-sm sm:mx-0">
+                <div className="flex items-center justify-between gap-3 text-[10px] font-semibold text-teal-100/85">
+                  <span className="inline-flex items-center gap-1">
+                    <Target className="h-3 w-3" />
+                    نسبة الإتقان
+                  </span>
+                  <span className="tabular-nums">
+                    {formatNumber(masteryPercent)}٪
+                  </span>
+                </div>
+                <div
+                  className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/15"
+                  role="progressbar"
+                  aria-label="نسبة الأسئلة المتقنة"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={masteryPercent}
+                >
+                  <div
+                    className={cn(
+                      'h-full rounded-full transition-[width] duration-700 ease-out',
+                      grade.barClassName,
+                    )}
+                    style={{ width: `${masteryPercent}%` }}
+                  />
+                </div>
+                <p className="mt-1 text-[10px] text-teal-100/70">
+                  {formatNumber(summary.cleanQuestions)} من{' '}
+                  {formatNumber(summary.ratedQuestions)} سؤالًا مقيّمًا بدون أخطاء
+                </p>
+              </div>
             </div>
 
             {/* عرض الدرجة */}
             <div
-              className="grid h-28 w-28 shrink-0 place-items-center rounded-full bg-white/10 p-2 ring-1 ring-white/20 sm:h-32 sm:w-32"
+              className={cn(
+                'grid h-28 w-28 shrink-0 place-items-center rounded-full bg-white/10 p-2 ring-1 sm:h-32 sm:w-32',
+                grade.ringClassName,
+              )}
               role="img"
               aria-label={`الدرجة ${formatPoints(summary.totalPoints)}`}
             >
@@ -456,6 +569,59 @@ ${questionsDetails}`;
             {formatPoints(summary.totalPoints)} درجة
           </span>
         </div>
+
+        {breakdownTotal > 0 ? (
+          <div className="mb-4">
+            <div className="flex items-center justify-between gap-3 text-[10px] font-semibold text-stone-500">
+              <span>توزيع نقاط الأخطاء</span>
+              <span className="tabular-nums">
+                {formatPoints(breakdownTotal)} درجة
+              </span>
+            </div>
+            <div
+              className="mt-1.5 flex h-2.5 w-full overflow-hidden rounded-full bg-stone-100"
+              role="img"
+              aria-label={`الردود الخاطئة ${formatPoints(responsePoints)}، التنبيهات ${formatPoints(promptPoints)}، التردد ${formatPoints(hesitationPoints)}`}
+            >
+              {responsePoints > 0 ? (
+                <div
+                  className="h-full bg-rose-500"
+                  style={{ width: `${(responsePoints / breakdownTotal) * 100}%` }}
+                />
+              ) : null}
+              {promptPoints > 0 ? (
+                <div
+                  className="h-full bg-violet-500"
+                  style={{ width: `${(promptPoints / breakdownTotal) * 100}%` }}
+                />
+              ) : null}
+              {hesitationPoints > 0 ? (
+                <div
+                  className="h-full bg-amber-400"
+                  style={{ width: `${(hesitationPoints / breakdownTotal) * 100}%` }}
+                />
+              ) : null}
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] font-medium text-stone-500">
+              <span className="inline-flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-rose-500" />
+                الردود
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-violet-500" />
+                التنبيهات
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-amber-400" />
+                التردد
+              </span>
+            </div>
+          </div>
+        ) : (
+          <p className="mb-4 rounded-xl bg-emerald-50/70 px-3 py-2 text-[11px] font-semibold text-emerald-800">
+            لا توجد نقاط أخطاء في هذا الاختبار — نتيجة نظيفة تمامًا.
+          </p>
+        )}
 
         <div className="grid gap-2 sm:grid-cols-3">
           <div className="rounded-xl border border-rose-100 bg-rose-50/50 p-3">

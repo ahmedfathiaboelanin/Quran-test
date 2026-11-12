@@ -29,6 +29,7 @@ import { cn, formatNumber } from '../../utils/helpers';
 import { getScopeStats } from '../../utils/quranHelpers';
 import { ScopeSelector } from '../ScopeSelector/ScopeSelector';
 import { Button } from '../ui/Button';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Switch } from '../ui/Switch';
 
 interface SetupViewProps {
@@ -120,10 +121,15 @@ export function SetupView({
     initialConfig?.randomizeQuestionOrder ?? false,
   );
   const [blindMode, setBlindMode] = useState(initialConfig?.blindMode ?? false);
+  const [resetOpen, setResetOpen] = useState(false);
 
   const stats = useMemo(() => getScopeStats(selection), [selection]);
   const plannedCount = Math.min(questionCount, stats.ayahCount);
   const canStart = stats.ayahCount > 0 && plannedCount > 0;
+  const countSliderMax = Math.max(
+    1,
+    Math.min(9999, stats.ayahCount > 0 ? stats.ayahCount : 100),
+  );
 
   const usePageDistribution =
     distributionUnit !== 'ayah' &&
@@ -177,6 +183,20 @@ export function SetupView({
     setBlindMode(false);
   };
 
+  const hasCustomization =
+    stats.ayahCount > 0 ||
+    studentName.trim().length > 0 ||
+    questionCount !== 10 ||
+    distributionUnit !== 'auto' ||
+    displayMode !== 'ayah' ||
+    randomizeQuestionOrder ||
+    blindMode;
+
+  const requestResetAll = () => {
+    if (!hasCustomization) return;
+    setResetOpen(true);
+  };
+
   return (
     <div className="grid gap-5 pb-28 sm:pb-32 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
       <ScopeSelector
@@ -203,12 +223,13 @@ export function SetupView({
             </div>
             <button
               type="button"
-              onClick={handleResetAll}
+              onClick={requestResetAll}
               className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1.5 text-xs font-semibold text-stone-500 transition hover:bg-stone-100 hover:text-stone-800 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700"
               title="إعادة تعيين كافة النطاقات والاسم والإعدادات"
+              aria-label="إعادة تعيين كافة النطاقات والاسم والإعدادات"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              <span>إعادة تعيين</span>
+              <span>إعادة تعيين الكل</span>
             </button>
           </div>
 
@@ -292,6 +313,27 @@ export function SetupView({
                     {formatNumber(count)}
                   </button>
                 ))}
+              </div>
+
+              <input
+                type="range"
+                min={1}
+                max={countSliderMax}
+                step={1}
+                value={Math.min(questionCount, countSliderMax)}
+                onChange={(event) => changeCount(Number(event.target.value))}
+                disabled={stats.ayahCount === 0}
+                className="range-slider mt-2.5"
+                aria-label="اختيار عدد الأسئلة بالسحب"
+                title={
+                  stats.ayahCount > 0
+                    ? `اسحب لاختيار عدد الأسئلة (حتى ${formatNumber(stats.ayahCount)})`
+                    : 'حدّد نطاقًا أولًا لتفعيل شريط عدد الأسئلة'
+                }
+              />
+              <div className="mt-1 flex items-center justify-between text-[10px] text-stone-400">
+                <span>١</span>
+                <span>{formatNumber(stats.ayahCount)} آية متاحة</span>
               </div>
             </div>
 
@@ -465,6 +507,17 @@ export function SetupView({
           </p>
         </div>
       </aside>
+
+      <ConfirmDialog
+        open={resetOpen}
+        title="إعادة تعيين كل الإعدادات؟"
+        description="سيتم مسح النطاق المحدد واسم المختبَر وكل خيارات الاختبار والعودة إلى الوضع الافتراضي. لا يمكن التراجع عن هذه الخطوة."
+        confirmLabel="نعم، أعد التعيين"
+        cancelLabel="إلغاء"
+        tone="danger"
+        onConfirm={handleResetAll}
+        onClose={() => setResetOpen(false)}
+      />
 
       {/* شريط البدء العائم المتاح على كل الشاشات عبر createPortal لضمان ثباته فوق أي تحريك لصفحة الإعدادات */}
       {createPortal(
