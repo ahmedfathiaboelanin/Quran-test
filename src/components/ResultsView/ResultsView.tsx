@@ -21,6 +21,7 @@ import { cn, formatDate, formatNumber } from '../../utils/helpers';
 import { formatPoints } from '../../utils/scoring';
 import { formatAveragePoints } from '../../utils/testResults';
 import { Button } from '../ui/Button';
+import { SaveTestToSheet } from '../MonthlySheet/SaveTestToSheet';
 import { RevisionList } from './RevisionList';
 
 interface ResultsViewProps {
@@ -28,6 +29,7 @@ interface ResultsViewProps {
   config: TestConfig | null;
   onRestartSameScope: () => void;
   onNewTest: () => void;
+  onOpenMonthly?: () => void;
 }
 
 function PointsBadge({ evaluation }: { evaluation: QuestionEvaluation | null }) {
@@ -212,6 +214,7 @@ export function ResultsView({
   config,
   onRestartSameScope,
   onNewTest,
+  onOpenMonthly,
 }: ResultsViewProps) {
   const [copied, setCopied] = useState(false);
   const [questionFilter, setQuestionFilter] = useState<'all' | 'mistakes' | 'clean'>('all');
@@ -467,6 +470,13 @@ ${questionsDetails}`;
           </div>
         </div>
       </section>
+
+      <SaveTestToSheet
+        summary={summary}
+        initialExamineeId={config?.examineeId}
+        initialExamineeName={config?.studentName}
+        onOpenMonthly={onOpenMonthly}
+      />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard

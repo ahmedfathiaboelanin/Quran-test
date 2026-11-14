@@ -64,6 +64,8 @@ export type QuestionDisplayMode = 'ayah' | 'page';
 
 export interface TestConfig {
   studentName?: string;
+  /** Supabase examinee selected before the test, used to prefill result saving. */
+  examineeId?: string;
   scope: ScopeSelection;
   questionCount: number;
   distributionUnit: DistributionUnit;
