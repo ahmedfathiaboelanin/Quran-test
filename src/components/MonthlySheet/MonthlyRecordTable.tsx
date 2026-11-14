@@ -1,9 +1,13 @@
-import { Info, UserRound, UsersRound } from 'lucide-react';
+import { Info, MoveHorizontal, UserRound, UsersRound } from 'lucide-react';
 import type {
   MonthlyRecordPatch,
   MonthlyRecordRow,
 } from '../../types/monthlySheet';
-import { SHEET_SLOT_LABELS, WEEK_SLOTS } from '../../types/monthlySheet';
+import {
+  SHEET_SLOT_LABELS,
+  SHEET_SLOT_SHORT_LABELS,
+  WEEK_SLOTS,
+} from '../../types/monthlySheet';
 import { cn, formatNumber } from '../../utils/helpers';
 import {
   calculateTotalMistakes,
@@ -63,34 +67,69 @@ export function MonthlyRecordTable({
 
   return (
     <div className="overflow-hidden rounded-3xl border border-stone-200/90 bg-[#fffdf7] shadow-sm shadow-stone-900/[0.03]">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[780px] border-collapse text-right">
+      <div className="flex items-center gap-1.5 border-b border-stone-200/70 bg-[#f8f5ee]/60 px-3 py-1.5 text-[10px] font-semibold text-stone-500 sm:hidden">
+        <MoveHorizontal className="h-3.5 w-3.5 shrink-0 text-teal-600" />
+        اسحب الجدول أفقيًا لعرض باقي الأسابيع
+      </div>
+
+      <div className="overflow-x-auto overscroll-x-contain">
+        <table
+          className={cn(
+            'w-full table-fixed border-collapse text-right',
+            hasFifthWeek ? 'min-w-[612px]' : 'min-w-[552px]',
+          )}
+        >
+          <colgroup>
+            <col className="w-[112px] sm:w-52" />
+            {weekSlots.map((slot) => (
+              <col key={slot} className="w-[60px] sm:w-20" />
+            ))}
+            <col className="w-[72px] sm:w-24" />
+            <col className="w-14 sm:w-20" />
+            <col className="w-[72px] sm:w-24" />
+          </colgroup>
           <caption className="sr-only">
             جدول المتابعة الشهرية: الأسابيع والمراجعة الشهرية والمجموع والمبلغ
           </caption>
           <thead>
-            <tr className="border-b border-stone-200 bg-[#f8f5ee] text-[11px] font-bold text-stone-600">
+            <tr className="border-b border-stone-200 bg-[#f8f5ee] text-[10px] font-bold text-stone-600 sm:text-[11px]">
               <th
                 scope="col"
-                className="sticky start-0 z-20 min-w-60 bg-[#f8f5ee] px-4 py-3 text-right"
+                className="sticky start-0 z-20 bg-[#f8f5ee] px-2 py-2.5 text-right sm:px-4 sm:py-3"
               >
                 الاسم
               </th>
               {weekSlots.map((slot) => (
-                <th key={slot} scope="col" className="min-w-24 px-2 py-3 text-center">
-                  {SHEET_SLOT_LABELS[slot]}
+                <th
+                  key={slot}
+                  scope="col"
+                  className="px-0.5 py-2.5 text-center leading-4 sm:px-2 sm:py-3"
+                >
+                  <span className="sm:hidden">{SHEET_SLOT_SHORT_LABELS[slot]}</span>
+                  <span className="hidden sm:inline">{SHEET_SLOT_LABELS[slot]}</span>
                 </th>
               ))}
               <th
                 scope="col"
-                className="min-w-28 bg-amber-50/50 px-2 py-3 text-center text-amber-800"
+                className="bg-amber-50/50 px-0.5 py-2.5 text-center leading-4 text-amber-800 sm:px-2 sm:py-3"
               >
-                {SHEET_SLOT_LABELS.monthly_exam}
+                <span className="sm:hidden">
+                  {SHEET_SLOT_SHORT_LABELS.monthly_exam}
+                </span>
+                <span className="hidden sm:inline">
+                  {SHEET_SLOT_LABELS.monthly_exam}
+                </span>
               </th>
-              <th scope="col" className="min-w-24 px-2 py-3 text-center">
+              <th
+                scope="col"
+                className="px-0.5 py-2.5 text-center leading-4 sm:px-2 sm:py-3"
+              >
                 المجموع
               </th>
-              <th scope="col" className="min-w-28 px-3 py-3 text-center">
+              <th
+                scope="col"
+                className="px-0.5 py-2.5 text-center leading-4 sm:px-3 sm:py-3"
+              >
                 المبلغ
               </th>
             </tr>
@@ -106,11 +145,11 @@ export function MonthlyRecordTable({
                   key={row.id}
                   className="group border-b border-stone-100 transition-colors last:border-b-0 hover:bg-stone-50/70"
                 >
-                  <td className="sticky start-0 z-10 bg-[#fffdf7] px-4 py-2.5 transition-colors group-hover:bg-stone-50">
-                    <div className="flex items-center gap-2.5">
+                  <td className="sticky start-0 z-10 bg-[#fffdf7] px-2 py-2 transition-colors group-hover:bg-stone-50 sm:px-4 sm:py-2.5">
+                    <div className="flex items-center gap-2">
                       <span
                         className={cn(
-                          'grid h-9 w-9 shrink-0 place-items-center rounded-xl text-sm font-bold',
+                          'hidden h-8 w-8 shrink-0 place-items-center rounded-lg text-xs font-bold sm:grid',
                           row.examinee.is_active
                             ? 'bg-teal-100 text-teal-800'
                             : 'bg-stone-100 text-stone-400',
@@ -120,11 +159,14 @@ export function MonthlyRecordTable({
                         {initialOf(row.examinee.name)}
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-bold text-stone-900">
+                        <p
+                          className="truncate text-xs font-bold leading-5 text-stone-900 sm:text-sm"
+                          title={row.examinee.name}
+                        >
                           {row.examinee.name}
                         </p>
                         {!row.examinee.is_active ? (
-                          <span className="mt-0.5 inline-flex rounded-full bg-stone-100 px-2 py-0.5 text-[9px] font-bold text-stone-500">
+                          <span className="mt-0.5 inline-flex rounded-full bg-stone-100 px-1.5 py-0.5 text-[8px] font-bold text-stone-500">
                             غير نشط
                           </span>
                         ) : null}
@@ -133,7 +175,7 @@ export function MonthlyRecordTable({
                   </td>
 
                   {weekSlots.map((slot) => (
-                    <td key={slot} className="px-1.5 py-2">
+                    <td key={slot} className="px-0.5 py-1.5 sm:px-1.5 sm:py-2">
                       <EditableNumberCell
                         value={row[slot]}
                         label={`${row.examinee.name} — ${SHEET_SLOT_LABELS[slot]}`}
@@ -142,7 +184,7 @@ export function MonthlyRecordTable({
                     </td>
                   ))}
 
-                  <td className="bg-amber-50/40 px-1.5 py-2">
+                  <td className="bg-amber-50/40 px-0.5 py-1.5 sm:px-1.5 sm:py-2">
                     <EditableNumberCell
                       value={row.monthly_exam}
                       label={`${row.examinee.name} — ${SHEET_SLOT_LABELS.monthly_exam}`}
@@ -152,10 +194,10 @@ export function MonthlyRecordTable({
                     />
                   </td>
 
-                  <td className="px-2 py-2 text-center">
+                  <td className="px-0.5 py-1.5 text-center sm:px-2 sm:py-2">
                     <span
                       className={cn(
-                        'inline-flex min-w-12 items-center justify-center rounded-full px-2.5 py-1 text-sm font-extrabold ring-1 tabular-nums',
+                        'inline-flex min-w-10 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-extrabold ring-1 tabular-nums sm:min-w-12 sm:px-2.5 sm:py-1 sm:text-sm',
                         totalTone(total),
                       )}
                       title={
@@ -168,7 +210,7 @@ export function MonthlyRecordTable({
                     </span>
                   </td>
 
-                  <td className="px-2 py-2">
+                  <td className="px-0.5 py-1.5 sm:px-2 sm:py-2">
                     <EditableNumberCell
                       value={row.amount}
                       mode="amount"
