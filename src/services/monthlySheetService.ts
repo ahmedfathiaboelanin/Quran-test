@@ -7,13 +7,17 @@ import type {
   MonthlyRecord,
   MonthlyRecordPatch,
   MonthlyRecordRow,
+  MonthlyScoreFields,
   MonthlySheet,
   MonthlySheetInput,
   SaveTestTarget,
   SheetSlot,
 } from '../types/monthlySheet';
 import { SHEET_SLOTS, WEEK_SLOTS } from '../types/monthlySheet';
-import { calculateTotalMistakes } from '../utils/monthlyRecords';
+import {
+  calculateMonthlyAmount,
+  calculateTotalMistakes,
+} from '../utils/monthlyRecords';
 
 export class MonthlySheetServiceError extends Error {
   readonly cause?: unknown;
@@ -73,9 +77,12 @@ function mapMonthlyRecord(row: DbRow): MonthlyRecord {
     updated_at: String(row.updated_at ?? ''),
   };
 
+  const totalMistakes = calculateTotalMistakes(record);
+
   return {
     ...record,
-    total_mistakes: calculateTotalMistakes(record),
+    total_mistakes: totalMistakes,
+    amount: calculateMonthlyAmount(totalMistakes),
   };
 }
 
@@ -126,7 +133,6 @@ async function fetchAllExaminees(client: SupabaseClient): Promise<Examinee[]> {
 async function addExamineeToAllSheets(
   client: SupabaseClient,
   examineeId: string,
-  defaultAmount: number,
 ): Promise<void> {
   const { data: sheets, error } = await client.from('monthly_sheets').select('id');
   if (error) raise('تعذّر تجهيز صفوف الشهور الجديدة.', error);
@@ -138,7 +144,7 @@ async function addExamineeToAllSheets(
     sheetIds.map((sheetId) => ({
       sheet_id: sheetId,
       examinee_id: examineeId,
-      amount: defaultAmount,
+      amount: calculateMonthlyAmount(0),
     })),
     { onConflict: 'sheet_id,examinee_id', ignoreDuplicates: true },
   );
@@ -171,7 +177,7 @@ export async function fetchExaminees(options: { activeOnly?: boolean } = {}): Pr
 export async function createExaminee(input: ExamineeInput): Promise<Examinee> {
   const client = await getSupabaseClient();
   const name = normalizeName(input.name);
-  const defaultAmount = normalizeAmount(input.default_amount);
+  const defaultAmount = normalizeAmount(input.default_amount ?? 0);
   const isActive = input.is_active ?? true;
 
   const { data, error } = await client
@@ -184,7 +190,7 @@ export async function createExaminee(input: ExamineeInput): Promise<Examinee> {
 
   const examinee = mapExaminee(data as DbRow);
   if (examinee.is_active) {
-    await addExamineeToAllSheets(client, examinee.id, examinee.default_amount);
+    await addExamineeToAllSheets(client, examinee.id);
   }
   return examinee;
 }
@@ -227,7 +233,7 @@ export async function updateExaminee(
 
   const examinee = mapExaminee(data as DbRow);
   if (examinee.is_active && patch.is_active === true) {
-    await addExamineeToAllSheets(client, examinee.id, examinee.default_amount);
+    await addExamineeToAllSheets(client, examinee.id);
   }
   return examinee;
 }
@@ -272,7 +278,7 @@ export async function createMonthlySheet(
       activeExaminees.map((examinee) => ({
         sheet_id: sheet.id,
         examinee_id: examinee.id,
-        amount: examinee.default_amount,
+        amount: calculateMonthlyAmount(0),
       })),
     );
 
@@ -345,7 +351,7 @@ export async function fetchSheetRows(sheetId: string): Promise<MonthlyRecordRow[
       missingExaminees.map((examinee) => ({
         sheet_id: sheetId,
         examinee_id: examinee.id,
-        amount: examinee.default_amount,
+        amount: calculateMonthlyAmount(0),
       })),
       { onConflict: 'sheet_id,examinee_id', ignoreDuplicates: true },
     );
@@ -401,13 +407,39 @@ export async function updateMonthlyRecord(
   if (patch.monthly_exam !== undefined) {
     update.monthly_exam = normalizeScore(patch.monthly_exam, 'درجة المراجعة الشهرية');
   }
-  if (patch.amount !== undefined) {
-    update.amount = normalizeAmount(patch.amount);
-  }
 
   if (Object.keys(update).length === 0) {
     throw new MonthlySheetServiceError('لا توجد تغييرات لحفظها.');
   }
+
+  const { data: currentData, error: currentError } = await client
+    .from('monthly_records')
+    .select('*')
+    .eq('id', recordId)
+    .single();
+
+  if (currentError) raise('تعذّر تحميل السجل المطلوب تحديثه.', currentError);
+
+  const current = mapMonthlyRecord(currentData as DbRow);
+  const nextScores: MonthlyScoreFields = {
+    week_1: current.week_1,
+    week_2: current.week_2,
+    week_3: current.week_3,
+    week_4: current.week_4,
+    week_5: current.week_5,
+    monthly_exam: current.monthly_exam,
+  };
+
+  for (const slot of WEEK_SLOTS) {
+    if (update[slot] !== undefined) {
+      nextScores[slot] = update[slot];
+    }
+  }
+  if (update.monthly_exam !== undefined) {
+    nextScores.monthly_exam = update.monthly_exam;
+  }
+
+  update.amount = calculateMonthlyAmount(calculateTotalMistakes(nextScores));
 
   const { data, error } = await client
     .from('monthly_records')
@@ -422,7 +454,7 @@ export async function updateMonthlyRecord(
 
 /**
  * Saves a finished test into one slot of a monthly record. A missing record is
- * created with the examinee's default amount for backwards-compatible sheets.
+ * created with the amount derived from its resulting total.
  */
 export async function saveTestMistakes(
   target: SaveTestTarget,
@@ -446,12 +478,14 @@ export async function saveTestMistakes(
     throw new MonthlySheetServiceError('المختبَر غير موجود.');
   }
 
+  const nextTotal = calculateTotalMistakes({ [slot]: mistakes });
+
   const { data, error } = await client
     .from('monthly_records')
     .insert({
       sheet_id: target.sheetId,
       examinee_id: target.examineeId,
-      amount: examinee.default_amount,
+      amount: calculateMonthlyAmount(nextTotal),
       [slot]: mistakes,
     })
     .select('*')

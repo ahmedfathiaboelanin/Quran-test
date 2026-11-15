@@ -257,8 +257,8 @@ export function MonthlySheetView() {
               </span>
               <h2 className="mt-2 text-2xl font-bold sm:text-3xl">دفتر الشهرية</h2>
               <p className="mt-1 max-w-2xl text-xs leading-6 text-teal-100/80 sm:text-sm">
-                سجّل أخطاء الأسابيع والمراجعة الشهرية، وتابع المبالغ. يُسقط النظام
-                أعلى أسبوع تلقائيًا عند حساب المجموع.
+                سجّل أخطاء الأسابيع والمراجعة الشهرية، وتابع المبالغ المحسوبة
+                تلقائيًا. يُسقط النظام أعلى أسبوع عند حساب المجموع.
               </p>
             </div>
 
@@ -294,7 +294,7 @@ export function MonthlySheetView() {
               />
               <HeaderStat
                 icon={Wallet}
-                label="إجمالي المبالغ"
+                label="إجمالي المبالغ المحسوبة"
                 value={formatNumber(totalAmount)}
               />
               <HeaderStat
@@ -433,8 +433,8 @@ export function MonthlySheetView() {
               </div>
 
               <p className="mt-2 text-[10px] leading-5 text-stone-400">
-                انقر أي خانة لتعديل الدرجة أو المبلغ، ثم اضغط Enter أو غادر الخانة
-                للحفظ. يتحدّث المجموع مباشرة.
+                انقر أي خانة درجة لتعديلها، ثم اضغط Enter أو غادر الخانة للحفظ.
+                يتحدّث المجموع والمبلغ تلقائيًا.
               </p>
             </section>
 

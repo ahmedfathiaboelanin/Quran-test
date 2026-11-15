@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  calculateMonthlyAmount,
   calculateTotalMistakes,
   getDroppedWeek,
   getRecordedSlots,
@@ -99,6 +100,36 @@ describe('calculateTotalMistakes', () => {
         monthly_exam: null,
       }),
     ).toBe(0);
+  });
+});
+
+describe('calculateMonthlyAmount', () => {
+  it.each([
+    [0, 500],
+    [0.5, 200],
+    [1, 200],
+    [1.5, 0],
+    [2, 0],
+    [2.99, 0],
+    [3, -100],
+    [3.75, -100],
+    [3.9, -100],
+    [4, -150],
+    [4.75, -150],
+    [4.9, -150],
+    [5, -250],
+    [5.75, -250],
+    [5.99, -250],
+    [6, -600],
+    [6.5, -650],
+    [7.25, -725],
+  ])('maps a total of %s to %s', (total, expected) => {
+    expect(calculateMonthlyAmount(total)).toBe(expected);
+  });
+
+  it('treats invalid or negative totals as zero', () => {
+    expect(calculateMonthlyAmount(Number.NaN)).toBe(500);
+    expect(calculateMonthlyAmount(-2)).toBe(500);
   });
 });
 

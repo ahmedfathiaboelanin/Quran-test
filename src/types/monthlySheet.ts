@@ -53,7 +53,7 @@ export interface Examinee {
 
 export interface ExamineeInput {
   name: string;
-  default_amount: number;
+  default_amount?: number;
   is_active?: boolean;
 }
 
@@ -97,9 +97,7 @@ export interface MonthlyScoreFields {
   monthly_exam: number | null;
 }
 
-export type MonthlyRecordPatch = Partial<MonthlyScoreFields> & {
-  amount?: number;
-};
+export type MonthlyRecordPatch = Partial<MonthlyScoreFields>;
 
 /** A record joined with its examinee for the dashboard table. */
 export interface MonthlyRecordRow extends MonthlyRecord {

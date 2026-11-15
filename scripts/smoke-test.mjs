@@ -182,6 +182,15 @@ try {
   await assertText('إعدادات الاختبار', 'Test settings rendered');
   await assertText('٦٬٢٣٦', 'Full local Quran dataset is loaded');
 
+  const randomizeDefault = await page.$eval(
+    '#randomize-question-order',
+    (node) => node.getAttribute('aria-checked'),
+  );
+  if (randomizeDefault !== 'true') {
+    throw new Error('Random question order is not enabled by default');
+  }
+  console.log('  ✓ Random question order is enabled by default');
+
   // Scope tabs and pickers.
   await clickButton('الصفحات', { exact: true });
   await page.click('#enable-page-range');
@@ -344,7 +353,6 @@ try {
   await clickButton('المفصل', { exact: true });
   await clickButton('٥', { exact: true });
   await clickButton('الصفحة كاملة');
-  await page.click('#randomize-question-order');
   await clickButton('ابدأ الاختبار', { exact: true });
   await waitForText('السؤال ١ من ٥');
   await assertText('عرض الصفحة كاملة', 'Full-page display mode applied');

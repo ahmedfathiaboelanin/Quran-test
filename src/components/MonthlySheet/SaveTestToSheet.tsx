@@ -54,13 +54,6 @@ function errorMessage(error: unknown): string {
     : 'تعذّر الاتصال بقاعدة البيانات.';
 }
 
-function parseAmount(value: string): number | null {
-  if (!value.trim()) return null;
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed < 0) return null;
-  return Math.round(parsed * 100) / 100;
-}
-
 export function SaveTestToSheet({
   summary,
   initialExamineeId,
@@ -84,7 +77,6 @@ export function SaveTestToSheet({
   const [toast, setToast] = useState<ToastState>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
-  const [newAmount, setNewAmount] = useState('0');
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
 
@@ -229,13 +221,8 @@ export function SaveTestToSheet({
     event.preventDefault();
     if (adding) return;
 
-    const amount = parseAmount(newAmount);
     if (!newName.trim()) {
       setAddError('اسم المختبَر مطلوب.');
-      return;
-    }
-    if (amount === null) {
-      setAddError('المبلغ يجب أن يكون رقمًا غير سالب.');
       return;
     }
 
@@ -244,14 +231,12 @@ export function SaveTestToSheet({
     try {
       const created = await createExaminee({
         name: newName.trim(),
-        default_amount: amount,
       });
       setExaminees((current) =>
         [...current, created].sort((a, b) => a.name.localeCompare(b.name, 'ar')),
       );
       setSelectedExamineeId(created.id);
       setNewName('');
-      setNewAmount('0');
       setShowAdd(false);
       setToast({ message: 'تمت إضافة المختبَر وربطه بالشهور الحالية.', tone: 'success' });
     } catch (createFailure) {
@@ -277,7 +262,7 @@ export function SaveTestToSheet({
               </h2>
               <p className="mt-0.5 text-xs leading-5 text-stone-500">
                 اربط نتيجة هذا الاختبار بالشهر والأسبوع المناسبين، وسيُحسب المجموع
-                تلقائيًا.
+                والمبلغ تلقائيًا.
               </p>
             </div>
           </div>
@@ -436,25 +421,6 @@ export function SaveTestToSheet({
                         placeholder="مثال: ش. عمر مجدي"
                         maxLength={80}
                         className="h-10 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-900 placeholder:font-normal placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-                      />
-                    </div>
-                    <div className="w-full sm:w-32">
-                      <label
-                        htmlFor={`${ids}-new-amount`}
-                        className="mb-1 block text-[10px] font-bold text-stone-600"
-                      >
-                        المبلغ
-                      </label>
-                      <input
-                        id={`${ids}-new-amount`}
-                        type="number"
-                        min={0}
-                        step={0.01}
-                        inputMode="decimal"
-                        dir="ltr"
-                        value={newAmount}
-                        onChange={(event) => setNewAmount(event.target.value)}
-                        className="h-10 w-full rounded-xl border border-stone-300 bg-white px-3 text-center text-sm font-bold tabular-nums text-stone-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                       />
                     </div>
                     <div className="flex gap-2">

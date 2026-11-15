@@ -20,13 +20,6 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'تعذّر حفظ التغييرات.';
 }
 
-function parseAmount(value: string): number | null {
-  if (!value.trim()) return null;
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed < 0) return null;
-  return Math.round(parsed * 100) / 100;
-}
-
 interface ExamineeEditRowProps {
   examinee: Examinee;
   onUpdate: (examineeId: string, patch: ExamineePatch) => Promise<Examinee>;
@@ -41,30 +34,23 @@ function ExamineeEditRow({
   deleting,
 }: ExamineeEditRowProps) {
   const nameId = useId();
-  const amountId = useId();
   const [name, setName] = useState(examinee.name);
-  const [amount, setAmount] = useState(String(examinee.default_amount));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setName(examinee.name);
-    setAmount(String(examinee.default_amount));
-  }, [examinee.default_amount, examinee.name]);
+  }, [examinee.name]);
 
-  const parsedAmount = parseAmount(amount);
-  const dirty =
-    name.trim() !== examinee.name ||
-    (parsedAmount !== null && parsedAmount !== examinee.default_amount);
+  const dirty = name.trim() !== examinee.name;
 
   const save = async () => {
-    if (saving || !name.trim() || parsedAmount === null) return;
+    if (saving || !name.trim()) return;
     setSaving(true);
     setError(null);
     try {
       await onUpdate(examinee.id, {
         name: name.trim(),
-        default_amount: parsedAmount,
       });
     } catch (updateError) {
       setError(errorMessage(updateError));
@@ -119,32 +105,6 @@ function ExamineeEditRow({
           />
         </div>
 
-        <div className="w-full sm:w-32">
-          <label
-            htmlFor={amountId}
-            className="mb-1 block text-[10px] font-bold text-stone-500"
-          >
-            المبلغ الافتراضي
-          </label>
-          <input
-            id={amountId}
-            type="number"
-            min={0}
-            step={0.01}
-            inputMode="decimal"
-            dir="ltr"
-            value={amount}
-            onChange={(event) => setAmount(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault();
-                void save();
-              }
-            }}
-            className="h-10 w-full rounded-xl border border-stone-300 bg-white px-3 text-center text-sm font-bold tabular-nums text-stone-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-          />
-        </div>
-
         <div className="flex items-center justify-between gap-2 sm:justify-start">
           <button
             type="button"
@@ -172,7 +132,7 @@ function ExamineeEditRow({
             size="sm"
             variant={dirty ? 'primary' : 'secondary'}
             onClick={() => void save()}
-            disabled={saving || deleting || !dirty || !name.trim() || parsedAmount === null}
+            disabled={saving || deleting || !dirty || !name.trim()}
             className="shrink-0"
           >
             {saving ? (
@@ -218,7 +178,6 @@ export function ManageExamineesDialog({
   onDelete,
 }: ManageExamineesDialogProps) {
   const [newName, setNewName] = useState('');
-  const [newAmount, setNewAmount] = useState('0');
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Examinee | null>(null);
@@ -230,7 +189,6 @@ export function ManageExamineesDialog({
   useEffect(() => {
     if (!open) return;
     setNewName('');
-    setNewAmount('0');
     setError(null);
     setDeleteTarget(null);
     setDeletingId(null);
@@ -241,22 +199,16 @@ export function ManageExamineesDialog({
     event.preventDefault();
     if (adding) return;
 
-    const amount = parseAmount(newAmount);
     if (!newName.trim()) {
       setError('اسم المختبَر مطلوب.');
-      return;
-    }
-    if (amount === null) {
-      setError('المبلغ يجب أن يكون رقمًا غير سالب.');
       return;
     }
 
     setAdding(true);
     setError(null);
     try {
-      await onAdd({ name: newName.trim(), default_amount: amount });
+      await onAdd({ name: newName.trim() });
       setNewName('');
-      setNewAmount('0');
     } catch (addError) {
       setError(errorMessage(addError));
     } finally {
@@ -286,7 +238,7 @@ export function ManageExamineesDialog({
         open={open}
         onClose={onClose}
         title="إدارة المختبَرين"
-        description="أضف المختبَرين وحدّث المبالغ الافتراضية أو أوقف من لا يحتاج متابعة. حذف المختبَر يزيل كل سجلاته الشهرية نهائيًا."
+        description="أضف المختبَرين وحدّث أسماءهم أو أوقف من لا يحتاج متابعة. تُحسب مبالغهم تلقائيًا من مجموع كل شهر. حذف المختبَر يزيل كل سجلاته الشهرية نهائيًا."
         icon={UsersRound}
         maxWidth="lg"
         footer={
@@ -329,26 +281,6 @@ export function ManageExamineesDialog({
               maxLength={80}
               placeholder="مثال: ش. عمر مجدي"
               className="h-10 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-900 placeholder:font-normal placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-            />
-          </div>
-
-          <div className="w-full sm:w-32">
-            <label
-              htmlFor="new-examinee-amount"
-              className="mb-1 block text-[10px] font-bold text-stone-600"
-            >
-              المبلغ
-            </label>
-            <input
-              id="new-examinee-amount"
-              type="number"
-              min={0}
-              step={0.01}
-              inputMode="decimal"
-              dir="ltr"
-              value={newAmount}
-              onChange={(event) => setNewAmount(event.target.value)}
-              className="h-10 w-full rounded-xl border border-stone-300 bg-white px-3 text-center text-sm font-bold tabular-nums text-stone-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
             />
           </div>
 
@@ -408,7 +340,7 @@ export function ManageExamineesDialog({
         title="حذف المختبَر نهائيًا؟"
         description={
           deleteTarget
-            ? `سيتم حذف «${deleteTarget.name}» وكل درجاته ومبالغه في جميع الشهور. لا يمكن التراجع عن هذه الخطوة.`
+            ? `سيتم حذف «${deleteTarget.name}» وكل درجاته ومبالغه المحسوبة في جميع الشهور. لا يمكن التراجع عن هذه الخطوة.`
             : undefined
         }
         confirmLabel="نعم، احذف"

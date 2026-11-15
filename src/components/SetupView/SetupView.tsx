@@ -87,7 +87,7 @@ export function SetupView({
     initialConfig?.displayMode ?? 'ayah',
   );
   const [randomizeQuestionOrder, setRandomizeQuestionOrder] = useState(
-    initialConfig?.randomizeQuestionOrder ?? false,
+    initialConfig?.randomizeQuestionOrder ?? true,
   );
   const [resetOpen, setResetOpen] = useState(false);
 
@@ -146,7 +146,7 @@ export function SetupView({
     setActiveTab('surah');
     setQuestionCount(10);
     setDisplayMode('ayah');
-    setRandomizeQuestionOrder(false);
+    setRandomizeQuestionOrder(true);
   };
 
   const hasCustomization =
@@ -155,7 +155,7 @@ export function SetupView({
     examineeId.length > 0 ||
     questionCount !== 10 ||
     displayMode !== 'ayah' ||
-    randomizeQuestionOrder;
+    !randomizeQuestionOrder;
 
   const requestResetAll = () => {
     if (!hasCustomization) return;
@@ -338,7 +338,7 @@ export function SetupView({
                 checked={randomizeQuestionOrder}
                 onChange={setRandomizeQuestionOrder}
                 label="ترتيب عشوائي للأسئلة"
-                description="بعثر ترتيب الأسئلة بدلًا من ترتيب المصحف، مع الحفاظ على توزيعها العادل."
+                description="مفعّل افتراضيًا لبعثرة ترتيب الأسئلة بدلًا من ترتيب المصحف، مع الحفاظ على توزيعها العادل."
               />
             </div>
 

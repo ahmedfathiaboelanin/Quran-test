@@ -44,7 +44,7 @@ create table public.examinees (
 
 comment on table public.examinees is 'People whose monthly memorization is tracked.';
 comment on column public.examinees.default_amount is
-  'Default fee copied into each new monthly_records row; editable per month.';
+  'Legacy default retained for compatibility; monthly amounts are generated from the total.';
 
 -- ----------------------------------------------------------------------------
 -- monthly_sheets
@@ -71,7 +71,7 @@ create table public.monthly_records (
   week_4 integer check (week_4 is null or week_4 >= 0),
   week_5 integer check (week_5 is null or week_5 >= 0),
   monthly_exam integer check (monthly_exam is null or monthly_exam >= 0),
-  amount numeric not null check (amount >= 0),
+  amount numeric not null,
   updated_at timestamptz not null default now(),
   constraint monthly_records_sheet_examinee_key unique (sheet_id, examinee_id),
   -- Drop the highest recorded weekly mistake count, then add the monthly exam.
@@ -96,9 +96,11 @@ create table public.monthly_records (
 );
 
 comment on table public.monthly_records is
-  'Weekly mistake counts, monthly exam score, fee and auto-calculated total for one examinee in one sheet.';
+  'Weekly mistake counts, monthly exam score, automatic amount and total for one examinee in one sheet.';
 comment on column public.monthly_records.total_mistakes is
   'Generated: sum of recorded weeks minus the highest week, plus monthly_exam.';
+comment on column public.monthly_records.amount is
+  'Automatic reward/penalty derived from total_mistakes; may be negative.';
 
 create index monthly_records_sheet_id_idx
   on public.monthly_records (sheet_id);

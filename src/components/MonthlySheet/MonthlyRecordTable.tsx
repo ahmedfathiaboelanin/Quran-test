@@ -10,6 +10,7 @@ import {
 } from '../../types/monthlySheet';
 import { cn, formatNumber } from '../../utils/helpers';
 import {
+  calculateMonthlyAmount,
   calculateTotalMistakes,
   getDroppedWeek,
 } from '../../utils/monthlyRecords';
@@ -37,6 +38,22 @@ function totalTone(total: number): string {
   return 'bg-teal-50 text-teal-800 ring-teal-200';
 }
 
+function amountTone(amount: number): string {
+  if (amount > 0) {
+    return 'bg-emerald-50 text-emerald-800 ring-emerald-200';
+  }
+  if (amount < 0) {
+    return 'bg-rose-50 text-rose-800 ring-rose-200';
+  }
+  return 'bg-stone-100 text-stone-600 ring-stone-200';
+}
+
+function formatSignedAmount(amount: number): string {
+  if (amount > 0) return `+${formatNumber(amount)}`;
+  if (amount < 0) return `−${formatNumber(Math.abs(amount))}`;
+  return formatNumber(0);
+}
+
 export function MonthlyRecordTable({
   rows,
   hasFifthWeek,
@@ -53,7 +70,7 @@ export function MonthlyRecordTable({
           لا يوجد مختبَرون في هذا الشهر
         </h3>
         <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-stone-500">
-          أضف مختبَرًا نشطًا وسيظهر صفه هنا تلقائيًا مع المبلغ الافتراضي.
+          أضف مختبَرًا نشطًا وسيظهر صفه هنا تلقائيًا مع مبلغه المحسوب.
         </p>
         <Button className="mt-4" onClick={onManageExaminees}>
           <UserRound className="h-4 w-4" />
@@ -138,6 +155,7 @@ export function MonthlyRecordTable({
           <tbody>
             {rows.map((row) => {
               const total = calculateTotalMistakes(row);
+              const amount = calculateMonthlyAmount(total);
               const dropped = getDroppedWeek(row);
 
               return (
@@ -211,15 +229,17 @@ export function MonthlyRecordTable({
                   </td>
 
                   <td className="px-0.5 py-1.5 sm:px-2 sm:py-2">
-                    <EditableNumberCell
-                      value={row.amount}
-                      mode="amount"
-                      allowEmpty={false}
-                      label={`${row.examinee.name} — المبلغ`}
-                      onSave={(value) =>
-                        onSaveRecord(row.id, { amount: value ?? row.amount })
-                      }
-                    />
+                    <span
+                      dir="ltr"
+                      className={cn(
+                        'inline-flex min-w-12 items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-extrabold ring-1 tabular-nums sm:min-w-14 sm:px-2.5 sm:py-1 sm:text-sm',
+                        amountTone(amount),
+                      )}
+                      title={`يُحسب المبلغ تلقائيًا من المجموع (${formatNumber(total)})`}
+                      aria-label={`${row.examinee.name} — المبلغ ${formatNumber(amount)}`}
+                    >
+                      {formatSignedAmount(amount)}
+                    </span>
                   </td>
                 </tr>
               );
@@ -232,7 +252,8 @@ export function MonthlyRecordTable({
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-600" />
         <p>
           المجموع = مجموع الأسابيع المسجّلة − أعلى أسبوع + درجة المراجعة الشهرية.
-          تُحفظ التعديلات تلقائيًا عند مغادرة الخانة أو الضغط على Enter.
+          ويُحسب المبلغ تلقائيًا من المجموع. تُحفظ تعديلات الدرجات عند مغادرة
+          الخانة أو الضغط على Enter.
         </p>
       </div>
     </div>

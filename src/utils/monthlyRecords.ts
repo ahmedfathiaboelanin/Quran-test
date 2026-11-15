@@ -29,6 +29,34 @@ export function calculateTotalMistakes(record: ScoreInput): number {
   return weeklySum - droppedWeek + monthlyExam;
 }
 
+/**
+ * Automatic monthly amount (reward/penalty) derived from the total mistakes:
+ *   0        → +500
+ *   0 < n ≤ 1 → +200
+ *   1 < n < 3 → 0
+ *   3 ≤ n < 4 → -100
+ *   4 ≤ n < 5 → -150
+ *   5 ≤ n < 6 → -250
+ *   n ≥ 6    → -(n × 100)
+ *
+ * Totals are whole numbers in the dashboard, so the upper fractional bounds in
+ * the rules (3.75, 4.75, 5.75) extend to the next whole-number threshold.
+ */
+export function calculateMonthlyAmount(totalMistakes: number): number {
+  const total = Number.isFinite(totalMistakes)
+    ? Math.max(0, totalMistakes)
+    : 0;
+
+  if (total === 0) return 500;
+  if (total <= 1) return 200;
+  if (total < 3) return 0;
+  if (total < 4) return -100;
+  if (total < 5) return -150;
+  if (total < 6) return -250;
+
+  return -Math.round(total * 100 * 100) / 100;
+}
+
 /** Returns the weekly score that the rule drops, or null when no week is recorded. */
 export function getDroppedWeek(record: ScoreInput): number | null {
   const weeks = recordedWeekValues(record);

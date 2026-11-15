@@ -33,13 +33,6 @@ function errorMessage(error: unknown): string {
     : 'تعذّر تحميل المختبَرين. تحقق من الاتصال وأعد المحاولة.';
 }
 
-function parseAmount(value: string): number | null {
-  if (!value.trim()) return null;
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed < 0) return null;
-  return Math.round(parsed * 100) / 100;
-}
-
 /**
  * Picks an existing Supabase examinee or creates a new one before the test.
  * Falls back to the original free-text name field when Supabase is not set up.
@@ -55,7 +48,6 @@ export function ExamineePicker({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [addingNew, setAddingNew] = useState(false);
   const [newName, setNewName] = useState('');
-  const [newAmount, setNewAmount] = useState('0');
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
 
@@ -138,22 +130,15 @@ export function ExamineePicker({
       return;
     }
 
-    const amount = parseAmount(newAmount);
-    if (amount === null) {
-      setAddError('المبلغ يجب أن يكون رقمًا غير سالب.');
-      return;
-    }
-
     setAdding(true);
     setAddError(null);
     try {
-      const created = await createExaminee({ name, default_amount: amount });
+      const created = await createExaminee({ name });
       setExaminees((current) =>
         [...current, created].sort((a, b) => a.name.localeCompare(b.name, 'ar')),
       );
       setAddingNew(false);
       setNewName('');
-      setNewAmount('0');
       onChange({ examineeId: created.id, studentName: created.name });
     } catch (createFailure) {
       setAddError(errorMessage(createFailure));
@@ -255,27 +240,6 @@ export function ExamineePicker({
               />
             </div>
 
-            <div className="w-full sm:w-28">
-              <label
-                htmlFor={`${ids}-new-amount`}
-                className="mb-1 block text-[10px] font-bold text-stone-600"
-              >
-                المبلغ
-              </label>
-              <input
-                id={`${ids}-new-amount`}
-                type="number"
-                min={0}
-                step={0.01}
-                inputMode="decimal"
-                dir="ltr"
-                value={newAmount}
-                onChange={(event) => setNewAmount(event.target.value)}
-                disabled={adding || pickerDisabled}
-                className="h-10 w-full rounded-xl border border-stone-300 bg-white px-3 text-center text-sm font-bold tabular-nums text-stone-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-60"
-              />
-            </div>
-
             <div className="flex gap-2">
               <Button
                 size="sm"
@@ -314,7 +278,7 @@ export function ExamineePicker({
       <p className="mt-1.5 text-[10px] leading-5 text-stone-400">
         {value.studentName
           ? `سيُستخدم «${value.studentName}» تلقائيًا عند حفظ النتيجة في الشهرية.`
-          : 'اختر مختبَرًا موجودًا أو أضف واحدًا جديدًا لمتابعة نتيجته شهريًا.'}
+          : 'اختر مختبَرًا موجودًا أو أضف واحدًا جديدًا لمتابعة نتيجته شهريًا. يُحسب المبلغ تلقائيًا من الدرجات.'}
         {examinees.length > 0
           ? ` المتاح: ${formatNumber(examinees.length)} مختبَر نشط.`
           : ''}
