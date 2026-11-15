@@ -65,18 +65,18 @@ create table public.monthly_records (
   id uuid primary key default gen_random_uuid(),
   sheet_id uuid not null references public.monthly_sheets(id) on delete cascade,
   examinee_id uuid not null references public.examinees(id) on delete cascade,
-  week_1 integer check (week_1 is null or week_1 >= 0),
-  week_2 integer check (week_2 is null or week_2 >= 0),
-  week_3 integer check (week_3 is null or week_3 >= 0),
-  week_4 integer check (week_4 is null or week_4 >= 0),
-  week_5 integer check (week_5 is null or week_5 >= 0),
-  monthly_exam integer check (monthly_exam is null or monthly_exam >= 0),
+  week_1 numeric(10, 2) check (week_1 is null or week_1 >= 0),
+  week_2 numeric(10, 2) check (week_2 is null or week_2 >= 0),
+  week_3 numeric(10, 2) check (week_3 is null or week_3 >= 0),
+  week_4 numeric(10, 2) check (week_4 is null or week_4 >= 0),
+  week_5 numeric(10, 2) check (week_5 is null or week_5 >= 0),
+  monthly_exam numeric(10, 2) check (monthly_exam is null or monthly_exam >= 0),
   amount numeric not null,
   updated_at timestamptz not null default now(),
   constraint monthly_records_sheet_examinee_key unique (sheet_id, examinee_id),
   -- Drop the highest recorded weekly mistake count, then add the monthly exam.
   -- Null treated as 0; when every week is null the total is the monthly exam.
-  total_mistakes integer generated always as (
+  total_mistakes numeric(10, 2) generated always as (
     (
       coalesce(week_1, 0) +
       coalesce(week_2, 0) +

@@ -63,4 +63,27 @@ describe('updateMonthlyRecord', () => {
     expect(record.total_mistakes).toBe(3);
     expect(record.amount).toBe(-100);
   });
+
+  it('preserves fractional monthly scores', async () => {
+    state.updates.length = 0;
+
+    const record = await updateMonthlyRecord('record-1', { monthly_exam: 2.5 });
+
+    expect(state.updates).toEqual([{ monthly_exam: 2.5 }]);
+    expect(record.total_mistakes).toBe(2.5);
+    expect(record.amount).toBe(0);
+  });
+
+  it('preserves fractional weekly scores', async () => {
+    state.updates.length = 0;
+
+    const record = await updateMonthlyRecord('record-1', {
+      week_1: 1.5,
+      week_2: 2.25,
+    });
+
+    expect(state.updates).toEqual([{ week_1: 1.5, week_2: 2.25 }]);
+    expect(record.total_mistakes).toBe(1.5);
+    expect(record.amount).toBe(0);
+  });
 });

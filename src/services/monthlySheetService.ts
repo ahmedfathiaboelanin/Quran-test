@@ -118,7 +118,8 @@ function normalizeScore(value: number | null, label: string): number | null {
   if (!Number.isFinite(value) || value < 0) {
     throw new MonthlySheetServiceError(`${label} يجب أن يكون رقمًا غير سالب.`);
   }
-  return Math.round(value);
+  // Monthly scores may be fractional; keep two decimal places.
+  return Math.round(value * 100) / 100;
 }
 
 function ensureSlot(slot: SheetSlot): SheetSlot {

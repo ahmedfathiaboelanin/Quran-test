@@ -5,7 +5,6 @@ import { cn } from '../../utils/helpers';
 interface EditableNumberCellProps {
   value: number | null;
   label: string;
-  mode?: 'score' | 'amount';
   allowEmpty?: boolean;
   onSave: (value: number | null) => Promise<unknown>;
 }
@@ -18,7 +17,6 @@ function displayValue(value: number | null): string {
 export function EditableNumberCell({
   value,
   label,
-  mode = 'score',
   allowEmpty = true,
   onSave,
 }: EditableNumberCellProps) {
@@ -68,7 +66,8 @@ export function EditableNumberCell({
       setError('قيمة غير صحيحة');
       return;
     }
-    parsed = mode === 'amount' ? Math.round(parsed * 100) / 100 : Math.round(parsed);
+    // Monthly scores accept decimals, stored with at most two fractional digits.
+    parsed = Math.round(parsed * 100) / 100;
 
     if (parsed === value) {
       setDraft(displayValue(parsed));
@@ -93,8 +92,8 @@ export function EditableNumberCell({
       <input
         type="number"
         min={0}
-        step={mode === 'amount' ? 0.01 : 1}
-        inputMode={mode === 'amount' ? 'decimal' : 'numeric'}
+        step="any"
+        inputMode="decimal"
         dir="ltr"
         value={draft}
         onChange={(event) => {

@@ -26,21 +26,23 @@ export function calculateTotalMistakes(record: ScoreInput): number {
   const droppedWeek = weeks.length > 0 ? Math.max(...weeks) : 0;
   const monthlyExam = record.monthly_exam ?? 0;
 
-  return weeklySum - droppedWeek + monthlyExam;
+  // Scores may be fractional; avoid floating-point artefacts in the total.
+  return Math.round((weeklySum - droppedWeek + monthlyExam) * 100) / 100;
 }
 
 /**
  * Automatic monthly amount (reward/penalty) derived from the total mistakes:
- *   0        → +500
+ *   0         → +500
  *   0 < n ≤ 1 → +200
  *   1 < n < 3 → 0
  *   3 ≤ n < 4 → -100
  *   4 ≤ n < 5 → -150
  *   5 ≤ n < 6 → -250
- *   n ≥ 6    → -(n × 100)
+ *   n ≥ 6     → -(n × 100)
  *
- * Totals are whole numbers in the dashboard, so the upper fractional bounds in
- * the rules (3.75, 4.75, 5.75) extend to the next whole-number threshold.
+ * Totals may be fractional. The stated upper bounds (3.75, 4.75, 5.75) extend
+ * to the next whole threshold so values such as 3.8 or 4.9 still receive an
+ * amount instead of falling into an undefined gap.
  */
 export function calculateMonthlyAmount(totalMistakes: number): number {
   const total = Number.isFinite(totalMistakes)

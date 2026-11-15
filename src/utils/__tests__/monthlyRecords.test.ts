@@ -101,6 +101,32 @@ describe('calculateTotalMistakes', () => {
       }),
     ).toBe(0);
   });
+
+  it('supports fractional weekly scores and avoids floating-point artefacts', () => {
+    expect(
+      calculateTotalMistakes({
+        week_1: 0.1,
+        week_2: 0.2,
+        week_3: 0.3,
+        week_4: null,
+        week_5: null,
+        monthly_exam: 0.4,
+      }),
+    ).toBe(0.7);
+  });
+
+  it('supports a fractional monthly review score', () => {
+    expect(
+      calculateTotalMistakes({
+        week_1: null,
+        week_2: null,
+        week_3: null,
+        week_4: null,
+        week_5: null,
+        monthly_exam: 1.25,
+      }),
+    ).toBe(1.25);
+  });
 });
 
 describe('calculateMonthlyAmount', () => {
@@ -112,15 +138,20 @@ describe('calculateMonthlyAmount', () => {
     [2, 0],
     [2.99, 0],
     [3, -100],
+    [3.25, -100],
+    [3.5, -100],
     [3.75, -100],
     [3.9, -100],
     [4, -150],
+    [4.25, -150],
     [4.75, -150],
     [4.9, -150],
     [5, -250],
+    [5.25, -250],
     [5.75, -250],
     [5.99, -250],
     [6, -600],
+    [6.25, -625],
     [6.5, -650],
     [7.25, -725],
   ])('maps a total of %s to %s', (total, expected) => {
