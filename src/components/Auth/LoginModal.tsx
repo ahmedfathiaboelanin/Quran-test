@@ -87,19 +87,6 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
           <X className="h-4 w-4" />
         </button>
 
-        <div className="flex items-center gap-3">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-teal-700 text-white shadow-sm shadow-teal-900/20">
-            <LogIn className="h-6 w-6" />
-          </span>
-          <div>
-            <h2 id={`${ids}-title`} className="text-xl font-bold text-stone-900 dark:text-stone-100">
-              تسجيل الدخول
-            </h2>
-            <p className="mt-0.5 text-xs text-stone-500">
-              اختر دورك للوصول إلى لوحة المتابعة وتعديل السجلات أو عرضها
-            </p>
-          </div>
-        </div>
 
         {error ? (
           <div
@@ -118,13 +105,7 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
               className="mb-1.5 flex items-center justify-between text-xs font-bold text-stone-700 dark:text-stone-300"
             >
               <span>اسم المستخدم</span>
-              <button
-                type="button"
-                onClick={fillAdmin}
-                className="text-[11px] font-semibold text-teal-700 hover:underline dark:text-teal-400"
-              >
-                تعبئة حساب المدير (admin)
-              </button>
+              
             </label>
             <div className="relative">
               <input
@@ -167,20 +148,6 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-teal-200/80 bg-teal-50/50 p-3 text-xs leading-5 text-teal-900 dark:bg-teal-950/40 dark:border-teal-900/60 dark:text-teal-200">
-            <div className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal-700 dark:text-teal-400" />
-              <div className="space-y-1">
-                <p>
-                  <strong>المدير:</strong> اسم المستخدم <code className="rounded bg-teal-100 px-1 py-0.5 text-teal-900 dark:bg-teal-900 dark:text-teal-100">admin</code> وكلمة المرور <code className="rounded bg-teal-100 px-1 py-0.5 text-teal-900 dark:bg-teal-900 dark:text-teal-100">admin</code> (صلاحية تعديل الجدول وإدارة المختبَرين).
-                </p>
-                <p>
-                  <strong>المختبَر:</strong> يدخل باسم المستخدم وكلمة المرور التي حددها المدير (صلاحية استعراض النتائج فقط دون تعديل).
-                </p>
-              </div>
             </div>
           </div>
 
