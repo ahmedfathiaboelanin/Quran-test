@@ -23,6 +23,21 @@ const state = vi.hoisted(() => {
         throw new Error(`Unexpected table: ${table}`);
       }
       return {
+        select() {
+          return {
+            eq() {
+              return {
+                eq() {
+                  return {
+                    async maybeSingle() {
+                      return { data: row, error: null };
+                    },
+                  };
+                },
+              };
+            },
+          };
+        },
         update(payload: Record<string, unknown>) {
           updates.push(payload);
           return {
@@ -43,7 +58,7 @@ const state = vi.hoisted(() => {
     },
   };
 
-  return { updates, client };
+  return { updates, client, row };
 });
 
 vi.mock('../../lib/supabase', () => ({
@@ -51,7 +66,7 @@ vi.mock('../../lib/supabase', () => ({
   isSupabaseConfigured: true,
 }));
 
-import { updateMonthlyRecord } from '../monthlySheetService';
+import { saveTestScore, updateMonthlyRecord } from '../monthlySheetService';
 
 describe('updateMonthlyRecord', () => {
   it('updates only scores and derives the amount from the new total', async () => {
@@ -85,5 +100,21 @@ describe('updateMonthlyRecord', () => {
     expect(state.updates).toEqual([{ week_1: 1.5, week_2: 2.25 }]);
     expect(record.total_mistakes).toBe(1.5);
     expect(record.amount).toBe(0);
+  });
+});
+
+describe('saveTestScore', () => {
+  it('stores a float test score like 1.75 without integer rounding', async () => {
+    state.updates.length = 0;
+
+    const record = await saveTestScore({
+      sheetId: 'sheet-1',
+      examineeId: 'examinee-1',
+      slot: 'week_1',
+      score: 1.75,
+    });
+
+    expect(state.updates).toEqual([{ week_1: 1.75 }]);
+    expect(record.week_1).toBe(1.75);
   });
 });

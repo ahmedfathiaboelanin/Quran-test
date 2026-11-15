@@ -440,22 +440,22 @@ export async function updateMonthlyRecord(
 }
 
 /**
- * Saves a finished test into one slot of a monthly record. A missing record is
- * created with a non-negative initial amount; the database trigger then stores
- * the exact signed amount derived from the resulting total.
+ * Saves a finished test's weighted score into one slot of a monthly record.
+ * A missing record is created with a non-negative initial amount; the database
+ * trigger then stores the exact signed amount derived from the resulting total.
  */
-export async function saveTestMistakes(
+export async function saveTestScore(
   target: SaveTestTarget,
 ): Promise<MonthlyRecord> {
   const slot = ensureSlot(target.slot);
-  const mistakes = normalizeScore(target.mistakes, 'عدد الأخطاء');
-  if (mistakes === null) {
-    throw new MonthlySheetServiceError('عدد الأخطاء مطلوب.');
+  const score = normalizeScore(target.score, 'درجة الاختبار');
+  if (score === null) {
+    throw new MonthlySheetServiceError('درجة الاختبار مطلوبة.');
   }
 
   const existing = await fetchMonthlyRecord(target.sheetId, target.examineeId);
   if (existing) {
-    return updateMonthlyRecord(existing.id, { [slot]: mistakes });
+    return updateMonthlyRecord(existing.id, { [slot]: score });
   }
 
   const client = await getSupabaseClient();
@@ -466,7 +466,7 @@ export async function saveTestMistakes(
     throw new MonthlySheetServiceError('المختبَر غير موجود.');
   }
 
-  const nextTotal = calculateTotalMistakes({ [slot]: mistakes });
+  const nextTotal = calculateTotalMistakes({ [slot]: score });
 
   const { data, error } = await client
     .from('monthly_records')
@@ -474,7 +474,7 @@ export async function saveTestMistakes(
       sheet_id: target.sheetId,
       examinee_id: target.examineeId,
       amount: persistedAmount(nextTotal),
-      [slot]: mistakes,
+      [slot]: score,
     })
     .select('*')
     .single();

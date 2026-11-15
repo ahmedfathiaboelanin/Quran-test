@@ -18,7 +18,7 @@ import {
   fetchExaminees,
   fetchMonthlyRecord,
   fetchMonthlySheets,
-  saveTestMistakes,
+  saveTestScore,
 } from '../../services/monthlySheetService';
 import type { TestSummary } from '../../types';
 import type {
@@ -190,15 +190,15 @@ export function SaveTestToSheet({
     setSaving(true);
     setToast(null);
     try {
-      const saved = await saveTestMistakes({
+      const saved = await saveTestScore({
         sheetId: selectedSheetId,
         examineeId: selectedExamineeId,
         slot,
-        mistakes: summary.totalMistakes,
+        score: summary.totalPoints,
       });
       setRecord(saved);
       setToast({
-        message: `تم حفظ ${formatNumber(summary.totalMistakes)} خطأ في ${SHEET_SLOT_LABELS[slot]}.`,
+        message: `تم حفظ ${formatNumber(summary.totalPoints)} درجة في ${SHEET_SLOT_LABELS[slot]}.`,
         tone: 'success',
       });
     } catch (saveFailure) {
@@ -522,7 +522,7 @@ export function SaveTestToSheet({
               ) : currentValue !== null ? (
                 <p className="flex items-start gap-1.5 rounded-xl border border-amber-200 bg-amber-50/70 px-3 py-2 text-[11px] leading-5 text-amber-800">
                   <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  هذه الخانة تحتوي حاليًا على {formatNumber(currentValue)} خطأ.
+                  هذه الخانة تحتوي حاليًا على {formatNumber(currentValue)} درجة.
                   سيُطلب تأكيد الاستبدال قبل الحفظ.
                 </p>
               ) : null}
@@ -533,12 +533,11 @@ export function SaveTestToSheet({
                     سيُحفظ من نتيجة الاختبار
                   </p>
                   <p className="mt-0.5 text-xl font-extrabold tabular-nums text-stone-900">
-                    {formatNumber(summary.totalMistakes)}{' '}
-                    <span className="text-sm font-bold text-stone-500">خطأ</span>
+                    {formatNumber(summary.totalPoints)}{' '}
+                    <span className="text-sm font-bold text-stone-500">درجة</span>
                   </p>
                   <p className="mt-0.5 text-[10px] leading-4 text-stone-400">
-                    الردود الخاطئة + التنبيهات. الترددات تُحسب بالدرجات في النتيجة
-                    ولا تُضاف إلى خانة الأخطاء.
+                    إجمالي درجات الأخطاء المحسوبة في الاختبار (الردود الخاطئة + التنبيهات + الترددات).
                   </p>
                 </div>
 
@@ -570,8 +569,8 @@ export function SaveTestToSheet({
         description={`ستُستبدل درجة ${SHEET_SLOT_LABELS[slot]} للمختبَر ${
           selectedExaminee?.name ?? ''
         } من ${formatNumber(currentValue ?? 0)} إلى ${formatNumber(
-          summary.totalMistakes,
-        )} خطأ.`}
+          summary.totalPoints,
+        )} درجة.`}
         confirmLabel="نعم، احفظ الجديد"
         cancelLabel="إلغاء"
         tone="warning"

@@ -108,5 +108,6 @@ export interface SaveTestTarget {
   sheetId: string;
   examineeId: string;
   slot: SheetSlot;
-  mistakes: number;
+  /** Weighted test score (e.g. 1.75), not the integer mistake count. */
+  score: number;
 }
