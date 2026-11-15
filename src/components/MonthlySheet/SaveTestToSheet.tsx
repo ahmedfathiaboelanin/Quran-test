@@ -35,6 +35,7 @@ import { cn, formatNumber } from '../../utils/helpers';
 import { Button } from '../ui/Button';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Toast } from '../ui/Toast';
+import { useAuth } from '../../context/AuthContext';
 
 interface SaveTestToSheetProps {
   summary: TestSummary;
@@ -61,6 +62,7 @@ export function SaveTestToSheet({
   onOpenMonthly,
 }: SaveTestToSheetProps) {
   const ids = useId();
+  const { isAdmin, setLoginOpen } = useAuth();
   const [examinees, setExaminees] = useState<Examinee[]>([]);
   const [sheets, setSheets] = useState<MonthlySheet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -177,7 +179,8 @@ export function SaveTestToSheet({
     examinees.find((examinee) => examinee.id === selectedExamineeId) ?? null;
   const currentValue = record ? record[slot] : null;
   const canSave = Boolean(
-    selectedExamineeId &&
+    isAdmin &&
+      selectedExamineeId &&
       selectedSheetId &&
       !saving &&
       !recordLoading &&
@@ -341,14 +344,16 @@ export function SaveTestToSheet({
                     >
                       المختبَر
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowAdd((current) => !current)}
-                      className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-bold text-teal-800 transition hover:bg-teal-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                      إضافة مختبَر جديد
-                    </button>
+                    {isAdmin ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowAdd((current) => !current)}
+                        className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-bold text-teal-800 transition hover:bg-teal-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        إضافة مختبَر جديد
+                      </button>
+                    ) : null}
                   </div>
                   <div className="relative">
                     <select
@@ -541,20 +546,35 @@ export function SaveTestToSheet({
                   </p>
                 </div>
 
-                <Button
-                  onClick={requestSave}
-                  disabled={!canSave}
-                  className="sm:min-w-44"
-                >
-                  {saving ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Check className="h-4 w-4" />
-                  )}
-                  {saving
-                    ? 'جارٍ الحفظ…'
-                    : `حفظ في ${SHEET_SLOT_LABELS[slot]}`}
-                </Button>
+                <div className="flex flex-col gap-2 sm:items-end">
+                  {!isAdmin ? (
+                    <div className="flex items-center gap-1.5 text-[11px] text-amber-800">
+                      <span>حفظ النتيجة متاح للمدير فقط.</span>
+                      <button
+                        type="button"
+                        onClick={() => setLoginOpen(true)}
+                        className="font-bold underline hover:text-amber-950"
+                      >
+                        دخول كمدير
+                      </button>
+                    </div>
+                  ) : null}
+
+                  <Button
+                    onClick={requestSave}
+                    disabled={!canSave}
+                    className="sm:min-w-44"
+                  >
+                    {saving ? (
+                      <LoaderCircle className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
+                    {saving
+                      ? 'جارٍ الحفظ…'
+                      : `حفظ في ${SHEET_SLOT_LABELS[slot]}`}
+                  </Button>
+                </div>
               </div>
             </div>
           )}

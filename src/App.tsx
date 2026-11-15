@@ -11,14 +11,17 @@ import { TestingView } from './components/TestingView/TestingView';
 import { ResultsView } from './components/ResultsView/ResultsView';
 import { MonthlySheetView } from './components/MonthlySheet/MonthlySheetView';
 import { UsageGuideModal } from './components/Help/UsageGuideModal';
+import { LoginModal } from './components/Auth/LoginModal';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { isSupabaseConfigured } from './lib/supabase';
 import type { TestConfig } from './types';
 import { formatNumber } from './utils/helpers';
 
-export default function App() {
+function AppContent() {
   const data = useOfflineData();
   const engine = useTestEngine();
   const theme = useTheme();
+  const { loginOpen, setLoginOpen } = useAuth();
   const [helpOpen, setHelpOpen] = useState(false);
   const [workspace, setWorkspace] = useState<Workspace>('test');
 
@@ -127,6 +130,15 @@ export default function App() {
       </footer>
 
       {helpOpen ? <UsageGuideModal onClose={() => setHelpOpen(false)} /> : null}
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

@@ -3,8 +3,12 @@ import {
   Database,
   Download,
   HelpCircle,
+  LogIn,
+  LogOut,
   Moon,
+  Shield,
   Sun,
+  User,
   WifiOff,
 } from 'lucide-react';
 import type { TestPhase } from '../../types';
@@ -12,6 +16,7 @@ import { Button } from '../ui/Button';
 import { BrandMark } from '../ui/BrandMark';
 import { cn, formatNumber } from '../../utils/helpers';
 import type { Theme } from '../../hooks/useTheme';
+import { useAuth } from '../../context/AuthContext';
 
 interface AppHeaderProps {
   isOnline: boolean;
@@ -48,6 +53,7 @@ export function AppHeader({
   progressPercent = 0,
 }: AppHeaderProps) {
   const isDark = theme === 'dark';
+  const { user, isAdmin, setLoginOpen, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 border-b border-stone-200/70 bg-[#f8f5ee]/85 backdrop-blur-xl">
@@ -130,6 +136,46 @@ export function AppHeader({
           >
             <HelpCircle className="h-5 w-5" />
           </button>
+
+          {user ? (
+            <div className="flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white/80 p-1 sm:gap-2">
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold',
+                  isAdmin
+                    ? 'bg-teal-50 text-teal-800 border border-teal-200'
+                    : 'bg-amber-50 text-amber-800 border border-amber-200',
+                )}
+                title={isAdmin ? 'صلاحيات المدير: تعديل الجدول' : 'صلاحيات المختبَر: استعراض النتائج فقط'}
+              >
+                {isAdmin ? <Shield className="h-3.5 w-3.5 text-teal-700" /> : <User className="h-3.5 w-3.5 text-amber-700" />}
+                <span className="hidden sm:inline">
+                  {isAdmin ? 'مدير' : 'مختبَر'}:
+                </span>
+                <span className="max-w-28 truncate">{user.name}</span>
+              </span>
+
+              <button
+                type="button"
+                onClick={signOut}
+                title="تسجيل الخروج"
+                aria-label="تسجيل الخروج"
+                className="grid h-8 w-8 place-items-center rounded-lg text-stone-400 hover:bg-rose-50 hover:text-rose-600 transition"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setLoginOpen(true)}
+              className="font-bold border-teal-300 bg-teal-50 text-teal-900 hover:bg-teal-100"
+            >
+              <LogIn className="h-4 w-4" />
+              <span>تسجيل الدخول</span>
+            </Button>
+          )}
 
           {canInstall ? (
             <Button size="sm" variant="secondary" onClick={onInstall}>

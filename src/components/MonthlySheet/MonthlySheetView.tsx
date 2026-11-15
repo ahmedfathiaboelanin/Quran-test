@@ -5,13 +5,17 @@ import {
   CalendarRange,
   Database,
   LoaderCircle,
+  LogIn,
   RefreshCcw,
+  ShieldAlert,
   TriangleAlert,
+  User,
   UsersRound,
   Wallet,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useMonthlyData } from '../../hooks/useMonthlyData';
+import { useAuth } from '../../context/AuthContext';
 import type {
   Examinee,
   ExamineeInput,
@@ -158,6 +162,7 @@ function TableSkeleton() {
 
 export function MonthlySheetView() {
   const data = useMonthlyData();
+  const { user, isAdmin, isExaminee, setLoginOpen } = useAuth();
   const [createOpen, setCreateOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const [fifthUpdating, setFifthUpdating] = useState(false);
@@ -264,23 +269,40 @@ export function MonthlySheetView() {
 
             {data.configured ? (
               <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-                <Button
-                  variant="secondary"
-                  onClick={() => setManageOpen(true)}
-                  disabled={data.loading}
-                  className="border-white/25 bg-white/15 text-white hover:border-white/40 hover:bg-white/25 hover:text-white"
-                >
-                  <UsersRound className="h-4 w-4" />
-                  إدارة المختبَرين
-                </Button>
-                <Button
-                  onClick={() => setCreateOpen(true)}
-                  disabled={data.loading}
-                  className="border border-amber-300/60 bg-amber-300 font-bold text-amber-950 shadow-sm shadow-amber-950/20 hover:bg-amber-200"
-                >
-                  <CalendarPlus className="h-4 w-4" />
-                  شهر جديد
-                </Button>
+                {isAdmin ? (
+                  <>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setManageOpen(true)}
+                      disabled={data.loading}
+                      className="border-white/25 bg-white/15 text-white hover:border-white/40 hover:bg-white/25 hover:text-white"
+                    >
+                      <UsersRound className="h-4 w-4" />
+                      إدارة المختبَرين
+                    </Button>
+                    <Button
+                      onClick={() => setCreateOpen(true)}
+                      disabled={data.loading}
+                      className="border border-amber-300/60 bg-amber-300 font-bold text-amber-950 shadow-sm shadow-amber-950/20 hover:bg-amber-200"
+                    >
+                      <CalendarPlus className="h-4 w-4" />
+                      شهر جديد
+                    </Button>
+                  </>
+                ) : !user ? (
+                  <Button
+                    onClick={() => setLoginOpen(true)}
+                    className="border border-amber-300/60 bg-amber-300 font-bold text-amber-950 shadow-sm shadow-amber-950/20 hover:bg-amber-200"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    تسجيل الدخول
+                  </Button>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold text-teal-100">
+                    <User className="h-4 w-4 text-amber-300" />
+                    وضع استعراض النتائج ({user.name})
+                  </span>
+                )}
               </div>
             ) : null}
           </div>
@@ -369,6 +391,28 @@ export function MonthlySheetView() {
           </section>
         ) : (
           <>
+            {isExaminee ? (
+              <div className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-xs text-amber-900">
+                <User className="h-4 w-4 shrink-0 text-amber-700" />
+                <p>
+                  أهلاً بك <strong>{user?.name}</strong>. أنت الآن في <strong>وضع استعراض النتائج (للقراءة فقط)</strong>. صفك مميّز في الجدول أدناه.
+                </p>
+              </div>
+            ) : !user ? (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-teal-200 bg-teal-50/70 px-4 py-3 text-xs text-teal-950">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="h-4 w-4 shrink-0 text-teal-700" />
+                  <p>
+                    أنت في <strong>وضع المعاينة (القراءة فقط)</strong>. سجّل الدخول كمدير لتعديل درجات الجدول، أو كمختبَر لعرض صفك.
+                  </p>
+                </div>
+                <Button size="sm" onClick={() => setLoginOpen(true)}>
+                  <LogIn className="h-3.5 w-3.5" />
+                  تسجيل الدخول
+                </Button>
+              </div>
+            ) : null}
+
             <section className="rounded-3xl border border-stone-200/90 bg-[#fffdf7] p-4 shadow-sm shadow-stone-900/[0.03]">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
@@ -392,7 +436,7 @@ export function MonthlySheetView() {
                   </select>
                 </div>
 
-                {data.selectedSheet ? (
+                {data.selectedSheet && isAdmin ? (
                   <button
                     type="button"
                     role="switch"
@@ -433,8 +477,9 @@ export function MonthlySheetView() {
               </div>
 
               <p className="mt-2 text-[10px] leading-5 text-stone-400">
-                انقر أي خانة درجة لتعديلها (تقبل الكسور العشرية)، ثم اضغط Enter
-                أو غادر الخانة للحفظ. يتحدّث المجموع والمبلغ تلقائيًا.
+                {isAdmin
+                  ? 'انقر أي خانة درجة لتعديلها (تقبل الكسور العشرية)، ثم اضغط Enter أو غادر الخانة للحفظ. يتحدّث المجموع والمبلغ تلقائيًا.'
+                  : 'الجدول معروض للاطلاع والمتابعة (المجموع والمبالغ تُحسب تلقائيًا وفق درجات الأخطاء والمراجعة).'}
               </p>
             </section>
 
@@ -466,6 +511,8 @@ export function MonthlySheetView() {
                 hasFifthWeek={Boolean(data.selectedSheet?.has_fifth_week)}
                 onSaveRecord={handleSaveRecord}
                 onManageExaminees={() => setManageOpen(true)}
+                canEdit={isAdmin}
+                highlightExamineeId={user?.examineeId}
               />
             )}
           </>

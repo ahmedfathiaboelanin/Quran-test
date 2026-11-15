@@ -25,6 +25,8 @@ interface MonthlyRecordTableProps {
     patch: MonthlyRecordPatch,
   ) => Promise<unknown>;
   onManageExaminees: () => void;
+  canEdit?: boolean;
+  highlightExamineeId?: string | null;
 }
 
 function initialOf(name: string): string {
@@ -59,6 +61,8 @@ export function MonthlyRecordTable({
   hasFifthWeek,
   onSaveRecord,
   onManageExaminees,
+  canEdit = true,
+  highlightExamineeId,
 }: MonthlyRecordTableProps) {
   if (rows.length === 0) {
     return (
@@ -72,10 +76,12 @@ export function MonthlyRecordTable({
         <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-stone-500">
           أضف مختبَرًا نشطًا وسيظهر صفه هنا تلقائيًا مع مبلغه المحسوب.
         </p>
-        <Button className="mt-4" onClick={onManageExaminees}>
-          <UserRound className="h-4 w-4" />
-          إدارة المختبَرين
-        </Button>
+        {canEdit ? (
+          <Button className="mt-4" onClick={onManageExaminees}>
+            <UserRound className="h-4 w-4" />
+            إدارة المختبَرين
+          </Button>
+        ) : null}
       </div>
     );
   }
@@ -158,31 +164,48 @@ export function MonthlyRecordTable({
               const amount = calculateMonthlyAmount(total);
               const dropped = getDroppedWeek(row);
 
+              const isHighlighted = highlightExamineeId && row.examinee_id === highlightExamineeId;
+
               return (
                 <tr
                   key={row.id}
-                  className="group border-b border-stone-100 transition-colors last:border-b-0 hover:bg-stone-50/70"
+                  className={cn(
+                    'group border-b border-stone-100 transition-colors last:border-b-0 hover:bg-stone-50/70',
+                    isHighlighted ? 'bg-teal-50/40' : '',
+                  )}
                 >
-                  <td className="sticky start-0 z-10 bg-[#fffdf7] px-2 py-2 transition-colors group-hover:bg-stone-50 sm:px-4 sm:py-2.5">
+                  <td className={cn(
+                    'sticky start-0 z-10 px-2 py-2 transition-colors sm:px-4 sm:py-2.5',
+                    isHighlighted ? 'bg-teal-50/80 font-bold' : 'bg-[#fffdf7] group-hover:bg-stone-50',
+                  )}>
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
                           'hidden h-8 w-8 shrink-0 place-items-center rounded-lg text-xs font-bold sm:grid',
-                          row.examinee.is_active
-                            ? 'bg-teal-100 text-teal-800'
-                            : 'bg-stone-100 text-stone-400',
+                          isHighlighted
+                            ? 'bg-teal-600 text-white'
+                            : row.examinee.is_active
+                              ? 'bg-teal-100 text-teal-800'
+                              : 'bg-stone-100 text-stone-400',
                         )}
                         aria-hidden="true"
                       >
                         {initialOf(row.examinee.name)}
                       </span>
                       <div className="min-w-0">
-                        <p
-                          className="truncate text-xs font-bold leading-5 text-stone-900 sm:text-sm"
-                          title={row.examinee.name}
-                        >
-                          {row.examinee.name}
-                        </p>
+                        <div className="flex items-center gap-1.5">
+                          <p
+                            className="truncate text-xs font-bold leading-5 text-stone-900 sm:text-sm"
+                            title={row.examinee.name}
+                          >
+                            {row.examinee.name}
+                          </p>
+                          {isHighlighted ? (
+                            <span className="inline-flex rounded-md bg-teal-600 px-1.5 py-0.2 text-[9px] font-bold text-white">
+                              صفك
+                            </span>
+                          ) : null}
+                        </div>
                         {!row.examinee.is_active ? (
                           <span className="mt-0.5 inline-flex rounded-full bg-stone-100 px-1.5 py-0.5 text-[8px] font-bold text-stone-500">
                             غير نشط
@@ -194,22 +217,42 @@ export function MonthlyRecordTable({
 
                   {weekSlots.map((slot) => (
                     <td key={slot} className="px-0.5 py-1.5 sm:px-1.5 sm:py-2">
-                      <EditableNumberCell
-                        value={row[slot]}
-                        label={`${row.examinee.name} — ${SHEET_SLOT_LABELS[slot]}`}
-                        onSave={(value) => onSaveRecord(row.id, { [slot]: value })}
-                      />
+                      {canEdit ? (
+                        <EditableNumberCell
+                          value={row[slot]}
+                          label={`${row.examinee.name} — ${SHEET_SLOT_LABELS[slot]}`}
+                          onSave={(value) => onSaveRecord(row.id, { [slot]: value })}
+                        />
+                      ) : (
+                        <div className="h-9 w-full min-w-14 flex items-center justify-center text-center text-sm font-bold tabular-nums text-stone-800">
+                          {row[slot] === null ? (
+                            <span className="text-stone-300 font-normal">—</span>
+                          ) : (
+                            formatNumber(row[slot])
+                          )}
+                        </div>
+                      )}
                     </td>
                   ))}
 
                   <td className="bg-amber-50/40 px-0.5 py-1.5 sm:px-1.5 sm:py-2">
-                    <EditableNumberCell
-                      value={row.monthly_exam}
-                      label={`${row.examinee.name} — ${SHEET_SLOT_LABELS.monthly_exam}`}
-                      onSave={(value) =>
-                        onSaveRecord(row.id, { monthly_exam: value })
-                      }
-                    />
+                    {canEdit ? (
+                      <EditableNumberCell
+                        value={row.monthly_exam}
+                        label={`${row.examinee.name} — ${SHEET_SLOT_LABELS.monthly_exam}`}
+                        onSave={(value) =>
+                          onSaveRecord(row.id, { monthly_exam: value })
+                        }
+                      />
+                    ) : (
+                      <div className="h-9 w-full min-w-14 flex items-center justify-center text-center text-sm font-bold tabular-nums text-amber-900">
+                        {row.monthly_exam === null ? (
+                          <span className="text-stone-300 font-normal">—</span>
+                        ) : (
+                          formatNumber(row.monthly_exam)
+                        )}
+                      </div>
+                    )}
                   </td>
 
                   <td className="px-0.5 py-1.5 text-center sm:px-2 sm:py-2">
@@ -251,9 +294,9 @@ export function MonthlyRecordTable({
       <div className="flex items-start gap-2 border-t border-stone-200/80 bg-[#f8f5ee]/60 px-4 py-3 text-[11px] leading-5 text-stone-500">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-600" />
         <p>
-          المجموع = مجموع الأسابيع المسجّلة − أعلى أسبوع + درجة المراجعة الشهرية.
-          ويُحسب المبلغ تلقائيًا من المجموع. تقبل خانات الدرجات الكسور
-          العشرية، وتُحفظ عند مغادرة الخانة أو الضغط على Enter.
+          {canEdit
+            ? 'المجموع = مجموع الأسابيع المسجّلة − أعلى أسبوع + درجة المراجعة الشهرية. ويُحسب المبلغ تلقائيًا من المجموع. تقبل خانات الدرجات الكسور العشرية، وتُحفظ عند مغادرة الخانة أو الضغط على Enter.'
+            : 'وضع استعراض النتائج: الدرجات والمبالغ معروضة للاطلاع فقط (المجموع = مجموع الأسابيع − أعلى أسبوع + المراجعة الشهرية).'}
         </p>
       </div>
     </div>

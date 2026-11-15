@@ -55,6 +55,8 @@ export interface ExamineeInput {
   name: string;
   default_amount?: number;
   is_active?: boolean;
+  username?: string;
+  password?: string;
 }
 
 export type ExamineePatch = Partial<ExamineeInput>;

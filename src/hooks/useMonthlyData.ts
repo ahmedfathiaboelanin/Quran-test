@@ -11,6 +11,11 @@ import {
   updateMonthlyRecord,
   updateMonthlySheet,
 } from '../services/monthlySheetService';
+import {
+  deleteExamineeAccount,
+  registerExamineeAccount,
+  updateExamineeAccount,
+} from '../services/authService';
 import type {
   Examinee,
   ExamineeInput,
@@ -132,7 +137,23 @@ export function useMonthlyData(): MonthlyDataState {
     async (input: ExamineeInput) => {
       setError(null);
       try {
-        const examinee = await createExaminee(input);
+        const examinee = await createExaminee({
+          name: input.name,
+          default_amount: input.default_amount,
+          is_active: input.is_active,
+        });
+
+        if (input.username && input.password) {
+          try {
+            await registerExamineeAccount(examinee.id, examinee.name, {
+              username: input.username,
+              password: input.password,
+            });
+          } catch {
+            // Non-critical, credentials still cached locally if remote fails
+          }
+        }
+
         setExaminees((current) => [...current, examinee]);
         if (selectedSheetId) {
           await loadRows(selectedSheetId);
@@ -150,7 +171,23 @@ export function useMonthlyData(): MonthlyDataState {
     async (examineeId: string, patch: ExamineePatch) => {
       setError(null);
       try {
-        const examinee = await updateExaminee(examineeId, patch);
+        const examinee = await updateExaminee(examineeId, {
+          name: patch.name,
+          default_amount: patch.default_amount,
+          is_active: patch.is_active,
+        });
+
+        if (patch.username !== undefined || patch.password !== undefined) {
+          try {
+            await updateExamineeAccount(examineeId, examinee.name, {
+              username: patch.username,
+              password: patch.password,
+            });
+          } catch {
+            // Non-critical
+          }
+        }
+
         setExaminees((current) =>
           current.map((item) => (item.id === examinee.id ? examinee : item)),
         );
@@ -172,6 +209,11 @@ export function useMonthlyData(): MonthlyDataState {
     setError(null);
     try {
       await deleteExaminee(examineeId);
+      try {
+        await deleteExamineeAccount(examineeId);
+      } catch {
+        // Non-critical
+      }
       setExaminees((current) =>
         current.filter((examinee) => examinee.id !== examineeId),
       );
