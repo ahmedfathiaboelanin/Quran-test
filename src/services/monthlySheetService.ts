@@ -7,7 +7,6 @@ import type {
   MonthlyRecord,
   MonthlyRecordPatch,
   MonthlyRecordRow,
-  MonthlyScoreFields,
   MonthlySheet,
   MonthlySheetInput,
   SaveTestTarget,
@@ -101,6 +100,19 @@ function normalizeAmount(amount: number): number {
   return Math.round(amount * 100) / 100;
 }
 
+/**
+ * Amount written while inserting a record.
+ *
+ * Some deployed databases still have the legacy `amount >= 0` check. Keeping
+ * this value non-negative lets the row be created there, while the database
+ * trigger from the latest migration overwrites it with the exact signed
+ * amount. The dashboard also derives the displayed amount from the scores, so
+ * it is always correct even on an older schema.
+ */
+function persistedAmount(totalMistakes: number): number {
+  return Math.max(0, calculateMonthlyAmount(totalMistakes));
+}
+
 function normalizeScore(value: number | null, label: string): number | null {
   if (value === null) return null;
   if (!Number.isFinite(value) || value < 0) {
@@ -144,7 +156,7 @@ async function addExamineeToAllSheets(
     sheetIds.map((sheetId) => ({
       sheet_id: sheetId,
       examinee_id: examineeId,
-      amount: calculateMonthlyAmount(0),
+      amount: persistedAmount(0),
     })),
     { onConflict: 'sheet_id,examinee_id', ignoreDuplicates: true },
   );
@@ -278,7 +290,7 @@ export async function createMonthlySheet(
       activeExaminees.map((examinee) => ({
         sheet_id: sheet.id,
         examinee_id: examinee.id,
-        amount: calculateMonthlyAmount(0),
+        amount: persistedAmount(0),
       })),
     );
 
@@ -351,7 +363,7 @@ export async function fetchSheetRows(sheetId: string): Promise<MonthlyRecordRow[
       missingExaminees.map((examinee) => ({
         sheet_id: sheetId,
         examinee_id: examinee.id,
-        amount: calculateMonthlyAmount(0),
+        amount: persistedAmount(0),
       })),
       { onConflict: 'sheet_id,examinee_id', ignoreDuplicates: true },
     );
@@ -412,35 +424,9 @@ export async function updateMonthlyRecord(
     throw new MonthlySheetServiceError('لا توجد تغييرات لحفظها.');
   }
 
-  const { data: currentData, error: currentError } = await client
-    .from('monthly_records')
-    .select('*')
-    .eq('id', recordId)
-    .single();
-
-  if (currentError) raise('تعذّر تحميل السجل المطلوب تحديثه.', currentError);
-
-  const current = mapMonthlyRecord(currentData as DbRow);
-  const nextScores: MonthlyScoreFields = {
-    week_1: current.week_1,
-    week_2: current.week_2,
-    week_3: current.week_3,
-    week_4: current.week_4,
-    week_5: current.week_5,
-    monthly_exam: current.monthly_exam,
-  };
-
-  for (const slot of WEEK_SLOTS) {
-    if (update[slot] !== undefined) {
-      nextScores[slot] = update[slot];
-    }
-  }
-  if (update.monthly_exam !== undefined) {
-    nextScores.monthly_exam = update.monthly_exam;
-  }
-
-  update.amount = calculateMonthlyAmount(calculateTotalMistakes(nextScores));
-
+  // The amount is derived from the scores and is maintained by the database
+  // trigger. It is intentionally not written here: older databases still have
+  // an `amount >= 0` check that would reject penalty values.
   const { data, error } = await client
     .from('monthly_records')
     .update(update)
@@ -454,7 +440,8 @@ export async function updateMonthlyRecord(
 
 /**
  * Saves a finished test into one slot of a monthly record. A missing record is
- * created with the amount derived from its resulting total.
+ * created with a non-negative initial amount; the database trigger then stores
+ * the exact signed amount derived from the resulting total.
  */
 export async function saveTestMistakes(
   target: SaveTestTarget,
@@ -485,7 +472,7 @@ export async function saveTestMistakes(
     .insert({
       sheet_id: target.sheetId,
       examinee_id: target.examineeId,
-      amount: calculateMonthlyAmount(nextTotal),
+      amount: persistedAmount(nextTotal),
       [slot]: mistakes,
     })
     .select('*')
