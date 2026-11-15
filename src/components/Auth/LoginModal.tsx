@@ -6,7 +6,6 @@ import {
   EyeOff,
   LoaderCircle,
   LogIn,
-  ShieldCheck,
   User,
   X,
 } from 'lucide-react';
@@ -56,12 +55,6 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fillAdmin = () => {
-    setUsername('admin');
-    setPassword('admin');
-    setError(null);
   };
 
   return (
