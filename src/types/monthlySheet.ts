@@ -113,3 +113,18 @@ export interface SaveTestTarget {
   /** Weighted test score (e.g. 1.75), not the integer mistake count. */
   score: number;
 }
+
+/**
+ * A score save that may be queued offline. Identifiers are optional so a
+ * result can be saved with only the examinee name; they are resolved against
+ * Supabase when the queue is flushed.
+ */
+export interface QueuedTestTarget {
+  slot: SheetSlot;
+  /** Weighted test score (e.g. 1.75), not the integer mistake count. */
+  score: number;
+  sheetId?: string;
+  sheetTitle?: string;
+  examineeId?: string;
+  examineeName?: string;
+}

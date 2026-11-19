@@ -7,9 +7,15 @@ import {
   RefreshCcw,
   User,
   UserPlus,
+  WifiOff,
 } from 'lucide-react';
 import { isSupabaseConfigured } from '../../lib/supabase';
-import { createExaminee, fetchExaminees } from '../../services/monthlySheetService';
+import {
+  createExaminee,
+  fetchExaminees,
+  getCachedExaminees,
+} from '../../services/monthlySheetService';
+import { isNetworkFailure } from '../../services/pendingTestSaves';
 import type { Examinee } from '../../types/monthlySheet';
 import { formatNumber } from '../../utils/helpers';
 import { Button } from '../ui/Button';
@@ -50,6 +56,7 @@ export function ExamineePicker({
   const [newName, setNewName] = useState('');
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  const [usingCachedList, setUsingCachedList] = useState(false);
 
   const load = useCallback(async () => {
     if (!isSupabaseConfigured) {
@@ -62,11 +69,18 @@ export function ExamineePicker({
     try {
       const nextExaminees = await fetchExaminees({ activeOnly: true });
       setExaminees(nextExaminees);
+      setUsingCachedList(false);
       if (nextExaminees.length === 0) {
         setAddingNew(true);
       }
     } catch (loadFailure) {
-      setLoadError(errorMessage(loadFailure));
+      const cached = getCachedExaminees();
+      if (cached.length > 0) {
+        setExaminees(cached);
+        setUsingCachedList(true);
+      } else {
+        setLoadError(errorMessage(loadFailure));
+      }
     } finally {
       setLoading(false);
     }
@@ -75,6 +89,58 @@ export function ExamineePicker({
   useEffect(() => {
     void load();
   }, [load]);
+
+  const needsManualName =
+    isSupabaseConfigured && loadError !== null && examinees.length === 0;
+
+  if (needsManualName) {
+    return (
+      <div>
+        <label
+          htmlFor={`${ids}-manual-name`}
+          className="mb-1.5 flex items-center justify-between text-sm font-semibold text-stone-800"
+        >
+          <span className="flex items-center gap-1.5">
+            <User className="h-4 w-4 text-teal-700" />
+            اسم المختبَر
+          </span>
+          <span className="text-[11px] font-normal text-stone-400">
+            بدون إنترنت
+          </span>
+        </label>
+        <input
+          id={`${ids}-manual-name`}
+          type="text"
+          value={value.studentName}
+          onChange={(event) =>
+            onChange({ examineeId: '', studentName: event.target.value })
+          }
+          disabled={disabled}
+          maxLength={80}
+          placeholder="اكتب اسم الطالب..."
+          className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3.5 text-sm font-medium text-stone-900 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-60"
+        />
+        <p className="mt-1.5 text-[10px] leading-5 text-amber-700">
+          تعذّر تحميل قائمة المختبَرين. اكتب الاسم وسيُربط تلقائيًا عند عودة
+          الإنترنت.
+        </p>
+        <div className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-rose-200 bg-rose-50/70 px-3 py-2 text-[11px] font-semibold leading-5 text-rose-700">
+          <span className="flex items-start gap-1.5">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            {loadError}
+          </span>
+          <button
+            type="button"
+            onClick={() => void load()}
+            className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 transition hover:bg-rose-100"
+          >
+            <RefreshCcw className="h-3 w-3" />
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!isSupabaseConfigured) {
     return (
@@ -141,7 +207,15 @@ export function ExamineePicker({
       setNewName('');
       onChange({ examineeId: created.id, studentName: created.name });
     } catch (createFailure) {
-      setAddError(errorMessage(createFailure));
+      if (isNetworkFailure(createFailure)) {
+        const name = newName.trim();
+        setAddingNew(false);
+        setNewName('');
+        setUsingCachedList(true);
+        onChange({ examineeId: '', studentName: name });
+      } else {
+        setAddError(errorMessage(createFailure));
+      }
     } finally {
       setAdding(false);
     }
@@ -186,6 +260,13 @@ export function ExamineePicker({
           <ChevronDown className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
         )}
       </div>
+
+      {usingCachedList ? (
+        <p className="mt-1.5 flex items-center gap-1 text-[10px] font-semibold leading-5 text-amber-700">
+          <WifiOff className="h-3 w-3 shrink-0" />
+          لا يوجد اتصال — تُعرض قائمة محفوظة محليًا.
+        </p>
+      ) : null}
 
       {loadError ? (
         <div

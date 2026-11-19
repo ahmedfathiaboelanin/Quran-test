@@ -68,6 +68,12 @@ async function ensureAuthenticated(client: SupabaseClient): Promise<void> {
 
 /** Returns a configured Supabase client with an authenticated session ready. */
 export async function getSupabaseClient(): Promise<SupabaseClient> {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    throw new SupabaseSessionError(
+      'لا يوجد اتصال بالإنترنت. ستُستخدم البيانات المحفوظة محليًا حتى تعود الشبكة.',
+    );
+  }
+
   if (!supabase) {
     throw new SupabaseConfigurationError(
       'لم يتم ضبط VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY بعد.',

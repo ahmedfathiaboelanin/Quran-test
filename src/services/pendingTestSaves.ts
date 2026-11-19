@@ -1,12 +1,12 @@
-import type { SaveTestTarget } from '../types/monthlySheet';
-import { saveTestScore } from './monthlySheetService';
+import type { QueuedTestTarget } from '../types/monthlySheet';
+import { saveResolvedTestScore } from './monthlySheetService';
 
 const STORAGE_KEY = 'quran_pending_test_saves_v1';
 const CHANGE_EVENT = 'quran-pending-test-saves-changed';
 
 export interface PendingTestSave {
   id: string;
-  target: SaveTestTarget;
+  target: QueuedTestTarget;
   createdAt: string;
 }
 
@@ -49,6 +49,19 @@ function emitChange(): void {
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
+function isQueuedTarget(value: unknown): value is QueuedTestTarget {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<QueuedTestTarget>;
+  const hasExaminee = Boolean(
+    candidate.examineeId || candidate.examineeName?.trim(),
+  );
+  return (
+    typeof candidate.slot === 'string' &&
+    typeof candidate.score === 'number' &&
+    hasExaminee
+  );
+}
+
 function readQueue(): PendingTestSave[] {
   if (!canUseStorage()) return [];
   try {
@@ -59,14 +72,7 @@ function readQueue(): PendingTestSave[] {
     return parsed.filter((entry): entry is PendingTestSave => {
       if (!entry || typeof entry !== 'object') return false;
       const candidate = entry as Partial<PendingTestSave>;
-      return (
-        typeof candidate.id === 'string' &&
-        Boolean(candidate.target) &&
-        typeof candidate.target?.sheetId === 'string' &&
-        typeof candidate.target?.examineeId === 'string' &&
-        typeof candidate.target?.slot === 'string' &&
-        typeof candidate.target?.score === 'number'
-      );
+      return typeof candidate.id === 'string' && isQueuedTarget(candidate.target);
     });
   } catch {
     return [];
@@ -83,12 +89,20 @@ function writeQueue(queue: PendingTestSave[]): void {
   emitChange();
 }
 
-function isSameTarget(a: SaveTestTarget, b: SaveTestTarget): boolean {
+function sameExaminee(a: QueuedTestTarget, b: QueuedTestTarget): boolean {
+  if (a.examineeId && b.examineeId) return a.examineeId === b.examineeId;
   return (
-    a.sheetId === b.sheetId &&
-    a.examineeId === b.examineeId &&
-    a.slot === b.slot
+    (a.examineeName ?? '').trim() === (b.examineeName ?? '').trim()
   );
+}
+
+function sameSheet(a: QueuedTestTarget, b: QueuedTestTarget): boolean {
+  if (a.sheetId && b.sheetId) return a.sheetId === b.sheetId;
+  return (a.sheetTitle ?? '').trim() === (b.sheetTitle ?? '').trim();
+}
+
+function isSameTarget(a: QueuedTestTarget, b: QueuedTestTarget): boolean {
+  return a.slot === b.slot && sameExaminee(a, b) && sameSheet(a, b);
 }
 
 export function getPendingTestSaves(): PendingTestSave[] {
@@ -102,7 +116,7 @@ export function subscribePendingTestSaves(listener: () => void): () => void {
 }
 
 /** Queues a score locally; a newer save for the same slot replaces the old one. */
-export function enqueuePendingTestSave(target: SaveTestTarget): PendingTestSave {
+export function enqueuePendingTestSave(target: QueuedTestTarget): PendingTestSave {
   const queue = readQueue().filter((entry) => !isSameTarget(entry.target, target));
   const entry: PendingTestSave = {
     id: `pending-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
@@ -133,7 +147,7 @@ export async function flushPendingTestSaves(): Promise<FlushResult> {
     const queue = readQueue();
     for (const entry of queue) {
       try {
-        await saveTestScore(entry.target);
+        await saveResolvedTestScore(entry.target);
         saved += 1;
         const remaining = readQueue().filter((item) => item.id !== entry.id);
         writeQueue(remaining);

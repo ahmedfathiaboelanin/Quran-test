@@ -9,6 +9,7 @@ import type {
   MonthlyRecordRow,
   MonthlySheet,
   MonthlySheetInput,
+  QueuedTestTarget,
   SaveTestTarget,
   SheetSlot,
 } from '../types/monthlySheet';
@@ -71,13 +72,14 @@ let lastPickerCacheWarm = 0;
  * ignored so a flaky connection never blocks the app.
  */
 export async function cacheMonthlyPickerData(minIntervalMs = 60_000): Promise<void> {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) return;
   if (Date.now() - lastPickerCacheWarm < minIntervalMs) return;
-  lastPickerCacheWarm = Date.now();
 
   try {
     await Promise.all([fetchExaminees({ activeOnly: true }), fetchMonthlySheets()]);
+    lastPickerCacheWarm = Date.now();
   } catch {
-    // Keep the previous cache when the network is unavailable.
+    // Keep the previous cache when the network is unavailable and retry later.
   }
 }
 
@@ -143,6 +145,11 @@ function normalizeName(name: string): string {
     throw new MonthlySheetServiceError('الاسم مطلوب.');
   }
   return trimmed;
+}
+
+/** Case/whitespace-insensitive key for matching names after an offline save. */
+function normalizeLookupName(name: string): string {
+  return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase('ar');
 }
 
 function normalizeAmount(amount: number): number {
@@ -539,4 +546,80 @@ export async function saveTestScore(
 
   if (error) raise('تعذّر إنشاء سجل الشهر لهذا المختبَر.', error);
   return mapMonthlyRecord(data as DbRow);
+}
+
+async function resolveExamineeForSave(
+  target: QueuedTestTarget,
+  examinees: Examinee[],
+): Promise<Examinee> {
+  if (target.examineeId) {
+    const byId = examinees.find((item) => item.id === target.examineeId);
+    if (byId) return byId;
+  }
+
+  const name = target.examineeName?.trim();
+  if (!name) {
+    throw new MonthlySheetServiceError(
+      'تعذّر تحديد المختبَر. اختر مختبَرًا أو أدخل اسمه قبل حفظ النتيجة.',
+    );
+  }
+
+  const wanted = normalizeLookupName(name);
+  const byName = examinees.find(
+    (item) => normalizeLookupName(item.name) === wanted,
+  );
+  if (byName) return byName;
+
+  // The examinee may have been typed while offline; create them on sync.
+  return createExaminee({ name });
+}
+
+function resolveSheetForSave(
+  target: QueuedTestTarget,
+  sheets: MonthlySheet[],
+): MonthlySheet {
+  if (target.sheetId) {
+    const byId = sheets.find((sheet) => sheet.id === target.sheetId);
+    if (byId) return byId;
+  }
+
+  const title = target.sheetTitle?.trim();
+  if (title) {
+    const wanted = normalizeLookupName(title);
+    const byTitle = sheets.find(
+      (sheet) => normalizeLookupName(sheet.title) === wanted,
+    );
+    if (byTitle) return byTitle;
+  }
+
+  // Sheets are ordered newest first, so this is the current month.
+  if (sheets[0]) return sheets[0];
+
+  throw new MonthlySheetServiceError(
+    'لا يوجد شهر متابعة لحفظ النتيجة فيه. أنشئ شهرًا ثم أعد المحاولة.',
+  );
+}
+
+/**
+ * Saves a queued offline result. Missing examinee or sheet identifiers are
+ * resolved from the live database, creating the examinee if needed.
+ */
+export async function saveResolvedTestScore(
+  target: QueuedTestTarget,
+): Promise<MonthlyRecord> {
+  const client = await getSupabaseClient();
+  const [examinees, sheets] = await Promise.all([
+    fetchAllExaminees(client),
+    fetchMonthlySheets(),
+  ]);
+
+  const examinee = await resolveExamineeForSave(target, examinees);
+  const sheet = resolveSheetForSave(target, sheets);
+
+  return saveTestScore({
+    sheetId: sheet.id,
+    examineeId: examinee.id,
+    slot: target.slot,
+    score: target.score,
+  });
 }

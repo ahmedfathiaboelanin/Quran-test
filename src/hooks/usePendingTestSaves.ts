@@ -30,12 +30,21 @@ export function usePendingTestSaves() {
       syncCount();
       flush();
     };
+    const handleVisible = () => {
+      if (document.visibilityState === 'visible') handleOnline();
+    };
+    const retryTimer = window.setInterval(() => {
+      if (getPendingTestSaves().length > 0) flush();
+    }, 30_000);
 
     window.addEventListener('online', handleOnline);
+    document.addEventListener('visibilitychange', handleVisible);
 
     return () => {
       unsubscribe();
       window.removeEventListener('online', handleOnline);
+      document.removeEventListener('visibilitychange', handleVisible);
+      window.clearInterval(retryTimer);
     };
   }, []);
 
