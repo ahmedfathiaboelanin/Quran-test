@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  BookOpenText,
-  FileText,
   Info,
   Minus,
   Play,
@@ -13,7 +11,6 @@ import {
 } from 'lucide-react';
 import type {
   JuzSummary,
-  QuestionDisplayMode,
   ScopeSelection,
   ScopeTab,
   SurahMeta,
@@ -25,7 +22,6 @@ import { getScopeStats } from '../../utils/quranHelpers';
 import { ScopeSelector } from '../ScopeSelector/ScopeSelector';
 import { Button } from '../ui/Button';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
-import { Switch } from '../ui/Switch';
 import { ExamineePicker } from './ExamineePicker';
 import type { ExamineeSelection } from './ExamineePicker';
 
@@ -44,28 +40,6 @@ function inferScopeTab(selection: ScopeSelection): ScopeTab {
   return 'surah';
 }
 
-const DISPLAY_OPTIONS: Array<{
-  id: QuestionDisplayMode;
-  label: string;
-  description: string;
-  icon: typeof BookOpenText;
-}> = [
-  {
-    id: 'ayah',
-    label: 'آية واحدة',
-    description: 'اعرض آية البداية فقط مع إمكانية التنقل بين الآيات.',
-    icon: BookOpenText,
-  },
-  {
-    id: 'page',
-    label: 'الصفحة كاملة',
-    description: 'اعرض كل آيات الصفحة التي تبدأ منها الآية مع تمييز البداية.',
-    icon: FileText,
-  },
-];
-
-const QUICK_COUNTS = [5, 10, 15, 20, 30, 50];
-
 export function SetupView({
   surahs,
   juzSummaries,
@@ -82,12 +56,6 @@ export function SetupView({
   );
   const [questionCount, setQuestionCount] = useState(
     initialConfig?.questionCount ?? 10,
-  );
-  const [displayMode, setDisplayMode] = useState<QuestionDisplayMode>(
-    initialConfig?.displayMode ?? 'ayah',
-  );
-  const [randomizeQuestionOrder, setRandomizeQuestionOrder] = useState(
-    initialConfig?.randomizeQuestionOrder ?? true,
   );
   const [resetOpen, setResetOpen] = useState(false);
 
@@ -118,8 +86,8 @@ export function SetupView({
       scope: cloneSelection(selection),
       questionCount: plannedCount,
       distributionUnit: 'auto',
-      displayMode,
-      randomizeQuestionOrder,
+      displayMode: 'ayah',
+      randomizeQuestionOrder: true,
       blindMode: false,
     });
   };
@@ -145,17 +113,13 @@ export function SetupView({
     setExamineeId('');
     setActiveTab('surah');
     setQuestionCount(10);
-    setDisplayMode('ayah');
-    setRandomizeQuestionOrder(true);
   };
 
   const hasCustomization =
     stats.ayahCount > 0 ||
     studentName.trim().length > 0 ||
     examineeId.length > 0 ||
-    questionCount !== 10 ||
-    displayMode !== 'ayah' ||
-    !randomizeQuestionOrder;
+    questionCount !== 10;
 
   const requestResetAll = () => {
     if (!hasCustomization) return;
@@ -252,23 +216,6 @@ export function SetupView({
                 </button>
               </div>
 
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {QUICK_COUNTS.map((count) => (
-                  <button
-                    key={count}
-                    type="button"
-                    onClick={() => changeCount(count)}
-                    className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
-                      questionCount === count
-                        ? 'bg-teal-700 text-white'
-                        : 'bg-stone-100 text-stone-600 hover:bg-teal-50 hover:text-teal-800'
-                    }`}
-                  >
-                    {formatNumber(count)}
-                  </button>
-                ))}
-              </div>
-
               <input
                 type="range"
                 min={1}
@@ -291,57 +238,6 @@ export function SetupView({
               </div>
             </div>
 
-            <div>
-              <span className="mb-2 block text-sm font-semibold text-stone-800">
-                طريقة عرض السؤال
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                {DISPLAY_OPTIONS.map((option) => {
-                  const Icon = option.icon;
-                  const isActive = displayMode === option.id;
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      aria-pressed={isActive}
-                      onClick={() => setDisplayMode(option.id)}
-                      className={`rounded-xl border p-2.5 text-right transition ${
-                        isActive
-                          ? 'border-teal-500 bg-teal-50/70'
-                          : 'border-stone-200 bg-white hover:border-teal-300'
-                      }`}
-                    >
-                      <span
-                        className={`mb-1.5 grid h-7 w-7 place-items-center rounded-lg ${
-                          isActive
-                            ? 'bg-teal-700 text-white'
-                            : 'bg-stone-100 text-stone-500'
-                        }`}
-                      >
-                        <Icon className="h-3.5 w-3.5" />
-                      </span>
-                      <span className="block text-xs font-bold text-stone-800">
-                        {option.label}
-                      </span>
-                      <span className="mt-0.5 block text-[10px] leading-4 text-stone-500">
-                        {option.description}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3.5">
-              <Switch
-                id="randomize-question-order"
-                checked={randomizeQuestionOrder}
-                onChange={setRandomizeQuestionOrder}
-                label="ترتيب عشوائي للأسئلة"
-                description="مفعّل افتراضيًا لبعثرة ترتيب الأسئلة بدلًا من ترتيب المصحف، مع الحفاظ على توزيعها العادل."
-              />
-            </div>
-
             <div className="rounded-xl border border-teal-100 bg-teal-50/50 p-3.5 text-xs leading-6 text-teal-900">
               <p className="flex items-center gap-1.5 font-bold">
                 <Sparkles className="h-3.5 w-3.5" />
@@ -350,17 +246,11 @@ export function SetupView({
                   : 'اختر نطاقًا للبدء'}
               </p>
               {canStart ? (
-                <>
-                  <p className="mt-0.5 text-[11px] text-teal-800/80">
-                    {usePageDistribution
-                      ? `توزيع على الصفحات: سؤال من كل ${formatNumber(segmentSize)} صفحة تقريبًا.`
-                      : `توزيع على الآيات: سؤال من كل ${formatNumber(segmentSize)} آية تقريبًا.`}
-                  </p>
-                  <p className="mt-1 text-[10px] font-semibold text-teal-800/75">
-                    {displayMode === 'page' ? 'عرض الصفحة كاملة' : 'عرض آية واحدة'}
-                    {randomizeQuestionOrder ? ' • ترتيب عشوائي' : ' • ترتيب المصحف'}
-                  </p>
-                </>
+                <p className="mt-0.5 text-[11px] text-teal-800/80">
+                  {usePageDistribution
+                    ? `توزيع على الصفحات: سؤال من كل ${formatNumber(segmentSize)} صفحة تقريبًا.`
+                    : `توزيع على الآيات: سؤال من كل ${formatNumber(segmentSize)} آية تقريبًا.`}
+                </p>
               ) : null}
             </div>
 

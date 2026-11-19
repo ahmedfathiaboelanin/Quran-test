@@ -53,6 +53,8 @@ type EngineAction =
   | { type: 'NEXT_AYAH' }
   | { type: 'PREV_AYAH' }
   | { type: 'GO_TO_AYAH'; ayahNumber: number }
+  | { type: 'PREVIOUS_QUESTION' }
+  | { type: 'REPLACE_QUESTION'; question: Question }
   | { type: 'SUBMIT'; evaluation: QuestionEvaluation; finishAfter: boolean }
   | { type: 'FINISH' }
   | {
@@ -129,6 +131,39 @@ function engineReducer(state: EngineState, action: EngineAction): EngineState {
       };
     }
 
+    case 'PREVIOUS_QUESTION': {
+      if (state.currentIndex <= 0) return state;
+      const previousIndex = state.currentIndex - 1;
+      const previousQuestion = state.questions[previousIndex];
+      if (!previousQuestion) return state;
+
+      return {
+        ...state,
+        currentIndex: previousIndex,
+        currentAyahNumber: previousQuestion.startAyah.number,
+        viewedAyahNumbers: [previousQuestion.startAyah.number],
+      };
+    }
+
+    case 'REPLACE_QUESTION': {
+      const replacedQuestion = state.questions[state.currentIndex];
+      if (!replacedQuestion) return state;
+
+      const questions = state.questions.map((question, index) =>
+        index === state.currentIndex ? action.question : question,
+      );
+      const evaluations = { ...state.evaluations };
+      delete evaluations[replacedQuestion.id];
+
+      return {
+        ...state,
+        questions,
+        evaluations,
+        currentAyahNumber: action.question.startAyah.number,
+        viewedAyahNumbers: [action.question.startAyah.number],
+      };
+    }
+
     case 'SUBMIT': {
       const currentQuestion = state.questions[state.currentIndex];
       if (!currentQuestion) return state;
@@ -197,6 +232,7 @@ export interface TestEngine {
   summary: TestSummary;
   canGoNextAyah: boolean;
   canGoPreviousAyah: boolean;
+  canGoPreviousQuestion: boolean;
   isAtQuestionStart: boolean;
   progressPercent: number;
   startTest: (config: TestConfig) => void;
@@ -204,6 +240,8 @@ export interface TestEngine {
   previousAyah: () => void;
   goToAyah: (ayahNumber: number) => void;
   goToQuestionStart: () => void;
+  previousQuestion: () => void;
+  replaceCurrentQuestion: () => void;
   submitEvaluation: (draft: EvaluationDraft, finishAfter?: boolean) => void;
   finishTest: () => void;
   restartSameScope: () => void;
@@ -257,6 +295,69 @@ export function useTestEngine(): TestEngine {
     if (!currentQuestion) return;
     dispatch({ type: 'GO_TO_AYAH', ayahNumber: currentQuestion.startAyah.number });
   }, [currentQuestion]);
+
+  const previousQuestion = useCallback(
+    () => dispatch({ type: 'PREVIOUS_QUESTION' }),
+    [],
+  );
+
+  /**
+   * Swaps the current question for another ayah from the same segment, so the
+   * replacement keeps the same scope and the fair distribution of the test.
+   */
+  const replaceCurrentQuestion = useCallback(() => {
+    const question = state.questions[state.currentIndex];
+    if (!question || !state.config) return;
+
+    const pool = resolveScope(state.config.scope);
+    const segmentPool = pool.filter((ayah) =>
+      question.segment.kind === 'page'
+        ? ayah.page >= question.segment.from && ayah.page <= question.segment.to
+        : ayah.number >= question.segment.from && ayah.number <= question.segment.to,
+    );
+    if (segmentPool.length === 0) return;
+
+    const usedAyahNumbers = new Set(
+      state.questions.map((item) => item.startAyah.number),
+    );
+
+    // Page segments pick a page first, mirroring the original sampling logic.
+    let availableCandidates: typeof segmentPool;
+    if (question.segment.kind === 'page') {
+      const pages = [...new Set(segmentPool.map((ayah) => ayah.page))];
+      const pagesWithFreshAyahs = pages.filter((page) =>
+        segmentPool.some((ayah) => ayah.page === page && !usedAyahNumbers.has(ayah.number)),
+      );
+      const pagePool = pagesWithFreshAyahs.length > 0 ? pagesWithFreshAyahs : pages;
+      const page = pagePool[Math.floor(Math.random() * pagePool.length)];
+      availableCandidates = segmentPool.filter((ayah) => ayah.page === page);
+    } else {
+      availableCandidates = segmentPool;
+    }
+
+    const unusedCandidates = availableCandidates.filter(
+      (ayah) => !usedAyahNumbers.has(ayah.number),
+    );
+    if (unusedCandidates.length > 0) {
+      availableCandidates = unusedCandidates;
+    } else {
+      availableCandidates = availableCandidates.filter(
+        (ayah) => ayah.number !== question.startAyah.number,
+      );
+    }
+    if (availableCandidates.length === 0) return;
+
+    const startAyah =
+      availableCandidates[Math.floor(Math.random() * availableCandidates.length)];
+    const replacement: Question = {
+      id: `q-${question.index + 1}-${startAyah.number}-r${Date.now().toString(36)}`,
+      index: question.index,
+      startAyah,
+      segment: question.segment,
+    };
+
+    dispatch({ type: 'REPLACE_QUESTION', question: replacement });
+  }, [state.config, state.currentIndex, state.questions]);
 
   const reviewedAyahs = useMemo(() => {
     if (state.config?.displayMode !== 'page') return state.viewedAyahNumbers.length;
@@ -356,6 +457,7 @@ export function useTestEngine(): TestEngine {
     summary,
     canGoNextAyah,
     canGoPreviousAyah,
+    canGoPreviousQuestion: state.currentIndex > 0,
     isAtQuestionStart,
     progressPercent,
     startTest,
@@ -363,6 +465,8 @@ export function useTestEngine(): TestEngine {
     previousAyah,
     goToAyah,
     goToQuestionStart,
+    previousQuestion,
+    replaceCurrentQuestion,
     submitEvaluation,
     finishTest,
     restartSameScope,

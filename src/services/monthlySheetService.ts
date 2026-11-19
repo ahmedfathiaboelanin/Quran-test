@@ -30,6 +30,58 @@ export class MonthlySheetServiceError extends Error {
 
 type DbRow = Record<string, unknown>;
 
+const EXAMINEES_CACHE_KEY = 'quran_cached_examinees_v1';
+const SHEETS_CACHE_KEY = 'quran_cached_monthly_sheets_v1';
+
+function readCache<T>(key: string): T[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as T[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeCache<T>(key: string, items: T[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(items));
+  } catch {
+    // Ignore storage quota errors; the cache is only an offline convenience.
+  }
+}
+
+/** Cached examinees let the examiner pick a monthly target while offline. */
+export function getCachedExaminees(): Examinee[] {
+  return readCache<Examinee>(EXAMINEES_CACHE_KEY);
+}
+
+/** Cached monthly sheets let the examiner pick a target while offline. */
+export function getCachedMonthlySheets(): MonthlySheet[] {
+  return readCache<MonthlySheet>(SHEETS_CACHE_KEY);
+}
+
+let lastPickerCacheWarm = 0;
+
+/**
+ * Refreshes the offline picker cache used by the results screen. Failures are
+ * ignored so a flaky connection never blocks the app.
+ */
+export async function cacheMonthlyPickerData(minIntervalMs = 60_000): Promise<void> {
+  if (Date.now() - lastPickerCacheWarm < minIntervalMs) return;
+  lastPickerCacheWarm = Date.now();
+
+  try {
+    await Promise.all([fetchExaminees({ activeOnly: true }), fetchMonthlySheets()]);
+  } catch {
+    // Keep the previous cache when the network is unavailable.
+  }
+}
+
+
 function asNumber(value: unknown): number {
   const parsed = typeof value === 'number' ? value : Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -140,7 +192,9 @@ async function fetchAllExaminees(client: SupabaseClient): Promise<Examinee[]> {
     .order('created_at', { ascending: true });
 
   if (error) raise('تعذّر تحميل المختبَرين.', error);
-  return ((data ?? []) as DbRow[]).map(mapExaminee);
+  const examinees = ((data ?? []) as DbRow[]).map(mapExaminee);
+  writeCache(EXAMINEES_CACHE_KEY, examinees);
+  return examinees;
 }
 
 async function addExamineeToAllSheets(
@@ -184,7 +238,9 @@ export async function fetchExaminees(options: { activeOnly?: boolean } = {}): Pr
 
   const { data, error } = await query;
   if (error) raise('تعذّر تحميل المختبَرين.', error);
-  return ((data ?? []) as DbRow[]).map(mapExaminee);
+  const examinees = ((data ?? []) as DbRow[]).map(mapExaminee);
+  writeCache(EXAMINEES_CACHE_KEY, examinees);
+  return examinees;
 }
 
 export async function createExaminee(input: ExamineeInput): Promise<Examinee> {
@@ -263,7 +319,9 @@ export async function fetchMonthlySheets(): Promise<MonthlySheet[]> {
     .order('created_at', { ascending: false });
 
   if (error) raise('تعذّر تحميل الشهور.', error);
-  return ((data ?? []) as DbRow[]).map(mapMonthlySheet);
+  const sheets = ((data ?? []) as DbRow[]).map(mapMonthlySheet);
+  writeCache(SHEETS_CACHE_KEY, sheets);
+  return sheets;
 }
 
 export async function createMonthlySheet(

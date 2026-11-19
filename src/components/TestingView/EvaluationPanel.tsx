@@ -7,7 +7,7 @@ import {
   CheckCheck,
   ChevronLeft,
   ChevronRight,
-  Clock,
+  ChevronsRight,
   Eye,
   EyeOff,
   FileText,
@@ -16,6 +16,7 @@ import {
   Minus,
   NotebookPen,
   Plus,
+  RefreshCcw,
   RotateCcw,
   SkipForward,
   User,
@@ -23,7 +24,7 @@ import {
 } from 'lucide-react';
 import type { EvaluationDraft } from '../../hooks/useTestEngine';
 import { useDialogFocus } from '../../hooks/useDialogFocus';
-import type { Question } from '../../types';
+import type { Question, QuestionEvaluation } from '../../types';
 import { cn, formatNumber } from '../../utils/helpers';
 import { computeEvaluationPoints, formatPoints } from '../../utils/scoring';
 import { Button } from '../ui/Button';
@@ -51,6 +52,10 @@ interface EvaluationPanelProps {
   viewedAyahs: number;
   totalQuestions?: number;
   studentName?: string;
+  initialEvaluation?: QuestionEvaluation | null;
+  canGoPreviousQuestion?: boolean;
+  onPreviousQuestion?: () => void;
+  onReplaceQuestion?: () => void;
   onEarlyFinish?: () => void;
   onSubmit: (draft: EvaluationDraft, finishAfter?: boolean) => void;
   /** Extra controls shown at the top of the mobile dock. */
@@ -282,7 +287,7 @@ function NoteSheet({ textareaId, value, onChange, onClose }: NoteSheetProps) {
             rows={4}
             autoFocus
             data-autofocus
-            placeholder="مثال: تردد عند الوصل، أو تحسين موضع الوقف..."
+            placeholder="مثال: تحسين موضع الوقف، أو تنبيه على المد..."
             className="mt-3 w-full resize-y rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-base leading-6 text-stone-800 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
           />
 
@@ -438,14 +443,12 @@ interface MobileEvaluationDockProps {
   isLastQuestion: boolean;
   responseMistakes: number;
   promptMistakes: number;
-  hesitations: number;
   note: string;
   totalPoints: number;
   pageNavigation?: MobilePageNavigation;
   onEarlyFinish?: () => void;
   onResponseChange: (value: number) => void;
   onPromptChange: (value: number) => void;
-  onHesitationsChange: (value: number) => void;
   onSave: () => void;
   onSkip: () => void;
   onOpenNote: () => void;
@@ -456,14 +459,12 @@ function MobileEvaluationDock({
   isLastQuestion,
   responseMistakes,
   promptMistakes,
-  hesitations,
   note,
   totalPoints,
   pageNavigation,
   onEarlyFinish,
   onResponseChange,
   onPromptChange,
-  onHesitationsChange,
   onSave,
   onSkip,
   onOpenNote,
@@ -478,15 +479,7 @@ function MobileEvaluationDock({
       <div className="mx-auto w-full max-w-lg">
         {pageNavigation ? <DockPageNavigation navigation={pageNavigation} /> : null}
 
-        <div className="grid grid-cols-2 gap-1.5 min-[360px]:grid-cols-3">
-          <DockCounter
-            label="تردد"
-            pointsLabel="٠٫٢٥"
-            value={hesitations}
-            tone="amber"
-            icon={Clock}
-            onChange={onHesitationsChange}
-          />
+        <div className="grid grid-cols-2 gap-1.5">
           <DockCounter
             label="الرد"
             pointsLabel="١"
@@ -572,8 +565,8 @@ function MobileEvaluationDock({
 
         {pageNavigation ? null : (
           <p className="mt-1 text-center text-[9px] leading-4 text-stone-400">
-            السؤال {formatNumber(question.index + 1)} • الرد = درجة، التنبيه = نصف
-            درجة، والتردد = ربع درجة
+            السؤال {formatNumber(question.index + 1)} • الرد = درجة، والتنبيه = نصف
+            درجة
           </p>
         )}
       </div>
@@ -588,26 +581,33 @@ export function EvaluationPanel({
   viewedAyahs,
   totalQuestions,
   studentName,
+  initialEvaluation,
+  canGoPreviousQuestion,
+  onPreviousQuestion,
+  onReplaceQuestion,
   onEarlyFinish,
   onSubmit,
   mobilePageNavigation,
 }: EvaluationPanelProps) {
-  const [responseMistakes, setResponseMistakes] = useState(0);
-  const [promptMistakes, setPromptMistakes] = useState(0);
-  const [hesitations, setHesitations] = useState(0);
-  const [note, setNote] = useState('');
+  const [responseMistakes, setResponseMistakes] = useState(
+    initialEvaluation?.responseMistakes ?? 0,
+  );
+  const [promptMistakes, setPromptMistakes] = useState(
+    initialEvaluation?.promptMistakes ?? 0,
+  );
+  const [note, setNote] = useState(initialEvaluation?.note ?? '');
   const [noteOpen, setNoteOpen] = useState(false);
 
   const totalPoints = computeEvaluationPoints({
     responseMistakes,
     promptMistakes,
-    hesitations,
+    hesitations: 0,
   });
 
   const draft: EvaluationDraft = {
     responseMistakes,
     promptMistakes,
-    hesitations,
+    hesitations: 0,
     note,
   };
 
@@ -651,9 +651,6 @@ export function EvaluationPanel({
       } else if (e.key === '2') {
         e.preventDefault();
         setPromptMistakes((v) => Math.min(99, v + 1));
-      } else if (e.key === '3') {
-        e.preventDefault();
-        setHesitations((v) => Math.min(99, v + 1));
       } else if (e.key === 'Enter') {
         e.preventDefault();
         onSubmit(draft, false);
@@ -687,6 +684,17 @@ export function EvaluationPanel({
             <span className="rounded-full bg-stone-100 px-2.5 py-1 text-[10px] font-semibold text-stone-500">
               {formatNumber(viewedAyahs)} آية مفتوحة
             </span>
+            {onPreviousQuestion ? (
+              <button
+                type="button"
+                onClick={onPreviousQuestion}
+                disabled={!canGoPreviousQuestion}
+                className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ChevronsRight className="h-3 w-3" />
+                السؤال السابق
+              </button>
+            ) : null}
             {mobilePageNavigation?.onGoToStart ? (
               <button
                 type="button"
@@ -696,6 +704,16 @@ export function EvaluationPanel({
               >
                 <RotateCcw className="h-3 w-3" />
                 بداية السؤال
+              </button>
+            ) : null}
+            {onReplaceQuestion ? (
+              <button
+                type="button"
+                onClick={onReplaceQuestion}
+                className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800"
+              >
+                <RefreshCcw className="h-3 w-3" />
+                سؤال آخر
               </button>
             ) : null}
           </div>
@@ -739,7 +757,6 @@ export function EvaluationPanel({
                 onClick={() => {
                   setResponseMistakes(0);
                   setPromptMistakes(0);
-                  setHesitations(0);
                 }}
                 className="rounded-lg px-2 py-1 text-[11px] font-semibold text-stone-500 hover:bg-stone-100 hover:text-stone-800"
               >
@@ -749,7 +766,7 @@ export function EvaluationPanel({
           </div>
 
           {/* أزرار سريعة بنقرة واحدة */}
-          <div className="mb-3 grid grid-cols-3 gap-1.5">
+          <div className="mb-3 grid grid-cols-2 gap-1.5">
             <button
               type="button"
               onClick={() => setResponseMistakes((v) => Math.min(99, v + 1))}
@@ -769,27 +786,9 @@ export function EvaluationPanel({
               <span>+٠٫٥ تنبيه</span>
               <kbd className="hidden text-[10px] opacity-60 sm:inline">[2]</kbd>
             </button>
-
-            <button
-              type="button"
-              onClick={() => setHesitations((v) => Math.min(99, v + 1))}
-              className="flex items-center justify-center gap-1 rounded-xl border border-amber-200 bg-amber-50/80 py-2 text-xs font-bold text-amber-700 transition hover:bg-amber-100 active:scale-95 shadow-2xs"
-              title="تسجيل تردد (+٠٫٢٥ درجة) — مفتاح [3]"
-            >
-              <span>+٠٫٢٥ تردد</span>
-              <kbd className="hidden text-[10px] opacity-60 sm:inline">[3]</kbd>
-            </button>
           </div>
 
           <div className="space-y-2">
-            <MistakeCounter
-              label="تردد"
-              hint="ربع درجة لكل تردد"
-              value={hesitations}
-              tone="amber"
-              icon={Clock}
-              onChange={setHesitations}
-            />
             <MistakeCounter
               label="الرد"
               hint="درجة واحدة لكل رد خاطئ"
@@ -812,8 +811,8 @@ export function EvaluationPanel({
         <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-teal-50/70 p-2.5 text-[10px] leading-5 text-teal-900">
           <Info className="mt-0.5 h-3 w-3 shrink-0" />
           التقييم بيد المختبر: الدرجة تعبّر عن الأخطاء وليست عن الإجابات الصحيحة.
-          كل رد خاطئ = درجة، وكل تنبيه = نصف درجة، وكل تردد = ربع درجة. إذا لم
-          تسجّل أي خطأ ستكون الدرجة ٠.
+          كل رد خاطئ = درجة، وكل تنبيه = نصف درجة. إذا لم تسجّل أي خطأ ستكون
+          الدرجة ٠.
         </p>
 
         <div className="mt-4">
@@ -830,7 +829,7 @@ export function EvaluationPanel({
             value={note}
             onChange={(event) => setNote(event.target.value)}
             rows={3}
-            placeholder="مثال: تردد عند الوصل، أو تحسين موضع الوقف..."
+            placeholder="مثال: تحسين موضع الوقف، أو تنبيه على المد..."
             className="w-full resize-y rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm leading-6 text-stone-800 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
           />
         </div>
@@ -868,14 +867,12 @@ export function EvaluationPanel({
         isLastQuestion={isLastQuestion}
         responseMistakes={responseMistakes}
         promptMistakes={promptMistakes}
-        hesitations={hesitations}
         note={note}
         totalPoints={totalPoints}
         pageNavigation={mobilePageNavigation}
         onEarlyFinish={onEarlyFinish}
         onResponseChange={setResponseMistakes}
         onPromptChange={setPromptMistakes}
-        onHesitationsChange={setHesitations}
         onSave={() => onSubmit(draft, false)}
         onSkip={handleSkip}
         onOpenNote={() => setNoteOpen(true)}

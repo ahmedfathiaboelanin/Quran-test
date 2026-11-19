@@ -11,6 +11,7 @@ import {
   Plus,
   RefreshCcw,
   UserPlus,
+  WifiOff,
 } from 'lucide-react';
 import { isSupabaseConfigured } from '../../lib/supabase';
 import {
@@ -18,8 +19,15 @@ import {
   fetchExaminees,
   fetchMonthlyRecord,
   fetchMonthlySheets,
+  getCachedExaminees,
+  getCachedMonthlySheets,
   saveTestScore,
 } from '../../services/monthlySheetService';
+import {
+  enqueuePendingTestSave,
+  isNetworkFailure,
+} from '../../services/pendingTestSaves';
+import { usePendingTestSaves } from '../../hooks/usePendingTestSaves';
 import type { TestSummary } from '../../types';
 import type {
   Examinee,
@@ -63,10 +71,12 @@ export function SaveTestToSheet({
 }: SaveTestToSheetProps) {
   const ids = useId();
   const { isAdmin, setLoginOpen } = useAuth();
+  const pendingSaves = usePendingTestSaves();
   const [examinees, setExaminees] = useState<Examinee[]>([]);
   const [sheets, setSheets] = useState<MonthlySheet[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [usingCachedPicker, setUsingCachedPicker] = useState(false);
   const [selectedExamineeId, setSelectedExamineeId] = useState('');
   const [selectedSheetId, setSelectedSheetId] = useState('');
   const [slot, setSlot] = useState<SheetSlot>('week_1');
@@ -87,40 +97,54 @@ export function SaveTestToSheet({
   const loadPicker = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
+
+    let nextExaminees: Examinee[];
+    let nextSheets: MonthlySheet[];
+    let fromCache = false;
+
     try {
-      const [nextExaminees, nextSheets] = await Promise.all([
+      [nextExaminees, nextSheets] = await Promise.all([
         fetchExaminees({ activeOnly: true }),
         fetchMonthlySheets(),
       ]);
-
-      setExaminees(nextExaminees);
-      setSheets(nextSheets);
-      setShowAdd(nextExaminees.length === 0);
-      setSelectedExamineeId((current) => {
-        if (current && nextExaminees.some((examinee) => examinee.id === current)) {
-          return current;
-        }
-        const requestedName = initialExamineeName?.trim();
-        const matched =
-          (initialExamineeId
-            ? nextExaminees.find((examinee) => examinee.id === initialExamineeId)
-            : null) ??
-          (requestedName
-            ? nextExaminees.find((examinee) => examinee.name.trim() === requestedName)
-            : null);
-        return matched?.id ?? nextExaminees[0]?.id ?? '';
-      });
-      setSelectedSheetId((current) => {
-        if (current && nextSheets.some((sheet) => sheet.id === current)) {
-          return current;
-        }
-        return nextSheets[0]?.id ?? '';
-      });
     } catch (loadFailure) {
-      setLoadError(errorMessage(loadFailure));
-    } finally {
-      setLoading(false);
+      const cachedExaminees = getCachedExaminees();
+      const cachedSheets = getCachedMonthlySheets();
+      if (cachedExaminees.length === 0 || cachedSheets.length === 0) {
+        setLoadError(errorMessage(loadFailure));
+        setLoading(false);
+        return;
+      }
+      nextExaminees = cachedExaminees;
+      nextSheets = cachedSheets;
+      fromCache = true;
     }
+
+    setExaminees(nextExaminees);
+    setSheets(nextSheets);
+    setUsingCachedPicker(fromCache);
+    setShowAdd(nextExaminees.length === 0);
+    setSelectedExamineeId((current) => {
+      if (current && nextExaminees.some((examinee) => examinee.id === current)) {
+        return current;
+      }
+      const requestedName = initialExamineeName?.trim();
+      const matched =
+        (initialExamineeId
+          ? nextExaminees.find((examinee) => examinee.id === initialExamineeId)
+          : null) ??
+        (requestedName
+          ? nextExaminees.find((examinee) => examinee.name.trim() === requestedName)
+          : null);
+      return matched?.id ?? nextExaminees[0]?.id ?? '';
+    });
+    setSelectedSheetId((current) => {
+      if (current && nextSheets.some((sheet) => sheet.id === current)) {
+        return current;
+      }
+      return nextSheets[0]?.id ?? '';
+    });
+    setLoading(false);
   }, [initialExamineeId, initialExamineeName]);
 
   useEffect(() => {
@@ -190,22 +214,43 @@ export function SaveTestToSheet({
   const persist = async () => {
     if (!canSave) return;
 
+    const target = {
+      sheetId: selectedSheetId,
+      examineeId: selectedExamineeId,
+      slot,
+      score: summary.totalPoints,
+    };
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      enqueuePendingTestSave(target);
+      setToast({
+        message:
+          'لا يوجد اتصال — حُفظت النتيجة محليًا وستُزامن تلقائيًا عند عودة الإنترنت.',
+        tone: 'success',
+      });
+      return;
+    }
+
     setSaving(true);
     setToast(null);
     try {
-      const saved = await saveTestScore({
-        sheetId: selectedSheetId,
-        examineeId: selectedExamineeId,
-        slot,
-        score: summary.totalPoints,
-      });
+      const saved = await saveTestScore(target);
       setRecord(saved);
       setToast({
         message: `تم حفظ ${formatNumber(summary.totalPoints)} درجة في ${SHEET_SLOT_LABELS[slot]}.`,
         tone: 'success',
       });
     } catch (saveFailure) {
-      setToast({ message: errorMessage(saveFailure), tone: 'error' });
+      if (isNetworkFailure(saveFailure)) {
+        enqueuePendingTestSave(target);
+        setToast({
+          message:
+            'تعذّر الوصول للشبكة — حُفظت النتيجة محليًا وستُزامن تلقائيًا عند عودة الإنترنت.',
+          tone: 'success',
+        });
+      } else {
+        setToast({ message: errorMessage(saveFailure), tone: 'error' });
+      }
     } finally {
       setSaving(false);
     }
@@ -271,6 +316,12 @@ export function SaveTestToSheet({
           </div>
 
           <div className="flex items-center gap-2">
+            {pendingSaves > 0 ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-800">
+                <WifiOff className="h-3 w-3" />
+                {formatNumber(pendingSaves)} بانتظار المزامنة
+              </span>
+            ) : null}
             <span className="inline-flex items-center gap-1 rounded-full border border-teal-200 bg-white/80 px-2.5 py-1 text-[10px] font-bold text-teal-800">
               <CloudUpload className="h-3 w-3" />
               Supabase
@@ -289,6 +340,26 @@ export function SaveTestToSheet({
         </div>
 
         <div className="p-5">
+          {usingCachedPicker ? (
+            <div className="mb-4 flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50/70 px-3.5 py-2.5 text-[11px] leading-5 text-amber-800">
+              <WifiOff className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <p>
+                لا يوجد اتصال — تُعرض بيانات محفوظة محليًا. يمكنك حفظ النتيجة الآن
+                وستُزامن تلقائيًا عند عودة الإنترنت.
+              </p>
+            </div>
+          ) : null}
+
+          {pendingSaves > 0 ? (
+            <div className="mb-4 flex items-start gap-2 rounded-2xl border border-teal-200 bg-teal-50/70 px-3.5 py-2.5 text-[11px] leading-5 text-teal-900">
+              <CloudUpload className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-700" />
+              <p>
+                توجد {formatNumber(pendingSaves)} نتيجة محفوظة محليًا بانتظار
+                الاتصال. ستُحفظ في قاعدة البيانات تلقائيًا بمجرد عودة الإنترنت.
+              </p>
+            </div>
+          ) : null}
+
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-8 text-sm font-semibold text-stone-500">
               <LoaderCircle className="h-4 w-4 animate-spin text-teal-600" />
@@ -542,7 +613,7 @@ export function SaveTestToSheet({
                     <span className="text-sm font-bold text-stone-500">درجة</span>
                   </p>
                   <p className="mt-0.5 text-[10px] leading-4 text-stone-400">
-                    إجمالي درجات الأخطاء المحسوبة في الاختبار (الردود الخاطئة + التنبيهات + الترددات).
+                    إجمالي درجات الأخطاء المحسوبة في الاختبار (الردود الخاطئة + التنبيهات).
                   </p>
                 </div>
 

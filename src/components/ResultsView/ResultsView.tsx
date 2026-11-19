@@ -621,10 +621,12 @@ ${questionsDetails}`;
                 <span className="h-2 w-2 rounded-full bg-violet-500" />
                 التنبيهات
               </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-amber-400" />
-                التردد
-              </span>
+              {hesitationPoints > 0 ? (
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-amber-400" />
+                  التردد
+                </span>
+              ) : null}
             </div>
           </div>
         ) : (
@@ -633,7 +635,12 @@ ${questionsDetails}`;
           </p>
         )}
 
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div
+          className={cn(
+            'grid gap-2',
+            summary.hesitations > 0 ? 'sm:grid-cols-3' : 'sm:grid-cols-2',
+          )}
+        >
           <div className="rounded-xl border border-rose-100 bg-rose-50/50 p-3">
             <p className="flex items-center gap-1.5 text-xs font-bold text-rose-800">
               <TriangleAlert className="h-3.5 w-3.5" />
@@ -662,19 +669,21 @@ ${questionsDetails}`;
             </p>
           </div>
 
-          <div className="rounded-xl border border-amber-100 bg-amber-50/50 p-3">
-            <p className="flex items-center gap-1.5 text-xs font-bold text-amber-800">
-              <Clock className="h-3.5 w-3.5" />
-              التردد
-            </p>
-            <p className="mt-1 text-xl font-bold tabular-nums text-amber-900">
-              {formatNumber(summary.hesitations)}
-            </p>
-            <p className="text-[10px] text-stone-500">
-              {formatNumber(summary.hesitations)} × ربع درجة ={' '}
-              {formatPoints(hesitationPoints)} درجة
-            </p>
-          </div>
+          {summary.hesitations > 0 ? (
+            <div className="rounded-xl border border-amber-100 bg-amber-50/50 p-3">
+              <p className="flex items-center gap-1.5 text-xs font-bold text-amber-800">
+                <Clock className="h-3.5 w-3.5" />
+                التردد
+              </p>
+              <p className="mt-1 text-xl font-bold tabular-nums text-amber-900">
+                {formatNumber(summary.hesitations)}
+              </p>
+              <p className="text-[10px] text-stone-500">
+                {formatNumber(summary.hesitations)} × ربع درجة ={' '}
+                {formatPoints(hesitationPoints)} درجة
+              </p>
+            </div>
+          ) : null}
         </div>
       </section>
 

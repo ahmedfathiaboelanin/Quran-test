@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Eye, EyeOff, Info, Keyboard, ListChecks, LogOut } from 'lucide-react';
+import { Eye, EyeOff, RefreshCcw, ChevronsRight, Info, Keyboard, ListChecks, LogOut } from 'lucide-react';
 import type { TestEngine } from '../../hooks/useTestEngine';
 import type { QuestionDisplayMode } from '../../types';
 import { getPageAyahs, getPageFirstAyah } from '../../utils/quranHelpers';
@@ -43,12 +43,15 @@ export function TestingView({ engine }: TestingViewProps) {
     viewedAyahs,
     canGoNextAyah,
     canGoPreviousAyah,
+    canGoPreviousQuestion,
     isAtQuestionStart,
     progressPercent,
     nextAyah,
     previousAyah,
     goToAyah,
     goToQuestionStart,
+    previousQuestion,
+    replaceCurrentQuestion,
     submitEvaluation,
     finishTest,
   } = engine;
@@ -147,77 +150,101 @@ export function TestingView({ engine }: TestingViewProps) {
       className="space-y-4 pb-[calc(17rem+env(safe-area-inset-bottom))] sm:space-y-5 sm:pb-[calc(13rem+env(safe-area-inset-bottom))] lg:pb-0"
     >
       <section
-        className="flex items-center gap-3 rounded-2xl border border-stone-200/80 bg-white/85 px-3.5 py-3 shadow-sm shadow-stone-900/[0.03] backdrop-blur sm:px-4"
+        className="rounded-2xl border border-stone-200/80 bg-white/85 px-3.5 py-3 shadow-sm shadow-stone-900/[0.03] backdrop-blur sm:px-4"
         aria-label="حالة الاختبار"
       >
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-teal-700 text-white shadow-sm shadow-teal-900/20">
-          <ListChecks className="h-5 w-5" />
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-teal-700 text-white shadow-sm shadow-teal-900/20">
+            <ListChecks className="h-5 w-5" />
+          </span>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-3">
-            <p
-              className="truncate text-xs font-bold text-stone-900 sm:text-sm"
-              aria-live="polite"
-            >
-              السؤال {formatNumber(currentIndex + 1)} من{' '}
-              {formatNumber(totalQuestions)}
-            </p>
-            <span className="hidden shrink-0 text-[10px] font-semibold text-stone-500 sm:inline">
-              {remainingQuestions > 0
-                ? `متبقي ${formatNumber(remainingQuestions)} سؤال`
-                : 'السؤال الأخير'}
-            </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-3">
+              <p
+                className="truncate text-xs font-bold text-stone-900 sm:text-sm"
+                aria-live="polite"
+              >
+                السؤال {formatNumber(currentIndex + 1)} من{' '}
+                {formatNumber(totalQuestions)}
+              </p>
+              <span className="hidden shrink-0 text-[10px] font-semibold text-stone-500 sm:inline">
+                {remainingQuestions > 0
+                  ? `متبقي ${formatNumber(remainingQuestions)} سؤال`
+                  : 'السؤال الأخير'}
+              </span>
+            </div>
+            <ProgressBar
+              value={progressPercent}
+              className="mt-1.5 h-2"
+              label="تقدم الاختبار"
+            />
           </div>
-          <ProgressBar
-            value={progressPercent}
-            className="mt-1.5 h-2"
-            label="تقدم الاختبار"
-          />
+
+          <div className="flex shrink-0 items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setHideText((current) => !current)}
+              className={cn(
+                'inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border px-2.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
+                hideText
+                  ? 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300'
+                  : 'border-stone-200 bg-white text-stone-500 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800',
+              )}
+              aria-label={hideText ? 'إظهار النص' : 'إخفاء النص'}
+              title={hideText ? 'إظهار النص [H]' : 'إخفاء النص [H]'}
+            >
+              {hideText ? (
+                <Eye className="h-4 w-4" />
+              ) : (
+                <EyeOff className="h-4 w-4" />
+              )}
+              <span className="hidden text-[10px] font-bold sm:inline">
+                {hideText ? 'إظهار النص' : 'إخفاء النص'}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShortcutsOpen(true)}
+              className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+              aria-label="عرض اختصارات لوحة المفاتيح"
+              title="اختصارات لوحة المفاتيح [؟]"
+            >
+              <Keyboard className="h-4 w-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleEarlyFinish}
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-2.5 text-rose-700 transition hover:border-rose-300 hover:bg-rose-100 hover:text-rose-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300"
+              aria-label="إنهاء مبكر"
+              title="إنهاء الاختبار مبكرًا وعرض النتائج"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden text-[10px] font-bold sm:inline">إنهاء مبكر</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1.5">
+        <div className="mt-2 flex items-center gap-1.5 lg:hidden">
           <button
             type="button"
-            onClick={() => setHideText((current) => !current)}
-            className={cn(
-              'inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border px-2.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
-              hideText
-                ? 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300'
-                : 'border-stone-200 bg-white text-stone-500 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800',
-            )}
-            aria-label={hideText ? 'إظهار النص' : 'إخفاء النص'}
-            title={hideText ? 'إظهار النص [H]' : 'إخفاء النص [H]'}
+            onClick={previousQuestion}
+            disabled={!canGoPreviousQuestion}
+            className="inline-flex min-h-8 flex-1 items-center justify-center gap-1 rounded-lg border border-stone-200 bg-white px-2 text-[10px] font-semibold text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 disabled:cursor-not-allowed disabled:opacity-30"
+            aria-label="العودة إلى السؤال السابق"
           >
-            {hideText ? (
-              <Eye className="h-4 w-4" />
-            ) : (
-              <EyeOff className="h-4 w-4" />
-            )}
-            <span className="hidden text-[10px] font-bold sm:inline">
-              {hideText ? 'إظهار النص' : 'إخفاء النص'}
-            </span>
+            <ChevronsRight className="h-3 w-3" />
+            السؤال السابق
           </button>
-
           <button
             type="button"
-            onClick={() => setShortcutsOpen(true)}
-            className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-            aria-label="عرض اختصارات لوحة المفاتيح"
-            title="اختصارات لوحة المفاتيح [؟]"
+            onClick={replaceCurrentQuestion}
+            className="inline-flex min-h-8 flex-1 items-center justify-center gap-1 rounded-lg border border-stone-200 bg-white px-2 text-[10px] font-semibold text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800"
+            aria-label="استبدال السؤال الحالي بآخر من نفس النطاق"
           >
-            <Keyboard className="h-4 w-4" />
-          </button>
-
-          <button
-            type="button"
-            onClick={handleEarlyFinish}
-            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-2.5 text-rose-700 transition hover:border-rose-300 hover:bg-rose-100 hover:text-rose-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300"
-            aria-label="إنهاء مبكر"
-            title="إنهاء الاختبار مبكرًا وعرض النتائج"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden text-[10px] font-bold sm:inline">إنهاء مبكر</span>
+            <RefreshCcw className="h-3 w-3" />
+            سؤال آخر
           </button>
         </div>
       </section>
@@ -257,6 +284,10 @@ export function TestingView({ engine }: TestingViewProps) {
             viewedAyahs={viewedAyahs}
             totalQuestions={totalQuestions}
             studentName={engine.config?.studentName}
+            initialEvaluation={engine.evaluations[currentQuestion.id] ?? null}
+            canGoPreviousQuestion={canGoPreviousQuestion}
+            onPreviousQuestion={previousQuestion}
+            onReplaceQuestion={replaceCurrentQuestion}
             onEarlyFinish={handleEarlyFinish}
             onSubmit={submitEvaluation}
             mobilePageNavigation={{

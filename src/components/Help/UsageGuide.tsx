@@ -2,7 +2,6 @@ import {
   AlertCircle,
   BookOpen,
   CheckCheck,
-  Clock,
   ListChecks,
   Play,
   SlidersHorizontal,
@@ -18,19 +17,19 @@ const STEPS = [
   {
     title: 'اضبط الاختبار',
     description:
-      'اختر عدد الأسئلة، وحدد عرض آية واحدة أو الصفحة كاملة. الترتيب العشوائي مفعّل افتراضيًا ويمكن إيقافه. ويمكنك تبديل الوضع الفاتح/الداكن من زر الشمس أو القمر بالأعلى.',
+      'اختر عدد الأسئلة، ويُعرض السؤال كآية واحدة مع إمكانية التنقل بين الآيات، وترتيب الأسئلة عشوائي افتراضيًا. ويمكنك تبديل الوضع الفاتح/الداكن من زر الشمس أو القمر بالأعلى.',
     icon: SlidersHorizontal,
   },
   {
     title: 'ابدأ التسميع',
     description:
-      'اقرأ الآية أو الصفحة كاملة، وتنقّل بين الآيات أو الصفحات، وأظهر النص أو أخفه أثناء التسميع. وفي وضع الصفحة كاملة تبقى أزرار الصفحة السابقة والتالية وعداد الأسئلة ظاهرة في شريط التقييم السفلي على الهاتف.',
+      'اقرأ الآية، وتنقّل بين الآيات، وأظهر النص أو أخفه أثناء التسميع. يمكنك الرجوع للسؤال السابق أو استبدال السؤال الحالي بآخر من نفس النطاق.',
     icon: Play,
   },
   {
     title: 'قيّم بالدرجات',
     description:
-      'سجّل الترددات والردود الخاطئة والتنبيهات من شريط التقييم السفلي على الهاتف: الرد = درجة، والتنبيه = نصف درجة، والتردد = ربع درجة.',
+      'سجّل الردود الخاطئة والتنبيهات من شريط التقييم السفلي على الهاتف: الرد = درجة، والتنبيه = نصف درجة.',
     icon: CheckCheck,
   },
   {
@@ -81,10 +80,6 @@ export function UsageGuide() {
 
       <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-white/80 p-3 text-[10px] leading-5 ring-1 ring-teal-100">
         <span className="font-bold text-stone-700">حساب الدرجة:</span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-800">
-          <Clock className="h-3 w-3" />
-          تردد = ربع درجة
-        </span>
         <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 font-semibold text-rose-800">
           <AlertCircle className="h-3 w-3" />
           رد خاطئ = درجة

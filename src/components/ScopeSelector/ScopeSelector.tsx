@@ -51,6 +51,8 @@ const TABS: Array<{
   { id: 'ranges', label: 'نطاقات مخصصة', icon: ListFilter },
 ];
 
+const QUICK_PRESETS = SCOPE_PRESETS.filter((preset) => preset.id === 'mufassal');
+
 export function ScopeSelector({
   surahs,
   juzSummaries,
@@ -74,7 +76,7 @@ export function ScopeSelector({
 
   const activePresets = useMemo(() => {
     const active: Record<string, boolean> = {};
-    for (const preset of SCOPE_PRESETS) {
+    for (const preset of QUICK_PRESETS) {
       const presetAyahs = resolveScope(preset.selection);
       active[preset.id] =
         presetAyahs.length > 0 &&
@@ -84,7 +86,7 @@ export function ScopeSelector({
   }, [selectedAyahs]);
 
   const applyPreset = (presetId: string) => {
-    const preset = SCOPE_PRESETS.find((item) => item.id === presetId);
+    const preset = QUICK_PRESETS.find((item) => item.id === presetId);
     if (!preset) return;
 
     if (activePresets[preset.id]) {
@@ -125,8 +127,8 @@ export function ScopeSelector({
             <h2 className="mt-1 text-xl font-bold text-stone-900">نطاق الاختبار</h2>
             <p className="mt-1 max-w-2xl text-xs leading-6 text-stone-500">
               يمكنك الجمع بين أكثر من نطاق — ستُدمج الاختيارات وتُحذف التكرارات
-              تلقائيًا قبل توزيع الأسئلة. الاختيارات السريعة تُضاف إلى نطاقك
-              الحالي بدلًا من استبداله.
+              تلقائيًا قبل توزيع الأسئلة. الاختيار السريع يُضاف إلى نطاقك الحالي
+              بدلًا من استبداله.
             </p>
           </div>
           <button
@@ -142,13 +144,13 @@ export function ScopeSelector({
         <div className="mt-4">
           <span className="mb-2 inline-flex items-center gap-1.5 text-[11px] font-bold text-stone-500">
             <Wand2 className="h-3.5 w-3.5 text-amber-500" />
-            اختيارات سريعة
+            اختيار سريع
             <span className="font-normal text-stone-400">
-              — اضغط لإضافة الاختيار إلى النطاق الحالي
+              — اضغط لإضافته إلى النطاق الحالي
             </span>
           </span>
           <div className="flex flex-wrap gap-2">
-            {SCOPE_PRESETS.map((preset) => {
+            {QUICK_PRESETS.map((preset) => {
               const isActive = activePresets[preset.id] ?? false;
               return (
                 <button

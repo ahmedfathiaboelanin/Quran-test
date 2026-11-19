@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Database, ShieldCheck, WifiOff } from 'lucide-react';
 import { useOfflineData } from './hooks/useOfflineData';
+import { usePendingTestSaves } from './hooks/usePendingTestSaves';
 import { useTestEngine } from './hooks/useTestEngine';
 import { useTheme } from './hooks/useTheme';
 import { AppHeader } from './components/Layout/AppHeader';
@@ -21,6 +22,7 @@ function AppContent() {
   const data = useOfflineData();
   const engine = useTestEngine();
   const theme = useTheme();
+  usePendingTestSaves();
   const { loginOpen, setLoginOpen } = useAuth();
   const [helpOpen, setHelpOpen] = useState(false);
   const [workspace, setWorkspace] = useState<Workspace>('test');
