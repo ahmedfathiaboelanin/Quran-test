@@ -67,8 +67,8 @@ export function AppHeader({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h1 className="truncate text-xl font-bold leading-tight text-stone-900 sm:text-[1.35rem]">
-                <span className="sm:hidden">اختبار الحفظ</span>
-                <span className="hidden sm:inline">اختبار حفظ القرآن الكريم</span>
+                <span className="sm:hidden">اختبار القرآن</span>
+                <span className="hidden sm:inline">اختبار القرآن الكريم</span>
               </h1>
               {phase === 'running' ? (
                 <span className="hidden items-center gap-1 rounded-md border border-teal-200 bg-teal-50/80 px-2 py-0.5 text-[10px] font-bold text-teal-800 sm:inline-flex dark:bg-teal-950/60 dark:text-teal-300">

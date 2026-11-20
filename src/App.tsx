@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Database, ShieldCheck, WifiOff } from 'lucide-react';
+import { WifiOff } from 'lucide-react';
 import { useOfflineData } from './hooks/useOfflineData';
 import { usePendingTestSaves } from './hooks/usePendingTestSaves';
 import { useTestEngine } from './hooks/useTestEngine';
@@ -16,7 +16,6 @@ import { LoginModal } from './components/Auth/LoginModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { isSupabaseConfigured } from './lib/supabase';
 import type { TestConfig } from './types';
-import { formatNumber } from './utils/helpers';
 
 function AppContent() {
   const data = useOfflineData();
@@ -113,23 +112,6 @@ function AppContent() {
         </div>
       </main>
 
-      <footer className="mx-auto w-full max-w-7xl px-4 pb-6 pt-2 sm:px-6 lg:px-8 print:hidden">
-        <div className="flex flex-col items-center justify-between gap-2 border-t border-stone-300/60 pt-4 text-[10px] text-stone-400 sm:flex-row">
-          <p className="inline-flex items-center gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5 text-teal-600" />
-            {isSupabaseConfigured
-              ? 'الاختبار يعمل محليًا، وتُحفظ المتابعة الشهرية في Supabase عند استخدامها.'
-              : 'خصوصية كاملة: لا تُرسل أي بيانات، ولا تُجرى أي طلبات شبكة أثناء الاستخدام.'}
-          </p>
-          <p className="inline-flex items-center gap-1.5">
-            <Database className="h-3.5 w-3.5" />
-            {formatNumber(data.dataStats.surahs)} سورة •{' '}
-            {formatNumber(data.dataStats.ayaat)} آية •{' '}
-            {formatNumber(data.dataStats.pages)} صفحة •{' '}
-            {formatNumber(data.dataStats.juz)} جزءًا
-          </p>
-        </div>
-      </footer>
 
       {helpOpen ? <UsageGuideModal onClose={() => setHelpOpen(false)} /> : null}
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />

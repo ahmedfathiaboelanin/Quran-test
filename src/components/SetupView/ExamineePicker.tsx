@@ -357,12 +357,13 @@ export function ExamineePicker({
       ) : null}
 
       <p className="mt-1.5 text-[10px] leading-5 text-stone-400">
-        {value.studentName
+        {/* {value.studentName
           ? `سيُستخدم «${value.studentName}» تلقائيًا عند حفظ النتيجة في الشهرية.`
           : 'اختر مختبَرًا موجودًا أو أضف واحدًا جديدًا لمتابعة نتيجته شهريًا. يُحسب المبلغ تلقائيًا من الدرجات.'}
         {examinees.length > 0
           ? ` المتاح: ${formatNumber(examinees.length)} مختبَر نشط.`
-          : ''}
+          : ''} */}
+        اختر مختبَرًا موجودًا أو أضف واحدًا جديدًا لمتابعة نتيجته شهريًا
       </p>
     </div>
   );

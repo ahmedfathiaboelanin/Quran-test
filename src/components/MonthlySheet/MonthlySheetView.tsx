@@ -402,7 +402,7 @@ export function MonthlySheetView() {
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-teal-200 bg-teal-50/70 px-4 py-3 text-xs text-teal-950">
                 <div className="flex items-center gap-2">
                   <ShieldAlert className="h-4 w-4 shrink-0 text-teal-700" />
-                  <p>
+                        <p className='text-teal-700'>
                     أنت في <strong>وضع المعاينة (القراءة فقط)</strong>. سجّل الدخول كمدير لتعديل درجات الجدول، أو كمختبَر لعرض صفك.
                   </p>
                 </div>

@@ -354,7 +354,7 @@ export function SetupView({
                 title="الانتقال لإعدادات الاختبار"
               >
                 <SlidersHorizontal className="h-3.5 w-3.5 text-amber-400" />
-                <span className="hidden sm:inline">الإعدادات</span>
+                <span className="hidden sm:inline text-amber-400">الإعدادات</span>
               </button>
 
               <Button

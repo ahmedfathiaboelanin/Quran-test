@@ -54,10 +54,10 @@ export function WorkspaceNav({ active, onChange }: WorkspaceNavProps) {
           })}
         </div>
 
-        <p className="hidden items-center gap-1.5 text-[10px] font-medium text-stone-400 sm:flex">
+        {/* <p className="hidden items-center gap-1.5 text-[10px] font-medium text-stone-400 sm:flex">
           <span className="h-1 w-1 rounded-full bg-amber-500/70" />
           الاختبار محلي · المتابعة الشهرية عبر Supabase
-        </p>
+        </p> */}
       </div>
     </nav>
   );

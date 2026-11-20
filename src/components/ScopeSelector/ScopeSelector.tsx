@@ -150,9 +150,6 @@ export function ScopeSelector({
           <span className="mb-2 inline-flex items-center gap-1.5 text-[11px] font-bold text-stone-600">
             <Wand2 className="h-3.5 w-3.5 text-amber-600" />
             اختيار سريع
-            <span className="font-normal text-stone-400">
-              — اضغط لإضافته إلى النطاق الحالي
-            </span>
           </span>
           <div className="flex flex-wrap gap-2">
             {QUICK_PRESETS.map((preset) => {
@@ -185,10 +182,10 @@ export function ScopeSelector({
               );
             })}
           </div>
-          <p className="mt-2 text-[11px] leading-5 text-stone-400">
+          {/* <p className="mt-2 text-[11px] leading-5 text-stone-400">
             مثال: أضف «المفصل» ثم فعّل نطاق صفحات «النصف الأول» — سيُختبر
             المجموع دون تكرار.
-          </p>
+          </p> */}
         </div>
       </div>
 
