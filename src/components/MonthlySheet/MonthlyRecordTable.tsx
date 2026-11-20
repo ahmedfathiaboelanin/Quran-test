@@ -66,7 +66,7 @@ export function MonthlyRecordTable({
 }: MonthlyRecordTableProps) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-stone-300 bg-[#fffdf7]/70 px-5 py-12 text-center">
+      <div className="rounded-xl border border-dashed border-stone-300 bg-[#fbf7ee]/70 px-5 py-12 text-center">
         <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-teal-100 text-teal-800">
           <UsersRound className="h-7 w-7" />
         </span>
@@ -89,8 +89,8 @@ export function MonthlyRecordTable({
   const weekSlots = hasFifthWeek ? WEEK_SLOTS : WEEK_SLOTS.slice(0, 4);
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-stone-200/90 bg-[#fffdf7] shadow-sm shadow-stone-900/[0.03]">
-      <div className="flex items-center gap-1.5 border-b border-stone-200/70 bg-[#f8f5ee]/60 px-3 py-1.5 text-[10px] font-semibold text-stone-500 sm:hidden">
+    <div className="overflow-hidden rounded-xl border border-stone-300/70 bg-[#fbf7ee] shadow-[0_18px_40px_-34px_rgba(24,37,31,0.45)]">
+      <div className="flex items-center gap-1.5 border-b border-stone-300/70 bg-[#f2ecdf]/70 px-3 py-1.5 text-[10px] font-semibold text-stone-500 sm:hidden">
         <MoveHorizontal className="h-3.5 w-3.5 shrink-0 text-teal-600" />
         اسحب الجدول أفقيًا لعرض باقي الأسابيع
       </div>
@@ -115,10 +115,10 @@ export function MonthlyRecordTable({
             جدول المتابعة الشهرية: الأسابيع والمراجعة الشهرية والمجموع والمبلغ
           </caption>
           <thead>
-            <tr className="border-b border-stone-200 bg-[#f8f5ee] text-[10px] font-bold text-stone-600 sm:text-[11px]">
+            <tr className="border-b border-stone-300/70 bg-[#f2ecdf] text-[10px] font-bold text-stone-600 sm:text-[11px]">
               <th
                 scope="col"
-                className="sticky start-0 z-20 bg-[#f8f5ee] px-2 py-2.5 text-right sm:px-4 sm:py-3"
+                className="sticky start-0 z-20 bg-[#f2ecdf] px-2 py-2.5 text-right sm:px-4 sm:py-3"
               >
                 الاسم
               </th>
@@ -176,7 +176,7 @@ export function MonthlyRecordTable({
                 >
                   <td className={cn(
                     'sticky start-0 z-10 px-2 py-2 transition-colors sm:px-4 sm:py-2.5',
-                    isHighlighted ? 'bg-teal-50/80 font-bold' : 'bg-[#fffdf7] group-hover:bg-stone-50',
+                    isHighlighted ? 'bg-teal-50/80 font-bold' : 'bg-[#fbf7ee] group-hover:bg-stone-50',
                   )}>
                     <div className="flex items-center gap-2">
                       <span
@@ -291,7 +291,7 @@ export function MonthlyRecordTable({
         </table>
       </div>
 
-      <div className="flex items-start gap-2 border-t border-stone-200/80 bg-[#f8f5ee]/60 px-4 py-3 text-[11px] leading-5 text-stone-500">
+      <div className="flex items-start gap-2 border-t border-stone-200/80 bg-[#f2ecdf]/60 px-4 py-3 text-[11px] leading-5 text-stone-500">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-600" />
         <p>
           {canEdit

@@ -101,12 +101,10 @@ export function VerseCard({
 
   return (
     <article
-      className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-teal-900/15 bg-[#fffdf7] shadow-md shadow-teal-950/[0.04]"
+      className="mushaf-sheet relative overflow-hidden rounded-xl border border-amber-700/25 sm:rounded-2xl"
       aria-live="polite"
     >
-      <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:radial-gradient(circle_at_15%_10%,#99f6e4_0,transparent_32%),radial-gradient(circle_at_85%_90%,#fde68a_0,transparent_30%)] dark:opacity-[0.18]" />
-
-      <div className="relative p-4 sm:p-7">
+      <div className="relative p-4 pt-5 sm:p-7 sm:pt-9">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-teal-700 text-white shadow-sm sm:h-8 sm:w-8">
@@ -198,7 +196,7 @@ export function VerseCard({
               onClick={cycleFontSize}
               title={`حجم الخط: ${fontSizeLabel} — اضغط للتكبير`}
               aria-label={`حجم الخط: ${fontSizeLabel}`}
-              className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white/90 px-2 py-1 text-[10px] font-bold text-stone-700 shadow-2xs transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffdf7] dark:focus-visible:ring-offset-[#121816]"
+              className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white/90 px-2 py-1 text-[10px] font-bold text-stone-700 shadow-2xs transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fbf7ee] dark:focus-visible:ring-offset-[#121816]"
             >
               <Type className="h-3 w-3 text-teal-600" />
               <span>{fontSize === 'normal' ? 'خط عادي' : fontSize === 'large' ? 'خط كبير' : 'خط أقصى'}</span>
@@ -210,7 +208,7 @@ export function VerseCard({
               onClick={() => void handleCopy()}
               title={copied ? 'تم النسخ!' : 'نسخ النص'}
               aria-label={copied ? 'تم النسخ!' : 'نسخ النص'}
-              className="grid h-6 w-6 place-items-center rounded-full border border-stone-200 bg-white/90 text-stone-500 shadow-2xs transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffdf7] dark:focus-visible:ring-offset-[#121816]"
+              className="grid h-6 w-6 place-items-center rounded-full border border-stone-200 bg-white/90 text-stone-500 shadow-2xs transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fbf7ee] dark:focus-visible:ring-offset-[#121816]"
             >
               {copied ? (
                 <Check className="h-3 w-3 text-emerald-600" />
@@ -221,10 +219,12 @@ export function VerseCard({
           </div>
         </div>
 
+        <div className="gilded-rule mt-4 sm:mt-5" aria-hidden="true" />
+
         <div className="relative mt-4 min-h-24 sm:mt-6 sm:min-h-52">
           {isHidden ? (
-            <div className="flex min-h-32 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-teal-200 bg-white/70 px-4 py-5 text-center sm:min-h-52 sm:py-8">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-teal-50 text-teal-700 sm:h-12 sm:w-12">
+            <div className="flex min-h-32 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-amber-500/40 bg-[#fbf7ee]/70 px-4 py-5 text-center sm:min-h-52 sm:py-8">
+              <span className="grid h-10 w-10 place-items-center rounded-lg border border-amber-400/40 bg-amber-50 text-amber-700 sm:h-12 sm:w-12">
                 <EyeOff className="h-5 w-5 sm:h-6 sm:w-6" />
               </span>
               <div>
@@ -267,16 +267,16 @@ export function VerseCard({
                 return (
                   <div key={pageAyah.number} className="py-0.5">
                     {startsSurah ? (
-                      <div className="my-1.5 flex items-center justify-center gap-2 font-sans text-[10px] font-bold text-teal-700">
-                        <span className="h-px w-8 bg-teal-200" />
+                      <div className="my-2 flex items-center justify-center gap-2 font-sans text-[10px] font-bold text-amber-800">
+                        <span className="h-px w-8 bg-amber-500/30" />
                         سورة {pageAyah.surahName}
-                        <span className="h-px w-8 bg-teal-200" />
+                        <span className="h-px w-8 bg-amber-500/30" />
                       </div>
                     ) : null}
                     <p
                       className={cn(
-                        'rounded-xl px-1 py-0.5 sm:px-2',
-                        isStart && 'bg-amber-100/70 ring-1 ring-amber-300/80',
+                        'rounded-md px-1 py-0.5 sm:px-2',
+                        isStart && 'bg-amber-100/60 ring-1 ring-amber-400/60',
                       )}
                     >
                       {isStart ? (
@@ -285,7 +285,7 @@ export function VerseCard({
                         </span>
                       ) : null}
                       <span>{pageAyah.text}</span>{' '}
-                      <span className="inline-grid h-5 w-5 -translate-y-0.5 place-items-center rounded-full border border-teal-200 bg-white align-middle font-sans text-[9px] font-semibold text-teal-700">
+                      <span className="inline-grid h-5 w-5 -translate-y-0.5 place-items-center rounded-full border border-amber-500/45 bg-[#fbf7ee] align-middle font-sans text-[9px] font-semibold text-amber-800">
                         {formatNumber(pageAyah.numberInSurah)}
                       </span>
                     </p>
@@ -315,17 +315,17 @@ export function VerseCard({
           {pageMode ? (
             <>
               <span>الصفحة {formatNumber(ayah.page)}</span>
-              <span className="h-1 w-1 rounded-full bg-stone-300" />
+              <span className="h-1 w-1 rounded-full bg-amber-500/45" />
               <span>{formatNumber(displayedPageAyahs.length)} آية</span>
-              <span className="h-1 w-1 rounded-full bg-stone-300" />
+              <span className="h-1 w-1 rounded-full bg-amber-500/45" />
               <span>الجزء {formatNumber(ayah.juz)}</span>
             </>
           ) : (
             <>
               <span>الآية {formatNumber(ayah.numberInSurah)}</span>
-              <span className="h-1 w-1 rounded-full bg-stone-300" />
+              <span className="h-1 w-1 rounded-full bg-amber-500/45" />
               <span>الجزء {formatNumber(ayah.juz)}</span>
-              <span className="h-1 w-1 rounded-full bg-stone-300" />
+              <span className="h-1 w-1 rounded-full bg-amber-500/45" />
               <span>الصفحة {formatNumber(ayah.page)}</span>
             </>
           )}

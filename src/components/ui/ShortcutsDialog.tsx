@@ -52,9 +52,9 @@ export function ShortcutsDialog({ open, onClose }: ShortcutsDialogProps) {
 
       <div
         ref={containerRef}
-        className="dialog-enter relative max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-3xl border border-stone-200/90 bg-[#fffdf7] shadow-2xl shadow-stone-950/20"
+        className="dialog-enter relative max-h-[calc(100dvh-1.5rem)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-3xl border border-stone-200/90 bg-[#fbf7ee] shadow-2xl shadow-stone-950/20"
       >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-stone-200/80 bg-[#fffdf7]/95 px-5 py-4 backdrop-blur">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-stone-200/80 bg-[#fbf7ee]/95 px-5 py-4 backdrop-blur">
           <div className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300">
               <Keyboard className="h-5 w-5" />

@@ -42,7 +42,7 @@ const STEPS = [
 
 export function UsageGuide() {
   return (
-    <section className="rounded-3xl border border-teal-200/70 bg-gradient-to-br from-teal-50/80 to-amber-50/40 p-4 shadow-sm shadow-stone-900/[0.02] dark:from-[#042f2e]/70 dark:to-[#131b19] sm:p-5">
+    <section className="rounded-3xl border border-teal-200/70 bg-gradient-to-br from-teal-50/80 to-amber-50/40 p-4 shadow-sm shadow-stone-900/[0.02] dark:from-[#042f2e]/70 dark:to-[#121b17] sm:p-5">
       <div className="flex items-start gap-2.5">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-teal-700 text-white">
           <BookOpen className="h-4 w-4" />

@@ -24,7 +24,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (!this.state.hasError) return this.props.children;
 
     return (
-      <div className="grid min-h-screen place-items-center bg-[#f8f5ee] px-4">
+      <div className="grid min-h-screen place-items-center bg-[#f2ecdf] px-4">
         <div className="w-full max-w-md rounded-3xl border border-stone-200 bg-white p-6 text-center shadow-lg">
           <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-rose-50 text-rose-600">
             <AlertTriangle className="h-6 w-6" />

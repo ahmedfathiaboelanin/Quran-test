@@ -67,7 +67,7 @@ export function ConfirmDialog({
 
       <div
         ref={containerRef}
-        className="dialog-enter relative w-full max-w-md overflow-hidden rounded-3xl border border-stone-200/90 bg-[#fffdf7] shadow-2xl shadow-stone-950/20"
+        className="dialog-enter relative w-full max-w-md overflow-hidden rounded-xl border border-stone-300/80 bg-[#fbf7ee] shadow-2xl shadow-stone-950/25"
       >
         <button
           type="button"
@@ -81,7 +81,7 @@ export function ConfirmDialog({
         <div className="p-5 sm:p-6">
           <span
             className={cn(
-              'grid h-12 w-12 place-items-center rounded-2xl shadow-sm',
+              'grid h-12 w-12 place-items-center rounded-lg shadow-sm',
               styles.icon,
             )}
           >

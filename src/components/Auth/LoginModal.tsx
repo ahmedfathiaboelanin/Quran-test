@@ -70,7 +70,7 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
         aria-hidden="true"
       />
 
-      <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-stone-200 bg-white p-6 shadow-2xl transition-all sm:p-7 dark:bg-stone-900 dark:border-stone-800">
+      <div className="relative w-full max-w-md overflow-hidden rounded-xl border border-stone-300/80 bg-[#fbf7ee] p-6 shadow-2xl transition-all sm:p-7 dark:bg-stone-900 dark:border-stone-800">
         <button
           type="button"
           onClick={onClose}
@@ -109,7 +109,7 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="admin أو اسم المختبَر"
-                className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3.5 pe-10 text-sm font-semibold text-stone-900 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:bg-stone-800 dark:border-stone-700 dark:text-white"
+                className="h-11 w-full rounded-lg border border-stone-300 bg-[#fffdf8] px-3.5 pe-10 text-sm font-semibold text-stone-900 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:bg-stone-800 dark:border-stone-700 dark:text-white"
               />
               <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
             </div>
@@ -131,7 +131,7 @@ export function LoginModal({ open, onClose }: LoginModalProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••"
-                className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3.5 pe-10 text-sm font-semibold text-stone-900 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:bg-stone-800 dark:border-stone-700 dark:text-white"
+                className="h-11 w-full rounded-lg border border-stone-300 bg-[#fffdf8] px-3.5 pe-10 text-sm font-semibold text-stone-900 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 dark:bg-stone-800 dark:border-stone-700 dark:text-white"
               />
               <button
                 type="button"

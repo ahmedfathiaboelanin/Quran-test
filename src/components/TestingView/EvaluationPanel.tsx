@@ -256,7 +256,7 @@ function NoteSheet({ textareaId, value, onChange, onClose }: NoteSheetProps) {
       />
       <div
         ref={containerRef}
-        className="sheet-enter absolute inset-x-0 bottom-0 rounded-t-3xl border-t border-stone-200 bg-[#fffdf7] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl"
+        className="sheet-enter absolute inset-x-0 bottom-0 rounded-t-2xl border-t border-stone-300/70 bg-[#fbf7ee] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl"
       >
         <div className="mx-auto w-full max-w-lg">
           <div className="flex items-start justify-between gap-3">
@@ -288,7 +288,7 @@ function NoteSheet({ textareaId, value, onChange, onClose }: NoteSheetProps) {
             autoFocus
             data-autofocus
             placeholder="مثال: تحسين موضع الوقف، أو تنبيه على المد..."
-            className="mt-3 w-full resize-y rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-base leading-6 text-stone-800 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+            className="mt-3 w-full resize-y rounded-lg border border-stone-300 bg-[#fffdf8] px-3 py-2.5 text-base leading-6 text-stone-800 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
           />
 
           <Button size="lg" className="mt-3 w-full" onClick={onClose}>
@@ -325,7 +325,7 @@ function DockPageNavigation({ navigation }: DockPageNavigationProps) {
   } = navigation;
 
   return (
-    <div className="mb-1.5 flex items-center justify-between gap-1 rounded-xl border border-teal-100/80 bg-teal-50/70 p-1">
+    <div className="mb-1.5 flex items-center justify-between gap-1 rounded-lg border border-stone-300/60 bg-[#f2ecdf]/70 p-1">
       <div className="flex items-center gap-1">
         <button
           type="button"
@@ -471,7 +471,7 @@ function MobileEvaluationDock({
 }: MobileEvaluationDockProps) {
   return createPortal(
     <div
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-stone-200/80 bg-[#f8f5ee]/95 px-3 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(28,25,23,0.08)] backdrop-blur-xl lg:hidden print:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-stone-200/80 bg-[#f2ecdf]/95 px-3 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(28,25,23,0.08)] backdrop-blur-xl lg:hidden print:hidden"
       dir="rtl"
       role="region"
       aria-label="تقييم السؤال"
@@ -663,10 +663,10 @@ export function EvaluationPanel({
 
   return (
     <>
-      <section className="hidden rounded-3xl border border-stone-200/80 bg-white/90 p-5 shadow-sm shadow-stone-900/[0.03] lg:block">
+      <section className="hidden rounded-xl border border-stone-300/70 bg-[#fbf7ee]/90 p-5 shadow-[0_18px_40px_-34px_rgba(24,37,31,0.5)] lg:block">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[11px] font-bold tracking-wide text-teal-700">
+            <p className="text-[11px] font-bold text-amber-700">
               السؤال {formatNumber(question.index + 1)}
               {totalQuestions ? ` من ${formatNumber(totalQuestions)}` : ''}
             </p>
@@ -727,7 +727,7 @@ export function EvaluationPanel({
 
         <div
           className={cn(
-            'mt-4 rounded-2xl border p-4 text-center transition-colors',
+            'mt-4 rounded-lg border p-4 text-center transition-colors',
             totalPoints === 0
               ? 'border-emerald-200 bg-emerald-50/80'
               : 'border-rose-200 bg-rose-50/80',
@@ -737,7 +737,7 @@ export function EvaluationPanel({
           <p className="text-[11px] font-bold text-stone-600">درجة السؤال</p>
           <p
             className={cn(
-              'mt-1 text-4xl font-bold tabular-nums',
+              'mt-1 font-arabic text-4xl font-bold tabular-nums',
               totalPoints === 0 ? 'text-emerald-700' : 'text-rose-700',
             )}
           >
@@ -830,7 +830,7 @@ export function EvaluationPanel({
             onChange={(event) => setNote(event.target.value)}
             rows={3}
             placeholder="مثال: تحسين موضع الوقف، أو تنبيه على المد..."
-            className="w-full resize-y rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm leading-6 text-stone-800 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+            className="w-full resize-y rounded-lg border border-stone-300 bg-[#fffdf8] px-3 py-2.5 text-sm leading-6 text-stone-800 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
           />
         </div>
 

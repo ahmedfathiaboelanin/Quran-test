@@ -56,23 +56,28 @@ export function AppHeader({
   const { user, isAdmin, setLoginOpen, signOut } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-stone-200/70 bg-[#f8f5ee]/85 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 border-b border-stone-300/70 bg-[#f2ecdf]/90 backdrop-blur-xl">
+      <div
+        className="h-[2px] bg-gradient-to-l from-transparent via-amber-500/60 to-transparent"
+        aria-hidden="true"
+      />
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-2.5 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
-          <BrandMark className="h-11 w-11 shrink-0" />
+          <BrandMark className="h-10 w-10 shrink-0 sm:h-11 sm:w-11" />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="truncate text-base font-bold text-stone-900 sm:text-lg">
-                اختبار حفظ القرآن الكريم
+              <h1 className="truncate text-xl font-bold leading-tight text-stone-900 sm:text-[1.35rem]">
+                <span className="sm:hidden">اختبار الحفظ</span>
+                <span className="hidden sm:inline">اختبار حفظ القرآن الكريم</span>
               </h1>
               {phase === 'running' ? (
-                <span className="hidden items-center gap-1 rounded-full bg-teal-100/80 px-2 py-0.5 text-[10px] font-bold text-teal-800 sm:inline-flex dark:bg-teal-950/60 dark:text-teal-300">
+                <span className="hidden items-center gap-1 rounded-md border border-teal-200 bg-teal-50/80 px-2 py-0.5 text-[10px] font-bold text-teal-800 sm:inline-flex dark:bg-teal-950/60 dark:text-teal-300">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-600" />
                   جارٍ الآن
                 </span>
               ) : null}
             </div>
-            <p className="hidden truncate text-xs text-stone-500 sm:block">
+            <p className="hidden truncate text-[11px] leading-5 text-stone-500 sm:block">
               {PHASE_SUBTITLES[phase]}
             </p>
           </div>
@@ -80,7 +85,7 @@ export function AppHeader({
 
         <div className="flex shrink-0 items-center gap-2">
           <span
-            className={`hidden items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold md:inline-flex ${
+            className={`hidden items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[11px] font-semibold md:inline-flex ${
               isOnline
                 ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
                 : 'border-amber-200 bg-amber-50 text-amber-800'
@@ -102,8 +107,8 @@ export function AppHeader({
             )}
           </span>
 
-          <span className="hidden items-center gap-1.5 rounded-full border border-stone-200 bg-white/70 px-3 py-1.5 text-xs font-semibold text-stone-600 lg:inline-flex">
-            <Database className="h-3.5 w-3.5" />
+          <span className="hidden items-center gap-1.5 rounded-md border border-stone-300/70 bg-[#fbf7ee]/70 px-2.5 py-1.5 text-[11px] font-semibold text-stone-600 lg:inline-flex">
+            <Database className="h-3.5 w-3.5 text-amber-600" />
             {formatNumber(dataStats.ayaat)} آية محلية
           </span>
 
@@ -114,10 +119,10 @@ export function AppHeader({
             aria-pressed={isDark}
             title={isDark ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الداكن'}
             className={cn(
-              'group grid h-10 w-10 shrink-0 place-items-center rounded-xl border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
+              'group grid h-9 w-9 shrink-0 place-items-center rounded-lg border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 sm:h-10 sm:w-10',
               isDark
                 ? 'border-amber-300/50 bg-amber-300/10 text-amber-200 shadow-sm shadow-amber-500/10 hover:border-amber-300/80 hover:bg-amber-300/20 hover:text-amber-100'
-                : 'border-stone-200 bg-white/80 text-stone-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800',
+                : 'border-stone-300/70 bg-[#fbf7ee]/80 text-stone-600 hover:border-amber-400/60 hover:bg-amber-50 hover:text-amber-800',
             )}
           >
             {isDark ? (
@@ -132,7 +137,7 @@ export function AppHeader({
             onClick={onHelp}
             aria-label="تعليمات الاستخدام"
             title="تعليمات الاستخدام"
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-stone-200 bg-white/80 text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-stone-300/70 bg-[#fbf7ee]/80 text-stone-600 transition hover:border-amber-400/60 hover:bg-amber-50 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 sm:h-10 sm:w-10"
           >
             <HelpCircle className="h-5 w-5" />
           </button>
@@ -170,10 +175,11 @@ export function AppHeader({
               size="sm"
               variant="secondary"
               onClick={() => setLoginOpen(true)}
-              className="font-bold border-teal-300 bg-teal-50 text-teal-900 hover:bg-teal-100"
+              aria-label="تسجيل الدخول"
+              className="border-teal-300 bg-teal-50 px-2.5 font-bold text-teal-900 hover:bg-teal-100 sm:px-3"
             >
               <LogIn className="h-4 w-4" />
-              <span>تسجيل الدخول</span>
+              <span className="hidden sm:inline">تسجيل الدخول</span>
             </Button>
           )}
 
@@ -192,7 +198,7 @@ export function AppHeader({
           aria-hidden="true"
         >
           <div
-            className="h-full bg-gradient-to-l from-teal-600 via-emerald-500 to-teal-400 transition-[width] duration-500 ease-out"
+            className="h-full bg-gradient-to-l from-amber-500 via-teal-600 to-teal-400 transition-[width] duration-500 ease-out"
             style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
           />
         </div>

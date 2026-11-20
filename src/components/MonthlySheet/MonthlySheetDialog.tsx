@@ -59,11 +59,11 @@ export function MonthlySheetDialog({
       <div
         ref={containerRef}
         className={cn(
-          'dialog-enter relative flex max-h-[calc(100dvh-1.5rem)] w-full flex-col overflow-hidden rounded-3xl border border-stone-200/90 bg-[#fffdf7] shadow-2xl shadow-stone-950/20 sm:max-h-[min(52rem,calc(100dvh-3rem))]',
+          'dialog-enter relative flex max-h-[calc(100dvh-1.5rem)] w-full flex-col overflow-hidden rounded-3xl border border-stone-200/90 bg-[#fbf7ee] shadow-2xl shadow-stone-950/20 sm:max-h-[min(52rem,calc(100dvh-3rem))]',
           maxWidthClasses[maxWidth],
         )}
       >
-        <div className="flex items-start gap-3 border-b border-stone-200/80 bg-[#f8f5ee]/70 px-5 py-4 sm:px-6">
+        <div className="flex items-start gap-3 border-b border-stone-200/80 bg-[#f2ecdf]/70 px-5 py-4 sm:px-6">
           {Icon ? (
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-teal-100 text-teal-800">
               <Icon className="h-5 w-5" />
@@ -97,7 +97,7 @@ export function MonthlySheetDialog({
         <div className="overflow-y-auto px-5 py-5 sm:px-6">{children}</div>
 
         {footer ? (
-          <div className="border-t border-stone-200/80 bg-[#f8f5ee]/60 px-5 py-4 sm:px-6">
+          <div className="border-t border-stone-200/80 bg-[#f2ecdf]/60 px-5 py-4 sm:px-6">
             {footer}
           </div>
         ) : null}

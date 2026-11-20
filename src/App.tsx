@@ -114,7 +114,7 @@ function AppContent() {
       </main>
 
       <footer className="mx-auto w-full max-w-7xl px-4 pb-6 pt-2 sm:px-6 lg:px-8 print:hidden">
-        <div className="flex flex-col items-center justify-between gap-2 border-t border-stone-200/80 pt-4 text-[10px] text-stone-400 sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-2 border-t border-stone-300/60 pt-4 text-[10px] text-stone-400 sm:flex-row">
           <p className="inline-flex items-center gap-1.5">
             <ShieldCheck className="h-3.5 w-3.5 text-teal-600" />
             {isSupabaseConfigured

@@ -112,7 +112,7 @@ export function CreateSheetDialog({
           </p>
         </div>
 
-        <div className="rounded-2xl border border-stone-200 bg-[#f8f5ee]/70 p-4">
+        <div className="rounded-2xl border border-stone-200 bg-[#f2ecdf]/70 p-4">
           <Switch
             id="has-fifth-week"
             checked={hasFifthWeek}

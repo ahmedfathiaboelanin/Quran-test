@@ -150,11 +150,11 @@ export function TestingView({ engine }: TestingViewProps) {
       className="space-y-4 pb-[calc(17rem+env(safe-area-inset-bottom))] sm:space-y-5 sm:pb-[calc(13rem+env(safe-area-inset-bottom))] lg:pb-0"
     >
       <section
-        className="rounded-2xl border border-stone-200/80 bg-white/85 px-3.5 py-3 shadow-sm shadow-stone-900/[0.03] backdrop-blur sm:px-4"
+        className="rounded-xl border border-stone-300/70 bg-[#fbf7ee]/85 px-3.5 py-3 shadow-[0_14px_32px_-28px_rgba(24,37,31,0.5)] backdrop-blur sm:px-4"
         aria-label="حالة الاختبار"
       >
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-teal-700 text-white shadow-sm shadow-teal-900/20">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-amber-400/30 bg-teal-700 text-amber-100 shadow-sm shadow-teal-950/20">
             <ListChecks className="h-5 w-5" />
           </span>
 
@@ -185,7 +185,7 @@ export function TestingView({ engine }: TestingViewProps) {
               type="button"
               onClick={() => setHideText((current) => !current)}
               className={cn(
-                'inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border px-2.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
+                'inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-2.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
                 hideText
                   ? 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300'
                   : 'border-stone-200 bg-white text-stone-500 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800',
@@ -206,7 +206,7 @@ export function TestingView({ engine }: TestingViewProps) {
             <button
               type="button"
               onClick={() => setShortcutsOpen(true)}
-              className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+              className="grid h-10 w-10 place-items-center rounded-lg border border-stone-300/70 bg-[#fbf7ee] text-stone-500 transition hover:border-amber-400/60 hover:bg-amber-50 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
               aria-label="عرض اختصارات لوحة المفاتيح"
               title="اختصارات لوحة المفاتيح [؟]"
             >
@@ -216,7 +216,7 @@ export function TestingView({ engine }: TestingViewProps) {
             <button
               type="button"
               onClick={handleEarlyFinish}
-              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-2.5 text-rose-700 transition hover:border-rose-300 hover:bg-rose-100 hover:text-rose-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300"
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-rose-300/70 bg-rose-50 px-2.5 text-rose-700 transition hover:border-rose-300 hover:bg-rose-100 hover:text-rose-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300"
               aria-label="إنهاء مبكر"
               title="إنهاء الاختبار مبكرًا وعرض النتائج"
             >
@@ -262,7 +262,7 @@ export function TestingView({ engine }: TestingViewProps) {
             onToggleDisplayMode={handleToggleDisplayMode}
           />
 
-          <div className="hidden rounded-2xl border border-stone-200/70 bg-white/50 p-3.5 text-[11px] leading-6 text-stone-500 sm:block">
+          <div className="hidden rounded-lg border border-stone-300/60 bg-[#fbf7ee]/55 p-3.5 text-[11px] leading-6 text-stone-500 sm:block">
             <p className="flex items-center gap-1.5 font-bold text-stone-700">
               <Info className="h-3.5 w-3.5 text-teal-600" />
               أثناء التسميع

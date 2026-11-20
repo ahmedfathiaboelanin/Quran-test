@@ -117,7 +117,7 @@ function StatCard({
   };
 
   return (
-    <div className="rounded-2xl border border-stone-200/80 bg-white/85 p-4 shadow-sm shadow-stone-900/[0.02]">
+    <div className="rounded-lg border border-stone-300/70 bg-[#fbf7ee]/90 p-4 shadow-sm shadow-stone-900/[0.02]">
       <span className={`grid h-9 w-9 place-items-center rounded-xl ${tones[tone]}`}>
         <Icon className="h-4 w-4" />
       </span>
@@ -325,7 +325,7 @@ ${questionsDetails}`;
 
   return (
     <div className="space-y-5">
-      <section className="relative overflow-hidden rounded-3xl border border-teal-900/10 bg-gradient-to-br from-teal-800 via-teal-700 to-emerald-900 p-5 text-white shadow-xl shadow-teal-950/15 sm:p-7">
+      <section className="relative overflow-hidden rounded-2xl border border-amber-400/25 bg-[#10251e] p-5 text-white shadow-[0_26px_60px_-32px_rgba(9,20,16,0.65)] sm:p-7">
         <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_10%_10%,#fef3c7_0,transparent_28%),radial-gradient(circle_at_90%_90%,#5eead4_0,transparent_30%)]" />
 
         <div className="relative flex flex-col gap-5 sm:gap-6">
@@ -401,15 +401,15 @@ ${questionsDetails}`;
             {/* عرض الدرجة */}
             <div
               className={cn(
-                'grid h-28 w-28 shrink-0 place-items-center rounded-full bg-white/10 p-2 ring-1 sm:h-32 sm:w-32',
+                'grid h-28 w-28 shrink-0 place-items-center rounded-full bg-amber-400/5 p-2 ring-1 sm:h-32 sm:w-32',
                 grade.ringClassName,
               )}
               role="img"
               aria-label={`الدرجة ${formatPoints(summary.totalPoints)}`}
             >
-              <div className="grid h-full w-full place-items-center rounded-full bg-teal-800 text-center shadow-inner">
+              <div className="grid h-full w-full place-items-center rounded-full bg-[#0b1a15] text-center shadow-inner ring-1 ring-inset ring-amber-400/20">
                 <div>
-                  <p className="text-3xl font-bold tabular-nums sm:text-4xl">
+                  <p className="font-arabic text-3xl font-bold tabular-nums text-amber-100 sm:text-4xl">
                     {formatPoints(summary.totalPoints)}
                   </p>
                   <p className="mt-0.5 text-[11px] font-medium text-teal-100/90">
@@ -425,7 +425,7 @@ ${questionsDetails}`;
             <Button
               variant="secondary"
               onClick={onNewTest}
-              className="border-white/20 bg-white font-bold text-teal-950 shadow-sm hover:bg-teal-50"
+              className="border-amber-300/70 bg-amber-300 font-bold text-[#271b06] shadow-sm hover:bg-amber-200"
             >
               <SlidersHorizontal className="h-4 w-4" />
               بدء اختبار جديد
@@ -510,7 +510,7 @@ ${questionsDetails}`;
       </div>
 
       {notedResults.length > 0 ? (
-        <section className="rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 to-white p-5 shadow-sm shadow-stone-900/[0.03] dark:from-[#451a03]/45 dark:to-[#131b19] sm:p-6">
+        <section className="rounded-xl border border-amber-300/60 bg-gradient-to-br from-amber-50/70 to-[#fbf7ee] p-5 shadow-sm shadow-stone-900/[0.03] dark:from-[#3a2a12]/45 dark:to-[#121b17] sm:p-6">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="text-[11px] font-bold tracking-wide text-amber-700">
@@ -567,7 +567,7 @@ ${questionsDetails}`;
         </section>
       ) : null}
 
-      <section className="rounded-3xl border border-stone-200/80 bg-white/85 p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6">
+      <section className="rounded-xl border border-stone-300/70 bg-[#fbf7ee]/85 p-5 shadow-[0_18px_40px_-34px_rgba(24,37,31,0.45)] sm:p-6">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-[11px] font-bold tracking-wide text-rose-700">
@@ -687,7 +687,7 @@ ${questionsDetails}`;
         </div>
       </section>
 
-      <section className="rounded-3xl border border-stone-200/80 bg-white/85 p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6">
+      <section className="rounded-xl border border-stone-300/70 bg-[#fbf7ee]/85 p-5 shadow-[0_18px_40px_-34px_rgba(24,37,31,0.45)] sm:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-[11px] font-bold tracking-wide text-amber-700">
@@ -702,7 +702,7 @@ ${questionsDetails}`;
         <RevisionList items={summary.revisionSurahs} />
       </section>
 
-      <section className="rounded-3xl border border-stone-200/80 bg-white/85 p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6">
+      <section className="rounded-xl border border-stone-300/70 bg-[#fbf7ee]/85 p-5 shadow-[0_18px_40px_-34px_rgba(24,37,31,0.45)] sm:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-bold tracking-wide text-teal-700">
@@ -712,7 +712,7 @@ ${questionsDetails}`;
           </div>
 
           {/* تبويبات الفلترة السريعة */}
-          <div className="flex flex-wrap items-center gap-1 rounded-xl border border-stone-200 bg-stone-100/70 p-1">
+          <div className="flex flex-wrap items-center gap-1 rounded-lg border border-stone-300/60 bg-stone-200/45 p-1">
             <button
               type="button"
               onClick={() => setQuestionFilter('all')}
@@ -765,7 +765,7 @@ ${questionsDetails}`;
             {displayedResults.map(({ question, evaluation }) => (
               <article
                 key={question.id}
-                className="rounded-xl border border-stone-200 bg-white p-3.5 transition hover:border-stone-300"
+                className="rounded-lg border border-stone-300/60 bg-[#fffdf8] p-3.5 transition hover:border-amber-400/50"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex min-w-0 items-start gap-3">

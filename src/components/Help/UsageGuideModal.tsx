@@ -27,7 +27,7 @@ export function UsageGuideModal({ onClose }: UsageGuideModalProps) {
 
       <div
         ref={containerRef}
-        className="dialog-enter relative flex max-h-[calc(100dvh-1.5rem)] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-[#f8f5ee] shadow-2xl sm:max-h-[calc(100dvh-3rem)]"
+        className="dialog-enter relative flex max-h-[calc(100dvh-1.5rem)] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-stone-200 bg-[#f2ecdf] shadow-2xl sm:max-h-[calc(100dvh-3rem)]"
       >
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-stone-200/80 bg-white/80 px-4 py-3 sm:px-5">
           <div>

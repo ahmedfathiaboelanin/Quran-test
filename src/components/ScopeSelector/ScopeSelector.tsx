@@ -117,14 +117,19 @@ export function ScopeSelector({
   };
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-stone-200/80 bg-white/80 shadow-sm shadow-stone-900/[0.03] backdrop-blur">
-      <div className="border-b border-stone-100 p-5 sm:p-6">
+    <section className="relative overflow-hidden rounded-2xl border border-stone-300/70 bg-[#fbf7ee]/85 shadow-[0_18px_40px_-34px_rgba(24,37,31,0.5)] backdrop-blur">
+      <div
+        className="absolute inset-x-0 top-0 h-px bg-gradient-to-l from-transparent via-amber-500/60 to-transparent"
+        aria-hidden="true"
+      />
+      <div className="border-b border-stone-300/50 p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-[11px] font-bold tracking-wide text-teal-700">
+            <p className="flex items-center gap-2 text-[11px] font-bold text-amber-700">
+              <span className="step-mark">١</span>
               الخطوة الأولى
             </p>
-            <h2 className="mt-1 text-xl font-bold text-stone-900">نطاق الاختبار</h2>
+            <h2 className="mt-2 text-2xl font-bold text-stone-900">نطاق الاختبار</h2>
             <p className="mt-1 max-w-2xl text-xs leading-6 text-stone-500">
               يمكنك الجمع بين أكثر من نطاق — ستُدمج الاختيارات وتُحذف التكرارات
               تلقائيًا قبل توزيع الأسئلة. الاختيار السريع يُضاف إلى نطاقك الحالي
@@ -142,8 +147,8 @@ export function ScopeSelector({
         </div>
 
         <div className="mt-4">
-          <span className="mb-2 inline-flex items-center gap-1.5 text-[11px] font-bold text-stone-500">
-            <Wand2 className="h-3.5 w-3.5 text-amber-500" />
+          <span className="mb-2 inline-flex items-center gap-1.5 text-[11px] font-bold text-stone-600">
+            <Wand2 className="h-3.5 w-3.5 text-amber-600" />
             اختيار سريع
             <span className="font-normal text-stone-400">
               — اضغط لإضافته إلى النطاق الحالي
@@ -163,11 +168,11 @@ export function ScopeSelector({
                   }
                   onClick={() => applyPreset(preset.id)}
                   className={cn(
-                    'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition',
+                    'inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2',
                     isActive
-                      ? 'border-teal-600 bg-teal-700 text-white'
-                      : 'border-stone-200 bg-stone-50 text-stone-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800',
+                      ? 'border-teal-700 bg-teal-700 text-white shadow-sm shadow-teal-950/20'
+                      : 'border-stone-300/80 bg-[#fbf7ee] text-stone-600 hover:border-amber-400/70 hover:bg-amber-50 hover:text-amber-900',
                   )}
                 >
                   {isActive ? (
@@ -191,7 +196,7 @@ export function ScopeSelector({
         <div
           role="tablist"
           aria-label="طرق تحديد نطاق الاختبار"
-          className="flex gap-1 overflow-x-auto rounded-xl bg-stone-100 p-1"
+          className="flex gap-1 overflow-x-auto rounded-lg border border-stone-300/50 bg-stone-200/45 p-1"
         >
           {TABS.map((tab) => {
             const Icon = tab.icon;
@@ -206,11 +211,11 @@ export function ScopeSelector({
                 aria-controls={`scope-panel-${tab.id}`}
                 onClick={() => onActiveTabChange(tab.id)}
                 className={cn(
-                  'inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-xs font-semibold transition sm:text-sm',
+                  'inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-xs font-semibold transition sm:text-sm',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500',
                   isActive
-                    ? 'bg-white text-teal-800 shadow-sm'
-                    : 'text-stone-500 hover:text-stone-800',
+                    ? 'bg-[#fbf7ee] text-teal-800 shadow-sm ring-1 ring-stone-300/60'
+                    : 'text-stone-500 hover:bg-[#fbf7ee]/50 hover:text-stone-800',
                 )}
               >
                 <Icon className="h-4 w-4" />

@@ -337,10 +337,10 @@ export function SaveTestToSheet({
 
   return (
     <>
-      <section className="overflow-hidden rounded-3xl border border-teal-200/80 bg-[#fffdf7] shadow-sm shadow-stone-900/[0.03] print:hidden">
-        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-teal-200/70 bg-gradient-to-l from-teal-50/80 via-amber-50/30 to-transparent px-5 py-4 dark:from-teal-950/50 dark:via-amber-950/20">
+      <section className="overflow-hidden rounded-xl border border-amber-300/60 bg-[#fbf7ee] shadow-[0_18px_40px_-34px_rgba(24,37,31,0.45)] print:hidden">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-amber-300/50 bg-gradient-to-l from-amber-50/70 via-[#fbf7ee] to-transparent px-5 py-4 dark:from-teal-950/50 dark:via-amber-950/20">
           <div className="flex min-w-0 items-start gap-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-teal-700 text-white shadow-sm shadow-teal-900/20">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-amber-400/30 bg-teal-700 text-amber-100 shadow-sm shadow-teal-950/20">
               <CalendarCheck2 className="h-5 w-5" />
             </span>
             <div className="min-w-0">
@@ -380,7 +380,7 @@ export function SaveTestToSheet({
 
         <div className="p-5">
           {usingCachedPicker ? (
-            <div className="mb-4 flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50/70 px-3.5 py-2.5 text-[11px] leading-5 text-amber-800">
+            <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-300/70 bg-amber-50/70 px-3.5 py-2.5 text-[11px] leading-5 text-amber-800">
               <WifiOff className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <p>
                 لا يوجد اتصال — يمكنك حفظ النتيجة الآن وستُزامن تلقائيًا عند
@@ -390,7 +390,7 @@ export function SaveTestToSheet({
           ) : null}
 
           {pendingSaves > 0 ? (
-            <div className="mb-4 flex items-start gap-2 rounded-2xl border border-teal-200 bg-teal-50/70 px-3.5 py-2.5 text-[11px] leading-5 text-teal-900">
+            <div className="mb-4 flex items-start gap-2 rounded-lg border border-teal-300/60 bg-teal-50/60 px-3.5 py-2.5 text-[11px] leading-5 text-teal-900">
               <CloudUpload className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-700" />
               <p>
                 توجد {formatNumber(pendingSaves)} نتيجة محفوظة محليًا بانتظار
@@ -405,7 +405,7 @@ export function SaveTestToSheet({
               جارٍ تحميل المختبَرين والشهور…
             </div>
           ) : sheets.length === 0 && !usingCachedPicker ? (
-            <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50/50 px-4 py-6 text-center">
+            <div className="rounded-lg border border-dashed border-amber-400/60 bg-amber-50/50 px-4 py-6 text-center">
               <p className="text-sm font-bold text-stone-900">
                 لا يوجد شهر متابعة بعد
               </p>
@@ -424,7 +424,7 @@ export function SaveTestToSheet({
             <div className="space-y-5">
               {loadError ? (
                 <div
-                  className="flex items-start justify-between gap-2 rounded-2xl border border-rose-200 bg-rose-50/70 px-3.5 py-2.5 text-[11px] leading-5 text-rose-700"
+                  className="flex items-start justify-between gap-2 rounded-lg border border-rose-300/70 bg-rose-50/70 px-3.5 py-2.5 text-[11px] leading-5 text-rose-700"
                   role="alert"
                 >
                   <span className="flex items-start gap-1.5">
@@ -473,7 +473,7 @@ export function SaveTestToSheet({
                       }}
                       maxLength={80}
                       placeholder="اسم المختبَر..."
-                      className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3.5 text-sm font-semibold text-stone-900 placeholder:font-normal placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                      className="h-11 w-full rounded-lg border border-stone-300 bg-[#fffdf8] px-3.5 text-sm font-semibold text-stone-900 placeholder:font-normal placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                     />
                   ) : (
                     <div className="relative">
@@ -488,7 +488,7 @@ export function SaveTestToSheet({
                           );
                           setManualExamineeName(nextExaminee?.name ?? '');
                         }}
-                        className="h-11 w-full appearance-none rounded-xl border border-stone-300 bg-white px-3.5 pe-9 text-sm font-semibold text-stone-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                        className="h-11 w-full appearance-none rounded-lg border border-stone-300 bg-[#fffdf8] px-3.5 pe-9 text-sm font-semibold text-stone-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                       >
                         {examinees.map((examinee) => (
                           <option key={examinee.id} value={examinee.id}>
@@ -514,7 +514,7 @@ export function SaveTestToSheet({
                     شهر المتابعة
                   </label>
                   {sheets.length === 0 ? (
-                    <div className="flex h-11 items-center rounded-xl border border-dashed border-amber-300 bg-amber-50/60 px-3.5 text-xs font-semibold text-amber-800">
+                    <div className="flex h-11 items-center rounded-lg border border-dashed border-amber-400/60 bg-amber-50/60 px-3.5 text-xs font-semibold text-amber-800">
                       سيُسجَّل في أحدث شهر عند الاتصال
                     </div>
                   ) : (
@@ -523,7 +523,7 @@ export function SaveTestToSheet({
                         id={`${ids}-sheet`}
                         value={selectedSheetId}
                         onChange={(event) => setSelectedSheetId(event.target.value)}
-                        className="h-11 w-full appearance-none rounded-xl border border-stone-300 bg-white px-3.5 pe-9 text-sm font-semibold text-stone-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                        className="h-11 w-full appearance-none rounded-lg border border-stone-300 bg-[#fffdf8] px-3.5 pe-9 text-sm font-semibold text-stone-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                       >
                         {sheets.map((sheet) => (
                           <option key={sheet.id} value={sheet.id}>
@@ -541,7 +541,7 @@ export function SaveTestToSheet({
               {showAdd ? (
                 <form
                   onSubmit={handleAddExaminee}
-                  className="rounded-2xl border border-teal-200 bg-teal-50/60 p-3.5"
+                  className="rounded-lg border border-teal-300/60 bg-teal-50/60 p-3.5"
                 >
                   <div className="mb-2 flex items-center gap-1.5 text-xs font-bold text-teal-900">
                     <UserPlus className="h-4 w-4" />
@@ -562,7 +562,7 @@ export function SaveTestToSheet({
                         onChange={(event) => setNewName(event.target.value)}
                         placeholder="مثال: ش. عمر مجدي"
                         maxLength={80}
-                        className="h-10 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-900 placeholder:font-normal placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                        className="h-10 w-full rounded-lg border border-stone-300 bg-[#fffdf8] px-3 text-sm font-semibold text-stone-900 placeholder:font-normal placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                       />
                     </div>
                     <div className="flex gap-2">
@@ -669,7 +669,7 @@ export function SaveTestToSheet({
                 </p>
               ) : null}
 
-              <div className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-[#f8f5ee]/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-[#f2ecdf]/60 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <p className="text-[11px] font-bold text-stone-500">
                     سيُحفظ من نتيجة الاختبار

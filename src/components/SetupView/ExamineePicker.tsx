@@ -118,13 +118,13 @@ export function ExamineePicker({
           disabled={disabled}
           maxLength={80}
           placeholder="اكتب اسم الطالب..."
-          className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3.5 text-sm font-medium text-stone-900 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-60"
+          className="h-11 w-full rounded-lg border border-stone-300 bg-[#fffdf8] px-3.5 text-sm font-medium text-stone-900 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-60"
         />
         <p className="mt-1.5 text-[10px] leading-5 text-amber-700">
           تعذّر تحميل قائمة المختبَرين. اكتب الاسم وسيُربط تلقائيًا عند عودة
           الإنترنت.
         </p>
-        <div className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-rose-200 bg-rose-50/70 px-3 py-2 text-[11px] font-semibold leading-5 text-rose-700">
+        <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-rose-300/70 bg-rose-50/70 px-3 py-2 text-[11px] font-semibold leading-5 text-rose-700">
           <span className="flex items-start gap-1.5">
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {loadError}
@@ -164,7 +164,7 @@ export function ExamineePicker({
           }
           disabled={disabled}
           placeholder="أدخل اسم الطالب أو المختبَر..."
-          className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3.5 text-sm font-medium text-stone-900 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-60"
+          className="h-11 w-full rounded-lg border border-stone-300 bg-[#fffdf8] px-3.5 text-sm font-medium text-stone-900 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-60"
         />
       </div>
     );
@@ -243,7 +243,7 @@ export function ExamineePicker({
           value={selectValue}
           onChange={(event) => handleSelect(event.target.value)}
           disabled={pickerDisabled}
-          className="h-11 w-full appearance-none rounded-xl border border-stone-300 bg-white px-3.5 pe-10 text-sm font-semibold text-stone-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-60"
+          className="h-11 w-full appearance-none rounded-lg border border-stone-300 bg-[#fffdf8] px-3.5 pe-10 text-sm font-semibold text-stone-900 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-60"
         >
           <option value="">بدون مختبَر محدد</option>
           {examinees.map((examinee) => (
@@ -270,7 +270,7 @@ export function ExamineePicker({
 
       {loadError ? (
         <div
-          className="mt-2 flex items-start justify-between gap-2 rounded-xl border border-rose-200 bg-rose-50/70 px-3 py-2 text-[11px] font-semibold leading-5 text-rose-700"
+          className="mt-2 flex items-start justify-between gap-2 rounded-lg border border-rose-300/70 bg-rose-50/70 px-3 py-2 text-[11px] font-semibold leading-5 text-rose-700"
           role="alert"
         >
           <span className="flex items-start gap-1.5">
@@ -289,7 +289,7 @@ export function ExamineePicker({
       ) : null}
 
       {addingNew ? (
-        <div className="mt-2 rounded-2xl border border-teal-200 bg-teal-50/60 p-3">
+        <div className="mt-2 rounded-lg border border-teal-300/60 bg-teal-50/60 p-3">
           <p className="flex items-center gap-1.5 text-[11px] font-bold text-teal-900">
             <UserPlus className="h-3.5 w-3.5" />
             إضافة مختبَر جديد
@@ -317,7 +317,7 @@ export function ExamineePicker({
                 disabled={adding || pickerDisabled}
                 maxLength={80}
                 placeholder="مثال: ش. عمر مجدي"
-                className="h-10 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-900 placeholder:font-normal placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-60"
+                className="h-10 w-full rounded-lg border border-stone-300 bg-[#fffdf8] px-3 text-sm font-semibold text-stone-900 placeholder:font-normal placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-60"
               />
             </div>
 

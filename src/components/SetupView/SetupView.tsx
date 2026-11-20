@@ -141,14 +141,19 @@ export function SetupView({
       <aside className="space-y-4 lg:sticky lg:top-24">
         <section
           id="test-settings-section"
-          className="rounded-3xl border border-stone-200/80 bg-white/90 p-5 shadow-sm shadow-stone-900/[0.03] sm:p-6"
+          className="relative overflow-hidden rounded-2xl border border-stone-300/70 bg-[#fbf7ee]/90 p-5 shadow-[0_18px_40px_-34px_rgba(24,37,31,0.55)] sm:p-6"
         >
+          <div
+            className="absolute inset-x-0 top-0 h-px bg-gradient-to-l from-transparent via-amber-500/60 to-transparent"
+            aria-hidden="true"
+          />
           <div className="flex items-start justify-between gap-2">
             <div>
-              <p className="text-[11px] font-bold tracking-wide text-teal-700">
+              <p className="flex items-center gap-2 text-[11px] font-bold text-amber-700">
+                <span className="step-mark">٢</span>
                 الخطوة الثانية
               </p>
-              <h2 className="mt-1 text-xl font-bold text-stone-900">إعدادات الاختبار</h2>
+              <h2 className="mt-2 text-2xl font-bold text-stone-900">إعدادات الاختبار</h2>
             </div>
             <button
               type="button"
@@ -295,7 +300,7 @@ export function SetupView({
       {/* شريط البدء العائم المتاح على كل الشاشات عبر createPortal لضمان ثباته فوق أي تحريك لصفحة الإعدادات */}
       {createPortal(
         <div
-          className="fixed inset-x-0 bottom-0 z-50 border-t border-stone-200/90 bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl dark:bg-[#0c1211]/95 print:hidden"
+          className="fixed inset-x-0 bottom-0 z-50 border-t border-amber-400/35 bg-[#10251e]/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] text-[#f4eedf] shadow-[0_-14px_40px_rgba(9,20,16,0.35)] backdrop-blur-xl print:hidden"
           dir="rtl"
           role="region"
           aria-label="شريط بدء الاختبار"
@@ -304,17 +309,17 @@ export function SetupView({
             <div className="flex min-w-0 flex-1 items-center gap-2.5">
               <span
                 className={cn(
-                  'grid h-9 w-9 shrink-0 place-items-center rounded-xl transition',
+                  'grid h-9 w-9 shrink-0 place-items-center rounded-lg border transition',
                   canStart
-                    ? 'bg-teal-700 text-white shadow-sm dark:bg-teal-600'
-                    : 'bg-stone-100 text-stone-400',
+                    ? 'border-amber-400/50 bg-amber-400/15 text-amber-300'
+                    : 'border-stone-600/60 bg-stone-700/30 text-stone-400',
                 )}
               >
                 <Sparkles className="h-4 w-4" />
               </span>
 
               <div className="min-w-0">
-                <p className="truncate text-xs font-bold text-stone-900 sm:text-sm">
+                <p className="truncate text-xs font-bold text-[#f7f2e6] sm:text-sm">
                   {canStart
                     ? stats.surahCount > 0
                       ? `${formatNumber(stats.surahCount)} سورة محددة (${formatNumber(stats.ayahCount)} آية)`
@@ -323,7 +328,7 @@ export function SetupView({
                         : `${formatNumber(stats.ayahCount)} آية في النطاق`
                     : 'اختر سورة أو جزءاً لبدء الاختبار'}
                 </p>
-                <p className="flex items-center gap-2 text-[11px] text-stone-500">
+                <p className="flex items-center gap-2 text-[11px] text-stone-400">
                   <span>
                     {canStart
                       ? `${formatNumber(plannedCount)} سؤال مخطط`
@@ -331,8 +336,8 @@ export function SetupView({
                   </span>
                   {studentName.trim() ? (
                     <>
-                      <span className="h-1 w-1 rounded-full bg-stone-300" />
-                      <span className="truncate font-semibold text-teal-700 dark:text-teal-400">
+                      <span className="h-1 w-1 rounded-full bg-amber-500/70" />
+                      <span className="truncate font-semibold text-amber-300">
                         المختبَر: {studentName.trim()}
                       </span>
                     </>
@@ -345,10 +350,10 @@ export function SetupView({
               <button
                 type="button"
                 onClick={scrollToSettings}
-                className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-50 px-3 text-xs font-semibold text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 dark:hover:bg-stone-200"
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-stone-600/70 bg-white/5 px-3 text-xs font-semibold text-stone-300 transition hover:border-stone-500 hover:bg-white/10 hover:text-white"
                 title="الانتقال لإعدادات الاختبار"
               >
-                <SlidersHorizontal className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                <SlidersHorizontal className="h-3.5 w-3.5 text-amber-400" />
                 <span className="hidden sm:inline">الإعدادات</span>
               </button>
 
@@ -357,8 +362,9 @@ export function SetupView({
                 onClick={onFloatingStartClick}
                 className={cn(
                   'min-h-10 px-5 text-xs font-bold shadow-md transition active:scale-95 sm:text-sm',
-                  !canStart &&
-                    'cursor-pointer bg-stone-500 opacity-70 hover:bg-stone-600 hover:opacity-90',
+                  canStart
+                    ? 'bg-amber-400 text-[#271b06] ring-amber-200/60 hover:bg-amber-300'
+                    : 'cursor-pointer bg-stone-600 text-stone-200 ring-white/10 hover:bg-stone-500',
                 )}
               >
                 <Play className="h-4 w-4 shrink-0 fill-current" />

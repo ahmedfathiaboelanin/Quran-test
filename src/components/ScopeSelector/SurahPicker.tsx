@@ -88,10 +88,10 @@ export function SurahPicker({ surahs, value, onChange }: SurahPickerProps) {
             type="button"
             onClick={() => setCategory(cat.id)}
             className={cn(
-              'rounded-full px-3 py-1 text-xs font-semibold transition',
+              'rounded-md px-2.5 py-1 text-xs font-semibold transition',
               category === cat.id
-                ? 'bg-teal-700 text-white shadow-sm'
-                : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80 hover:text-stone-900',
+                ? 'bg-teal-700 text-white shadow-sm shadow-teal-950/20'
+                : 'bg-stone-100 text-stone-600 ring-1 ring-stone-200/70 hover:bg-stone-200/80 hover:text-stone-900',
             )}
           >
             {cat.label}
@@ -107,7 +107,7 @@ export function SurahPicker({ surahs, value, onChange }: SurahPickerProps) {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="ابحث باسم السورة أو رقمها..."
-            className="h-10 w-full rounded-xl border border-stone-300 bg-white pr-9 pl-9 text-xs sm:text-sm text-stone-800 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+            className="h-10 w-full rounded-lg border border-stone-300 bg-white pr-9 pl-9 text-xs sm:text-sm text-stone-800 placeholder:text-stone-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
             aria-label="البحث في السور"
           />
           {query ? (
@@ -154,7 +154,7 @@ export function SurahPicker({ surahs, value, onChange }: SurahPickerProps) {
 
       <div className="max-h-[24rem] overflow-y-auto overscroll-contain pl-1">
         {filtered.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 p-8 text-center text-sm text-stone-500">
+          <div className="rounded-lg border border-dashed border-stone-300 bg-stone-50 p-8 text-center text-sm text-stone-500">
             لا توجد سورة تطابق بحثك.
           </div>
         ) : (
@@ -168,16 +168,16 @@ export function SurahPicker({ surahs, value, onChange }: SurahPickerProps) {
                   aria-pressed={isSelected}
                   onClick={() => toggleSurah(surah.number)}
                   className={cn(
-                    'group flex min-h-16 items-center gap-3 rounded-xl border p-2.5 text-right transition',
+                    'group flex min-h-16 items-center gap-3 rounded-lg border p-2.5 text-right transition',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2',
                     isSelected
-                      ? 'border-teal-500 bg-teal-50/80 shadow-sm shadow-teal-900/5'
-                      : 'border-stone-200 bg-white hover:border-teal-300 hover:bg-teal-50/30',
+                      ? 'border-amber-400/80 bg-amber-50/70 shadow-sm shadow-amber-900/5'
+                      : 'border-stone-200 bg-[#fbf7ee] hover:border-amber-400/60 hover:bg-amber-50/40',
                   )}
                 >
                   <span
                     className={cn(
-                      'grid h-9 w-9 shrink-0 place-items-center rounded-lg text-xs font-bold tabular-nums transition-colors',
+                      'grid h-9 w-9 shrink-0 place-items-center rounded-md text-xs font-bold tabular-nums transition-colors',
                       isSelected
                         ? 'bg-teal-700 text-white'
                         : 'bg-stone-100 text-stone-600 group-hover:bg-teal-100 group-hover:text-teal-800',
@@ -198,7 +198,7 @@ export function SurahPicker({ surahs, value, onChange }: SurahPickerProps) {
                     className={cn(
                       'grid h-5 w-5 shrink-0 place-items-center rounded-full border',
                       isSelected
-                        ? 'border-teal-600 bg-teal-600 text-white'
+                        ? 'border-teal-700 bg-teal-700 text-white'
                         : 'border-stone-300 bg-white text-transparent',
                     )}
                   >

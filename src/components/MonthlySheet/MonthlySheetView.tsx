@@ -53,7 +53,7 @@ function HeaderStat({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/15 bg-white/10 px-3.5 py-2.5 backdrop-blur-sm">
+    <div className="rounded-lg border border-amber-300/20 bg-white/[0.06] px-3.5 py-2.5 backdrop-blur-sm">
       <span className="flex items-center gap-1.5 text-[10px] font-semibold text-teal-100/80">
         <Icon className="h-3.5 w-3.5 text-amber-300" />
         {label}
@@ -65,7 +65,7 @@ function HeaderStat({
 
 function SetupNotice() {
   return (
-    <section className="rounded-3xl border border-amber-200/80 bg-[#fffdf7] p-5 shadow-sm shadow-stone-900/[0.03] sm:p-7">
+    <section className="rounded-xl border border-amber-300/60 bg-[#fbf7ee] p-5 shadow-[0_18px_40px_-34px_rgba(24,37,31,0.45)] sm:p-7">
       <span className="grid h-12 w-12 place-items-center rounded-2xl bg-amber-100 text-amber-800">
         <Database className="h-6 w-6" />
       </span>
@@ -89,7 +89,7 @@ function SetupNotice() {
             </p>
             <code
               dir="ltr"
-              className="mt-1.5 block overflow-x-auto rounded-xl border border-stone-200 bg-[#f8f5ee] px-3 py-2 text-left text-[11px] font-semibold text-teal-900"
+              className="mt-1.5 block overflow-x-auto rounded-xl border border-stone-200 bg-[#f2ecdf] px-3 py-2 text-left text-[11px] font-semibold text-teal-900"
             >
               supabase/migrations/20261114000000_monthly_tracking.sql
             </code>
@@ -106,7 +106,7 @@ function SetupNotice() {
             </p>
             <pre
               dir="ltr"
-              className="mt-1.5 overflow-x-auto rounded-xl border border-stone-200 bg-[#f8f5ee] px-3 py-2 text-left text-[11px] leading-6 text-stone-700"
+              className="mt-1.5 overflow-x-auto rounded-xl border border-stone-200 bg-[#f2ecdf] px-3 py-2 text-left text-[11px] leading-6 text-stone-700"
             >
               <code>{`VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 VITE_SUPABASE_ANON_KEY=YOUR_ANON_KEY`}</code>
@@ -142,8 +142,8 @@ VITE_SUPABASE_ANON_KEY=YOUR_ANON_KEY`}</code>
 
 function TableSkeleton() {
   return (
-    <div className="overflow-hidden rounded-3xl border border-stone-200/90 bg-[#fffdf7]">
-      <div className="flex items-center gap-2 border-b border-stone-200 bg-[#f8f5ee] px-4 py-3 text-xs font-semibold text-stone-500">
+    <div className="overflow-hidden rounded-xl border border-stone-300/70 bg-[#fbf7ee]">
+      <div className="flex items-center gap-2 border-b border-stone-200 bg-[#f2ecdf] px-4 py-3 text-xs font-semibold text-stone-500">
         <LoaderCircle className="h-3.5 w-3.5 animate-spin text-teal-600" />
         جارٍ تحميل سجلات الشهر…
       </div>
@@ -250,7 +250,7 @@ export function MonthlySheetView() {
 
   return (
     <div className="space-y-5">
-      <section className="relative overflow-hidden rounded-3xl border border-teal-900/10 bg-gradient-to-br from-teal-800 via-teal-700 to-emerald-900 p-5 text-white shadow-xl shadow-teal-950/15 sm:p-7">
+      <section className="relative overflow-hidden rounded-2xl border border-amber-400/25 bg-[#10251e] p-5 text-white shadow-[0_26px_60px_-32px_rgba(9,20,16,0.65)] sm:p-7">
         <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_10%_10%,#fef3c7_0,transparent_28%),radial-gradient(circle_at_90%_90%,#5eead4_0,transparent_30%)]" />
 
         <div className="relative">
@@ -367,7 +367,7 @@ export function MonthlySheetView() {
         data.loading ? (
           <TableSkeleton />
         ) : data.sheets.length === 0 ? (
-          <section className="rounded-3xl border border-dashed border-teal-300 bg-[#fffdf7] px-5 py-12 text-center shadow-sm shadow-stone-900/[0.02]">
+          <section className="rounded-xl border border-dashed border-amber-400/60 bg-[#fbf7ee] px-5 py-12 text-center shadow-sm shadow-stone-900/[0.02]">
             <span className="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-teal-100 text-teal-800">
               <CalendarPlus className="h-8 w-8" />
             </span>
@@ -413,7 +413,7 @@ export function MonthlySheetView() {
               </div>
             ) : null}
 
-            <section className="rounded-3xl border border-stone-200/90 bg-[#fffdf7] p-4 shadow-sm shadow-stone-900/[0.03]">
+            <section className="rounded-xl border border-stone-300/70 bg-[#fbf7ee] p-4 shadow-[0_18px_40px_-34px_rgba(24,37,31,0.45)]">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
                   <label

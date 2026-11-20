@@ -2,36 +2,47 @@ interface BrandMarkProps {
   className?: string;
 }
 
-/** A small geometric mihrab/book mark used as the app logo. */
+/** A mihrab-framed open book with an eight-point gilded star. */
 export function BrandMark({ className = 'h-11 w-11' }: BrandMarkProps) {
   return (
     <span
-      className={`relative inline-grid place-items-center overflow-hidden rounded-2xl bg-gradient-to-br from-teal-600 via-teal-700 to-emerald-900 shadow-lg shadow-teal-900/25 ${className}`}
+      className={`relative inline-grid place-items-center overflow-hidden rounded-xl border border-amber-500/45 bg-[#12352b] shadow-[0_6px_18px_-8px_rgba(18,53,43,0.7)] ${className}`}
       aria-hidden="true"
     >
       <svg viewBox="0 0 48 48" className="h-full w-full" fill="none">
-        <path
-          d="M10 13.5c4.2-1.7 8.5-1.7 13.5 0v23c-4.9-1.8-9.2-1.8-13.5 0v-23Z"
-          fill="#fef3c7"
-          fillOpacity="0.95"
+        <rect
+          x="4.75"
+          y="4.75"
+          width="38.5"
+          height="38.5"
+          rx="3.5"
+          stroke="#d8b46a"
+          strokeOpacity="0.34"
+          strokeWidth="0.8"
         />
         <path
-          d="M38 13.5c-4.2-1.7-8.5-1.7-13.5 0v23c4.9-1.8 9.2-1.8 13.5 0v-23Z"
-          fill="#fde68a"
-          fillOpacity="0.85"
+          d="M24 7.2l1.85 4.75 4.75 1.85-4.75 1.85L24 20.4l-1.85-4.75-4.75-1.85 4.75-1.85L24 7.2Z"
+          fill="#d8b46a"
         />
         <path
-          d="M24 13.5v23"
-          stroke="#0f766e"
-          strokeWidth="1.4"
+          d="M24 21.4c-3.1-1.9-7.1-2.35-11-1.3v15.2c3.9-1.05 7.9-0.6 11 1.3 3.1-1.9 7.1-2.35 11-1.3V20.1c-3.9-1.05-7.9-0.6-11 1.3Z"
+          fill="#f7efdc"
+          fillOpacity="0.94"
+        />
+        <path
+          d="M24 21.4v15.2"
+          stroke="#1f5442"
+          strokeWidth="0.9"
           strokeLinecap="round"
-          opacity="0.65"
+          opacity="0.7"
         />
         <path
-          d="M27.5 7.5a4 4 0 0 0 5.2 4.1A4.5 4.5 0 1 1 27.5 7.5Z"
-          fill="#fbbf24"
+          d="M17.2 25.6c2.2-0.55 4.4-0.4 6.2 0.5M30.8 25.6c-2.2-0.55-4.4-0.4-6.2 0.5"
+          stroke="#b3832e"
+          strokeWidth="0.8"
+          strokeLinecap="round"
+          opacity="0.5"
         />
-        <circle cx="35.2" cy="10.2" r="1.15" fill="#fef3c7" />
       </svg>
     </span>
   );
